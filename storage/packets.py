@@ -31,3 +31,21 @@ def insert_packets(device: str, packets: List[my_types.PACKET]):
             values,
         )
         conn.commit()
+
+def index_rssi_by_device_and_ssid(
+        device: str,
+        ssid: str
+    ) -> List[int]:
+
+    with storage.Connect() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT rssi
+            FROM packets
+            WHERE device == ?
+                AND ssid == ?
+        """, (device, ssid))
+        rows = cur.fetchall()
+        if rows:
+            return [row[0] for row in rows]
+        return []
