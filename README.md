@@ -6,7 +6,11 @@
 - **ESP32_05** ```-```
 
 ## Cхема данных
+
 ```
-id      device  tsf     rssi    channel type    subtype seq     src_mac dst_mac bssid   ssid
-INTEGER TEXT    TEXT    INTEGER INTEGER INTEGER INTEGER INTEGER TEXT    TEXT    TEXT    TEXT
+PACKETS:
+id              device      tsf     rssi    channel type    subtype seq     src_mac dst_mac bssid   ssid
+INTEGER         TEXT        TEXT    INTEGER INTEGER INTEGER INTEGER INTEGER TEXT    TEXT    TEXT    TEXT
+PRIMARY KEY     NOT NULL    
+AUTOINCREMENT
 ```
