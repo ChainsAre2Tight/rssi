@@ -6,7 +6,7 @@
 #define WIFI_SSID "dmitry-moosetop"
 #define WIFI_PASS "gQmB9LdM"
 #define SERVER_URL "http://10.42.0.1:5000/upload"
-#define DEVICE_NAME "ESP32_01"
+#define DEVICE_NAME "ESP32_05"
 
 #define MAX_PACKETS 500
 #define HOP_INTERVAL_MS 250

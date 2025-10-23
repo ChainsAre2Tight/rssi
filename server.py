@@ -20,7 +20,7 @@ def upload():
     if not packets:
         return "No packets", 400
 
-    storage.insert_packets(device, packets)
+    storage.insert_packets(config.MEASUREMENT_ID, device, packets)
 
     print(f"[UPLOAD] Received {len(packets)} packets from {device}")
     return jsonify({"status": "ok", "received": len(packets)}), 200

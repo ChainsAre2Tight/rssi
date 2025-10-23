@@ -2,11 +2,16 @@ import numpy as np
 
 import storage.packets
 
-a = storage.packets.index_rssi_by_device_and_ssid("ESP32_01", "Beeline_2G_F29921")
-rssi = np.array(a)
-print(rssi)
-print(np.mean(rssi))
-print(np.average(rssi))
-print(np.var(rssi))
-print(np.max(rssi))
-print(np.min(rssi))
+test = 3
+
+
+for device in storage.packets.index_devices(test, "dmitry-moosetop"):
+    a = storage.packets.index_rssi(test, device[0], "dmitry-moosetop")
+    rssi = np.array(a) + device[1]
+    # print(rssi)
+    print(device[0])
+    print("Mean:\t", np.mean(rssi))
+    print("Avg:\t", np.average(rssi))
+    print("Var:\t:", np.var(rssi))
+    print("Max:\t:", np.max(rssi))
+    print("Min:\t:", np.min(rssi))
