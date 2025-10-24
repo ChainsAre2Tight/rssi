@@ -142,7 +142,6 @@ model = calibrate_devices(
 model["rssi_values"] = {}
 model["positions"] = {}
 
-# Чтобы RBF знал позиции для визуализации:
 for dev in model["devices"]:
     model["positions"][dev] = data[dev]["position"]
     model["rssi_values"][dev] = index_rssi(
