@@ -31,7 +31,7 @@ class GainRBF:
         """dirs — массив углов [N,2]: (theta,phi), gains — [N]"""
         self.centers = dirs
         D = cdist(dirs, dirs, metric='euclidean')
-        K = np.exp(-(D) / (2 * self.sigma))
+        K = np.exp(-(D**2) / (2 * self.sigma**2))
         K_reg = K + lambda_reg * np.eye(len(K))
         self.weights = np.linalg.solve(K_reg, gains - self.G0)
 
@@ -40,7 +40,7 @@ class GainRBF:
         if self.centers is None:
             return np.full(len(dirs), self.G0)
         D = cdist(dirs, self.centers, metric='euclidean')
-        K = np.exp(-(D) / (2 * self.sigma))
+        K = np.exp(-(D**2) / (2 * self.sigma**2))
         return self.G0 + K @ self.weights
 
     def gain(self, direction_vec):
@@ -51,7 +51,7 @@ class GainRBF:
 # ============================================================
 # 3️⃣   Основная оптимизация
 # ============================================================
-def calibrate_devices(data_dict, n_pathloss=2.0):
+def calibrate_devices(data_dict, n_pathloss=2.0, K=0.0):
     devices = list(data_dict.keys())
     N = len(devices)
 
@@ -88,8 +88,8 @@ def calibrate_devices(data_dict, n_pathloss=2.0):
             res.append(m["rssi"] - (Pt[m["j"]] - pl))
         return np.array(res) - np.mean(res)
 
-    res = least_squares(residuals_power, Pt_init)
-    Pt = res.x - 80
+    res = least_squares(residuals_power, Pt_init + K)
+    Pt = res.x + K
 
     # Оценка направленных усилений
     gain_data = {i: {"dirs": [], "vals": []} for i in range(N)}

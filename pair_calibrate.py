@@ -3,7 +3,7 @@ import numpy as np
 import storage.packets, storage.positions
 import config
 
-devices = ["ESP32_02", "ESP32_03"]
+devices = ["ESP32_01", "ESP32_02", "ESP32_03"]
 data = {}
 
 base_position = np.array(storage.positions.get_device_position(
