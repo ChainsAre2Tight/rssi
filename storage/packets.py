@@ -54,24 +54,84 @@ def index_rssi(
             return [row[0] for row in rows]
         return []
 
-def index_devices(
+def index_devices_by_ssid(
         measurement_id: int,
         ssid: str,
-    ) -> List[Tuple[str, int]]:
+    ) -> List[my_types.DEVICE]:
 
-        with storage.Connect() as conn:
-            cur = conn.cursor()
-            cur.execute("""
-                SELECT packets.device, devices.gain
-                FROM packets
-                    INNER JOIN devices on devices.name = packets.device
-                WHERE
-                    packets.measurement_id = ?
-                    AND packets.ssid = ?
-                GROUP BY packets.device
-                HAVING count(1) > 0
-            """, (measurement_id, ssid,))
-            rows = cur.fetchall()
-            if rows:
-                return [(row[0], int(row[1])) for row in rows]
-            return []
+    with storage.Connect() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT
+                packets.device,
+                devices.description,
+                devices.gain,
+                devices.mac
+            FROM packets
+                INNER JOIN devices on devices.name = packets.device
+            WHERE
+                packets.measurement_id = ?
+                AND packets.ssid = ?
+            GROUP BY packets.device
+            HAVING count(1) > 0
+        """, (measurement_id, ssid,))
+        rows = cur.fetchall()
+        if rows:
+            return [{
+                "name": row[0],
+                "description": row[1],
+                "gain": row[2],
+                "mac": row[3],
+            } for row in rows]
+        return []
+
+def index_other_devices_by_device(
+        measurement_id: int,
+        device: str,
+    ) -> List[my_types.DEVICE]:
+
+    with storage.Connect() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT
+                devices.name,
+                devices.description,
+                devices.gain,
+                devices.mac
+            FROM packets
+                INNER JOIN devices on devices.mac = packets.src_mac
+            WHERE
+                packets.measurement_id = ?
+                AND packets.device = ? 
+            GROUP BY packets.src_mac
+            HAVING count(1) > 0
+        """, (measurement_id, device,))
+        rows = cur.fetchall()
+        if rows:
+            return [{
+                "name": row[0],
+                "description": row[1],
+                "gain": row[2],
+                "mac": row[3],
+            } for row in rows]
+        return []
+
+def index_rssi_by_device_and_mac(
+    measurement_id: int,
+    device: str,
+    src_mac: str,
+) -> List[int]:
+    with storage.Connect() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT rssi
+            FROM packets
+            WHERE
+                measurement_id = ?
+                AND device = ?
+                AND src_mac = ?
+        """, (measurement_id, device, src_mac))
+        rows = cur.fetchall()
+        if rows:
+            return [row[0] for row in rows]
+        return []

@@ -5,7 +5,7 @@ import storage.packets
 test = 3
 
 
-for device in storage.packets.index_devices(test, "dmitry-moosetop"):
+for device in storage.packets.index_devices_by_ssid(test, "dmitry-moosetop"):
     a = storage.packets.index_rssi(test, device[0], "dmitry-moosetop")
     rssi = np.array(a) + device[1]
     # print(rssi)

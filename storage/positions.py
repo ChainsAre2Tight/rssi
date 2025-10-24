@@ -1,6 +1,6 @@
 from storage.connection import Connect
 
-def get_device_position(measurement_id: int, device: str) -> tuple[str, float, float, float]:
+def get_device_position(measurement_id: int, device: str) -> tuple[float, float, float]:
     with Connect() as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -11,4 +11,4 @@ def get_device_position(measurement_id: int, device: str) -> tuple[str, float, f
                 AND device = ?
         """, (measurement_id, device,))
         row = cur.fetchone()
-        return row[0], row[1], row[2], row[3]
+        return row[0], row[1], row[2]

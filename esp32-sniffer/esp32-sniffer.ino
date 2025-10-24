@@ -3,11 +3,13 @@
 #include "esp_wifi.h"
 #include "Arduino.h"
 
+// ==== Настройки Wi-Fi и сервера ====
 #define WIFI_SSID "dmitry-moosetop"
 #define WIFI_PASS "gQmB9LdM"
 #define SERVER_URL "http://10.42.0.1:5000/upload"
 #define DEVICE_NAME "ESP32_05"
 
+// ==== Настройки сниффера ====
 #define MAX_PACKETS 500
 #define HOP_INTERVAL_MS 250
 #define NUM_CHANNELS 13
@@ -63,7 +65,14 @@ Packet parsePacket(wifi_promiscuous_pkt_t* pkt) {
     if (p.type == 0) { 
         uint8_t ssid_len = pkt->payload[37];
         if (ssid_len > 32) ssid_len = 32;
-        memcpy(p.ssid, pkt->payload + 38, ssid_len);
+
+        for (int i = 0; i < ssid_len; i++) {
+            char c = pkt->payload[38 + i];
+            if (c >= 32 && c <= 126)  // только печатаемые ASCII
+                p.ssid[i] = c;
+            else
+                p.ssid[i] = '?';  // заменяем "плохие" символы
+        }
         p.ssid[ssid_len] = '\0';
     }
 

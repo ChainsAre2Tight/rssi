@@ -11,3 +11,9 @@ class PACKET(t.TypedDict):
     dst: str
     bssid: str
     ssid: str
+
+class DEVICE(t.TypedDict):
+    name: str
+    description: str
+    gain: int
+    mac: str

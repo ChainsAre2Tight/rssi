@@ -10,6 +10,7 @@ def init_db():
                 name TEXT PRIMARY KEY,
                 description TEXT,
                 gain INTEGER,
+                mac TEXT UNIQUE
             )
         """)
         cursor.execute("""

@@ -9,31 +9,31 @@ import config
 matplotlib.use('QtAgg')
 
 def get_data() -> list[dict[str, str]]:
-    devices = storage.packets.index_devices(
+    devices = storage.packets.index_devices_by_ssid(
         config.VIZ_MEASUREMENT_ID,
         config.VIZ_SSID,
     )
     data = []
     for device in devices:
-        desc, x, y, z = storage.positions.get_device_position(
+        x, y, z = storage.positions.get_device_position(
             config.VIZ_MEASUREMENT_ID,
-            device[0],
+            device['name'],
         )
         base_rssi = storage.packets.index_rssi(
             config.VIZ_MEASUREMENT_ID,
-            device[0],
+            device["name"],
             "dmitry-moosetop",
         )
         rssi = storage.packets.index_rssi(
             config.VIZ_MEASUREMENT_ID,
-            device[0],
+            device["name"],
             config.VIZ_SSID,
         )
         data.append({
-            "name": f"{device[0]} {desc}",
+            "name": f"{device["name"]} {device["description"]}",
             "coords": np.array([x, y, z]),
-            "rssi_base": np.array(base_rssi) + device[1],
-            "rssi": np.array(rssi) + device[1],
+            "rssi_base": np.array(base_rssi) + device['gain'],
+            "rssi": np.array(rssi) + device['gain'],
         })
     return data
 
@@ -48,13 +48,15 @@ names = [d["name"] for d in data]
 base_position = np.array(storage.positions.get_device_position(
     config.VIZ_MEASUREMENT_ID,
     "dmitry-moosetop",
-)[1:])
+))
 
 
 # ---------- 2. Параметры ----------
 n = 3
-P0_values = np.linspace(-70, -30, 30)
-bounds = ((1, 6), (0, 3), (0, 3))  # кубический объём
+P0_values = np.linspace(-80, -50, 30)
+# bounds = ((0, 6), (0, 3), (0, 3))  # кубический объём
+# bounds = ((-1, 1), (-1, 1), (-1, 1))
+bounds = ((1.5, 3.5), (0, 2), (0, 2))  # кубический объём
 
 
 def compute_radius_2(power, gain, rssi):
@@ -156,15 +158,15 @@ ax = fig.add_subplot(111, projection='3d')
 ax.scatter(base_position[0], base_position[1], base_position[2], color='y', s=50)
 
 # Сферы (используем радиусы для среднего P0)
-# u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
+u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
 radii_mean = compute_radii(P0_values[len(P0_values)//2])
 for (x, y, z), r, name in zip(points, radii_mean, names):
-    # ax.plot_surface(
-    #     x + r*np.cos(u)*np.sin(v),
-    #     y + r*np.sin(u)*np.sin(v),
-    #     z + r*np.cos(v),
-    #     color='b', alpha=0.15
-    # )
+    ax.plot_surface(
+        x + r*np.cos(u)*np.sin(v),
+        y + r*np.sin(u)*np.sin(v),
+        z + r*np.cos(v),
+        color='b', alpha=0.15
+    )
     ax.scatter(x, y, z, color='r', s=50)
     ax.text(x, y, z, name, color='k', fontsize=9, ha='center', va='bottom')
 
