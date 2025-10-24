@@ -4,7 +4,7 @@ def get_device_position(measurement_id: int, device: str) -> tuple[float, float,
     with Connect() as conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT description, x, y, z
+            SELECT x, y, z
             FROM positions
             WHERE
                 measurement_id = ?
