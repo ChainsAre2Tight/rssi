@@ -14,3 +14,21 @@ INTEGER         TEXT        TEXT    INTEGER INTEGER INTEGER INTEGER INTEGER TEXT
 PRIMARY KEY     NOT NULL    
 AUTOINCREMENT
 ```
+
+## Пример .env
+```env
+DB_PATH="database.db"
+NAME="skibidi"
+
+ROOM_ID=1
+MEASUREMENT_ID=8
+
+VIZ_ROOM_ID=1
+VIZ_MEASUREMENT_ID=8
+VIZ_SSID="dmitry-moosetop"
+# VIZ_SSID="Leather club"
+# VIZ_SSID="Leather Club Mini"
+
+PATH_LOSS_EXPONENT=3
+ESP32_SIGNAL_STRENGTH=-80.0
+```
