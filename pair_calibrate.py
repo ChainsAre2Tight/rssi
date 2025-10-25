@@ -29,7 +29,7 @@ all_devices_that_found_a_network = [
 for device in all_devices_that_found_a_network:
     data[device["name"]] = {}
     data[device["name"]]["position"] = storage.positions.get_device_position(
-        config.MEASUREMENT_ID,
+        config.VIZ_MEASUREMENT_ID,
         device["name"]
     )
     data[device["name"]]["rssi"] = {}

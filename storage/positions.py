@@ -11,4 +11,6 @@ def get_device_position(measurement_id: int, device: str) -> tuple[float, float,
                 AND device = ?
         """, (measurement_id, device,))
         row = cur.fetchone()
-        return row[0], row[1], row[2]
+        if row:
+            return row[0], row[1], row[2]
+        return 0, 0, 0

@@ -112,6 +112,7 @@ class RSSILocalizer:
         d = np.linalg.norm(vec)
         d = max(d, self.config.d_min)
         Gi = -self.GainModels[device_id].gain(vec)  # dB
+        # Gi = 0
         # log-distance path loss (в dB): 10 n log10(d/d0)
         PL = 10.0 * self.config.n * np.log10(d / self.config.d0)
         r_model = P0 + Gi - PL
@@ -260,6 +261,85 @@ class RSSILocalizer:
         else:
             return estimated
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # нужно для 3D
+import numpy as np
+import itertools
+
+def plot_rssi_localization(positions: dict, result: dict, true_pos: tuple[float, float, float] = (0, 0, 0), title: str = "RSSI Localization Visualization"):
+    """
+    Визуализирует расположение датчиков и оценённую позицию источника.
+    
+    positions : dict {device_id: (x,y,z)} — координаты датчиков (в метрах)
+    result : dict, полученный от RSSILocalizer.localize() (см. out["estimated_position"])
+    title : str — заголовок графика
+    """
+    # Извлечь координаты
+    device_ids = list(positions.keys())
+    pos_array = np.array([positions[d] for d in device_ids])
+    est_pos = np.array(result["estimated_position"])
+
+    # Создать фигуру и 3D-ось
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_title(title, fontsize=12)
+
+    # --- Датчики (красные)
+    ax.scatter(pos_array[:, 0], pos_array[:, 1], pos_array[:, 2],
+               color='red', s=50, label='Devices')
+
+    # Подписи устройств
+    for dev, (x, y, z) in zip(device_ids, pos_array):
+        ax.text(x, y, z, dev, color='red', fontsize=9, weight='bold')
+
+    # --- Синие рёбра между всеми датчиками (или только по ближайшим, если хотите)
+    for (i, j) in itertools.combinations(range(len(device_ids)), 2):
+        x_vals = [pos_array[i, 0], pos_array[j, 0]]
+        y_vals = [pos_array[i, 1], pos_array[j, 1]]
+        z_vals = [pos_array[i, 2], pos_array[j, 2]]
+        ax.plot(x_vals, y_vals, z_vals, color='blue', linewidth=1, alpha=0.7)
+
+    # Вектор расхождения
+    vec = est_pos - true_pos
+    ax.quiver(
+        *true_pos,
+        *vec,
+        length=np.linalg.norm(vec),
+        normalize=True,
+        color='orange'
+    )
+    mid = true_pos + 0.5 * vec
+    ax.text(mid[0], mid[1], mid[2], f"{np.linalg.norm(vec):.1f} m", color='black')
+
+
+    # --- Предсказанная позиция источника (зелёная)
+    ax.scatter(est_pos[0], est_pos[1], est_pos[2],
+               color='green', s=80, label='Estimated Source', edgecolor='black')
+
+    # Реальная позиция
+    ax.scatter(*true_pos, color="yellow", s=50, label="True pos")
+
+    
+    # Настройки осей
+    all_points = np.vstack([pos_array, est_pos.reshape(1, 3)])
+    mins = np.min(all_points, axis=0)
+    maxs = np.max(all_points, axis=0)
+    pad = 0.2 * np.max(maxs - mins)
+    ax.set_xlim(mins[0] - pad, maxs[0] + pad)
+    ax.set_ylim(mins[1] - pad, maxs[1] + pad)
+    ax.set_zlim(mins[2] - pad, maxs[2] + pad)
+
+    ax.set_xlabel("X [m]")
+    ax.set_ylabel("Y [m]")
+    ax.set_zlabel("Z [m]")
+
+    ax.legend(loc='best')
+    ax.view_init(elev=20, azim=35)
+    ax.grid(True)
+
+    plt.tight_layout()
+    plt.show()
+
 
 # ----------------------------
 # Демонстрация / тест синтетических данных
@@ -269,6 +349,7 @@ if __name__ == "__main__":
     from pair_calibrate import data, base_position
     from calc_gain import calibrate_devices
     from storage.packets import index_rssi
+    import storage.positions
     import config
 
     model = calibrate_devices(
@@ -298,16 +379,22 @@ if __name__ == "__main__":
 
     # build config
     cfg = Config(n=n_true, d0=d0, h_G=1e-3, d_min=1e-2, p0_bounds=(-100, -30),
-                 tol=1e-8, max_iter=200, aggregate_rssi="median", compute_covariance=True)
+                 tol=1e-8, max_iter=200, aggregate_rssi="median", compute_covariance=False)
 
     # create localizer and run
     localizer = RSSILocalizer(devices=model["devices"], GainModels=model["GainModels"],
                               rssi_values=model["rssi_values"], positions=model["positions"], config=cfg)
 
-    out = localizer.localize(verbose=True, return_full=False)
+    # out = localizer.localize(verbose=True, return_full=False)
+    true_pos = storage.positions.get_device_position(
+        config.VIZ_MEASUREMENT_ID,
+        config.VIZ_SSID,
+    )
+    out = localizer.localize(verbose=False, return_full=False)
+    plot_rssi_localization(model["positions"], out, true_pos)
 
-    print("\nTrue position:", tuple(x_true.tolist()), "True P0:", P0_true)
-    print("Estimated:", out["estimated_position"], "Estimated P0:", out["estimated_P0"])
-    print("Converged:", out["converged"], "Cost:", out["cost"])
-    if out.get("covariance") is not None:
-        print("Covariance (4x4) approx:\n", out["covariance"])
+    # # print("\nTrue position:", tuple(x_true.tolist()), "True P0:", P0_true)
+    # print("Estimated:", out["estimated_position"], "Estimated P0:", out["estimated_P0"])
+    # print("Converged:", out["converged"], "Cost:", out["cost"])
+    # if out.get("covariance") is not None:
+    #     print("Covariance (4x4) approx:\n", out["covariance"])

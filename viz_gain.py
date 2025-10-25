@@ -88,4 +88,4 @@ model = calibrate_devices(
 for dev in model["devices"]:
     model["GainModels"][dev].positions = np.array(data[dev]["position"])
 
-plot_devices_with_gain(model, scale_gain=1, base_position=base_position)
+plot_devices_with_gain(model, scale_gain=0.8, base_position=base_position)

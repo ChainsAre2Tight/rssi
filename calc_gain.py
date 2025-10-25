@@ -33,6 +33,7 @@ class GainRBF:
         D = cdist(dirs, dirs, metric='euclidean')
         K = np.exp(-(D**2) / (2 * self.sigma**2))
         K_reg = K + lambda_reg * np.eye(len(K))
+        # g1 = np.median(gains)
         self.weights = np.linalg.solve(K_reg, gains - self.G0)
 
     def predict(self, dirs):
