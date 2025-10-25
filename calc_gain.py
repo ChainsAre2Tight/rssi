@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.optimize import least_squares
+from scipy.special import sph_harm
 
 # ============================================================
 # 1️⃣   Расчёт вспомогательных геометрических параметров
@@ -30,6 +31,9 @@ class GainRBF:
     def fit(self, dirs, gains, lambda_reg=0.1):
         """dirs — массив углов [N,2]: (theta,phi), gains — [N]"""
         self.centers = dirs
+        if self.G0 == 0.0:
+            weights = np.sin(dirs[:, 0])
+            self.G0 = np.average(gains, weights=weights)
         D = cdist(dirs, dirs, metric='euclidean')
         K = np.exp(-(D**2) / (2 * self.sigma**2))
         K_reg = K + lambda_reg * np.eye(len(K))
@@ -43,6 +47,119 @@ class GainRBF:
         D = cdist(dirs, self.centers, metric='euclidean')
         K = np.exp(-(D**2) / (2 * self.sigma**2))
         return self.G0 + K @ self.weights
+
+    def gain(self, direction_vec):
+        """Возвращает усиление в направлении (x,y,z)"""
+        theta, phi = spherical_angles(direction_vec)
+        return float(self.predict(np.array([[theta, phi]])))
+
+class GainSH:
+    def __init__(self, l_max=10, G0=0.0):
+        """
+        l_max — максимальный порядок сферических гармоник.
+        G0 — базовое усиление (смещение).
+        """
+        self.l_max = l_max
+        self.G0 = G0
+        self.coeffs = None  # коэффициенты [complex]
+        self.lm_list = None
+
+    def _design_matrix(self, dirs):
+        """Строит матрицу базисных функций Y_lm для всех направлений dirs."""
+        thetas = dirs[:, 0]
+        phis = dirs[:, 1]
+        Y = []
+        lm_list = []
+        for l in range(self.l_max + 1):
+            for m in range(-l, l + 1):
+                Ylm = sph_harm(m, l, phis, thetas)  # Y_lm(phi, theta)
+                Y.append(Ylm)
+                lm_list.append((l, m))
+        Y = np.vstack(Y).T  # форма [N, n_basis]
+        return Y, lm_list
+
+    def fit(self, dirs, gains, lambda_reg=0.1):
+        """
+        dirs — массив углов [N,2]: (theta, phi)
+        gains — вектор значений усиления [N]
+        lambda_reg — регуляризация (ridge)
+        """
+        if self.G0 == 0.0:
+            weights = np.sin(dirs[:, 0])
+            self.G0 = np.average(gains, weights=weights)
+        Y, self.lm_list = self._design_matrix(dirs)
+        N_basis = Y.shape[1]
+
+        # Решаем (Y^H Y + λI)a = Y^H (g - G0)
+        A = Y.conj().T @ Y + lambda_reg * np.eye(N_basis)
+        b = Y.conj().T @ (gains - self.G0)
+        self.coeffs = np.linalg.solve(A, b)
+
+    def predict(self, dirs):
+        """Оценка усиления в направлениях dirs [M,2]"""
+        if self.coeffs is None:
+            return np.full(len(dirs), self.G0)
+
+        Y, _ = self._design_matrix(dirs)
+        g_pred = self.G0 + np.real(Y @ self.coeffs)
+        return g_pred
+
+    def gain(self, direction_vec):
+        """Возвращает усиление в направлении (x,y,z)"""
+        theta, phi = spherical_angles(direction_vec)
+        return float(self.predict(np.array([[theta, phi]])))
+
+class GainIDW:
+    def __init__(self, power=2, G0=0.0, eps=1e-6):
+        """
+        power — показатель для весов 1/d^power,
+        G0 — базовое усиление (смещение),
+        eps — минимальное расстояние для избежания деления на ноль.
+        """
+        self.power = power
+        self.G0 = G0
+        self.eps = eps
+        self.centers = None
+        self.gains = None
+
+    def fit(self, dirs, gains, lambda_reg=None):
+        """
+        dirs — массив углов [N,2]: (theta, phi)
+        gains — значения усиления [N]
+        lambda_reg — не используется, для совместимости с интерфейсом
+        """
+        self.centers = dirs
+        self.gains = gains
+        if self.G0 == 0.0:
+            weights = np.sin(dirs[:, 0])
+            self.G0 = np.average(gains, weights=weights)
+
+    def predict(self, dirs):
+        """Оценка усиления в направлениях dirs [M,2]"""
+        
+        if self.centers is None:
+            return np.full(len(dirs), self.G0)
+
+        # Переводим (theta, phi) -> единичный вектор
+        def sph2cart(th, ph):
+            return np.stack([
+                np.sin(th) * np.cos(ph),
+                np.sin(th) * np.sin(ph),
+                np.cos(th)
+            ], axis=-1)
+
+        Xq = sph2cart(dirs[:, 0], dirs[:, 1])
+        Xc = sph2cart(self.centers[:, 0], self.centers[:, 1])
+
+        # Угловое расстояние (по великой окружности)
+        cos_dist = np.clip(np.dot(Xq, Xc.T), -1.0, 1.0)
+        D = np.arccos(cos_dist)
+
+        # Вес = 1 / (D^p), с обработкой нулевых расстояний
+        W = 1.0 / np.maximum(D, self.eps) ** self.power
+        W /= np.sum(W, axis=1, keepdims=True)  # нормализация
+
+        return self.G0 + W @ (self.gains - self.G0)
 
     def gain(self, direction_vec):
         """Возвращает усиление в направлении (x,y,z)"""
@@ -89,7 +206,7 @@ def calibrate_devices(data_dict, n_pathloss=2.0, K=0.0):
             res.append(m["rssi"] - (Pt[m["j"]] - pl))
         return np.array(res) - np.mean(res)
 
-    res = least_squares(residuals_power, Pt_init + K)
+    res = least_squares(residuals_power, Pt_init)
     Pt = res.x + K
 
     # Оценка направленных усилений
