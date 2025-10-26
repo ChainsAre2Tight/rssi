@@ -150,4 +150,4 @@ for dev in model["devices"]:
         config.VIZ_SSID,
     )
 
-plot_signal_surfaces(model, 2, -60)
+plot_signal_surfaces(model, 2, -50)

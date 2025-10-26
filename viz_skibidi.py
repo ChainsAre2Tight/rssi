@@ -111,7 +111,7 @@ class RSSILocalizer:
         vec = x - s  # радиус-вектор от датчика к источнику, глобальная система; GainModel принимает локальный vec
         d = np.linalg.norm(vec)
         d = max(d, self.config.d_min)
-        Gi = -self.GainModels[device_id].gain(vec)  # dB
+        Gi = self.GainModels[device_id].gain(vec)  # dB
         # Gi = 0
         # log-distance path loss (в dB): 10 n log10(d/d0)
         PL = 10.0 * self.config.n * np.log10(d / self.config.d0)
