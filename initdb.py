@@ -9,7 +9,6 @@ def init_db():
             CREATE TABLE IF NOT EXISTS devices (
                 name TEXT PRIMARY KEY,
                 description TEXT,
-                gain INTEGER,
                 mac TEXT UNIQUE
             )
         """)
@@ -60,6 +59,7 @@ def init_db():
                 dst_mac TEXT,
                 bssid TEXT,
                 ssid TEXT,
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (device) REFERENCES devices(name),
                 FOREIGN KEY (measurement_id) REFERENCES measurement(id)
             )

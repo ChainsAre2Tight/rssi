@@ -215,10 +215,13 @@ def calibrate_devices(data_dict, n_pathloss=2.0, K=0.0):
         pl = path_loss(m["d"], n=n_pathloss)
         base = m["rssi"] + pl - Pt[m["j"]]
         # равномерно делим вклад между i и j
+        mid = (Pt[m["i"]] + Pt[m["j"]]) / 2
         gain_data[m["i"]]["dirs"].append(m["angles_ij"])
-        gain_data[m["i"]]["vals"].append(base / 2)
+        gain_data[m["i"]]["vals"].append(base + (mid - Pt[m["i"]]))
+        # gain_data[m["i"]]["vals"].append(base / 2)
         gain_data[m["j"]]["dirs"].append(m["angles_ji"])
-        gain_data[m["j"]]["vals"].append(base / 2)
+        gain_data[m["j"]]["vals"].append(base + (mid - Pt[m["j"]]))
+        # gain_data[m["j"]]["vals"].append(base / 2)
     
     for i in range(N):
             dirs = np.array(gain_data[i]["dirs"])

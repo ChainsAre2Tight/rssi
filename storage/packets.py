@@ -65,7 +65,6 @@ def index_devices_by_ssid(
             SELECT
                 packets.device,
                 devices.description,
-                devices.gain,
                 devices.mac
             FROM packets
                 INNER JOIN devices on devices.name = packets.device
@@ -80,8 +79,7 @@ def index_devices_by_ssid(
             return [{
                 "name": row[0],
                 "description": row[1],
-                "gain": row[2],
-                "mac": row[3],
+                "mac": row[2],
             } for row in rows]
         return []
 
@@ -96,7 +94,6 @@ def index_other_devices_by_device(
             SELECT
                 devices.name,
                 devices.description,
-                devices.gain,
                 devices.mac
             FROM packets
                 INNER JOIN devices on devices.mac = packets.src_mac
@@ -111,8 +108,7 @@ def index_other_devices_by_device(
             return [{
                 "name": row[0],
                 "description": row[1],
-                "gain": row[2],
-                "mac": row[3],
+                "mac": row[2],
             } for row in rows]
         return []
 

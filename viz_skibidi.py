@@ -108,7 +108,7 @@ class RSSILocalizer:
         device_id: id датчика
         """
         s = self.positions[device_id]
-        vec = x - s  # радиус-вектор от датчика к источнику, глобальная система; GainModel принимает локальный vec
+        vec = -(x - s)  # радиус-вектор от датчика к источнику, глобальная система; GainModel принимает локальный vec
         d = np.linalg.norm(vec)
         d = max(d, self.config.d_min)
         Gi = self.GainModels[device_id].gain(vec)  # dB
@@ -351,9 +351,9 @@ if __name__ == "__main__":
     from storage.packets import index_rssi
     import storage.positions
     import config
-
+    d = data()
     model = calibrate_devices(
-        data,
+        d,
         config.PATH_LOSS_EXPONENT,
         config.ESP32_SIGNAL_STRENGTH
     )
@@ -362,7 +362,7 @@ if __name__ == "__main__":
     model["positions"] = {}
 
     for dev in model["devices"]:
-        model["positions"][dev] = data[dev]["position"]
+        model["positions"][dev] = d[dev]["position"]
         model["rssi_values"][dev] = index_rssi(
             config.VIZ_MEASUREMENT_ID,
             dev,

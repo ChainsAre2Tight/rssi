@@ -132,9 +132,9 @@ from pair_calibrate import data, base_position
 from calc_gain import calibrate_devices
 from storage.packets import index_rssi
 import config
-
+d = data()
 model = calibrate_devices(
-    data,
+    d,
     config.PATH_LOSS_EXPONENT,
     config.ESP32_SIGNAL_STRENGTH
 )
@@ -143,11 +143,11 @@ model["rssi_values"] = {}
 model["positions"] = {}
 
 for dev in model["devices"]:
-    model["positions"][dev] = data[dev]["position"]
+    model["positions"][dev] = d[dev]["position"]
     model["rssi_values"][dev] = index_rssi(
         config.VIZ_MEASUREMENT_ID,
         dev,
         config.VIZ_SSID,
     )
 
-plot_signal_surfaces(model, 2, -50)
+plot_signal_surfaces(model, 2, -60)

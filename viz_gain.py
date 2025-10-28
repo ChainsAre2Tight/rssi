@@ -78,14 +78,15 @@ def plot_devices_with_gain(model, scale_gain=0.1, base_position=(0, 0, 0)):
 
 from pair_calibrate import data, base_position
 import config
+d = data()
 model = calibrate_devices(
-    data,
+    d,
     config.PATH_LOSS_EXPONENT,
     config.ESP32_SIGNAL_STRENGTH
 )
 
 # Чтобы RBF знал позиции для визуализации:
 for dev in model["devices"]:
-    model["GainModels"][dev].positions = np.array(data[dev]["position"])
+    model["GainModels"][dev].positions = np.array(d[dev]["position"])
 
-plot_devices_with_gain(model, scale_gain=2, base_position=base_position)
+plot_devices_with_gain(model, scale_gain=1, base_position=base_position)
