@@ -346,8 +346,8 @@ def plot_rssi_localization(positions: dict, result: dict, true_pos: tuple[float,
 # ----------------------------
 if __name__ == "__main__":
     
-    from pair_calibrate import data, base_position
-    from calc_gain import calibrate_devices
+    from compute.pair_calibrate import data, base_position
+    from compute.calc_gain import calibrate_devices
     from storage.packets import index_rssi
     import storage.positions
     import config

@@ -128,8 +128,8 @@ def plot_signal_surfaces(model, n=2.5, K_db=0.0):
 # Пример использования
 # ------------------------------
 
-from pair_calibrate import data, base_position
-from calc_gain import calibrate_devices
+from compute.pair_calibrate import data, base_position
+from compute.calc_gain import calibrate_devices
 from storage.packets import index_rssi
 import config
 d = data()

@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from calc_gain import calibrate_devices
+from compute.calc_gain import calibrate_devices
 
 def plot_devices_with_gain(model, scale_gain=0.1, base_position=(0, 0, 0)):
     """
@@ -76,7 +76,7 @@ def plot_devices_with_gain(model, scale_gain=0.1, base_position=(0, 0, 0)):
 # direction = np.array([0, 1.0, 0.0])  # направление на произвольную точку
 # print(G_A.gain(direction))
 
-from pair_calibrate import data, base_position
+from compute.pair_calibrate import data, base_position
 import config
 d = data()
 model = calibrate_devices(
