@@ -52,11 +52,15 @@ def error_one(measurement_id: int, ssid: str):
         ssid,
     )
     out = localizer.localize(verbose=False, return_full=False)["estimated_position"]
-    return np.linalg.norm(np.array(true_pos)-np.array(out)), np.degrees(angular_error(bbox, true_pos, out))
+    deviation = np.linalg.norm(np.array(true_pos)-np.array(out))
+    angle = np.degrees(angular_error(bbox, true_pos, out))
+    print(f"{measurement_id},\t{ssid:.12},\t{true_pos[0]:.1f},\t{true_pos[1]:.1f},\t{true_pos[2]:.1f},\t{out[0]:.1f},\t{out[1]:.1f},\t{out[2]:.1f},\t{deviation:.1f},\t{angle:.1f}")
+    return deviation, angle
 
 if __name__ == "__main__":
+    print("MeasID,\tSSID,\t\tTrueX,\tTrueY,\tTrueZ,\tLocX,\tLocY,\tLocZ,\tDiff(m),\tAngle,\t")
     s = []
-    for i in range(7, 11):
+    for i in range(5, 13):
         for ssid in ["dmitry-moosetop", "Leather club", "Leather Club Mini"]:
             s.append(error_one(i, ssid))
     
