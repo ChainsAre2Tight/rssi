@@ -8,6 +8,7 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
         (
             measurement_id,
             device,
+            pkt.get("time", 123),
             str(pkt.get("ts", "")),
             pkt.get("rssi", 0),
             pkt.get("ch", 0),
@@ -25,9 +26,9 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
         cur = conn.cursor()
         cur.executemany("""
             INSERT INTO packets (
-                measurement_id, device, tsf, rssi, channel, type,
+                measurement_id, device, time, tsf, rssi, channel, type,
                 subtype, seq, src_mac, dst_mac, bssid, ssid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, 
             values,
         )

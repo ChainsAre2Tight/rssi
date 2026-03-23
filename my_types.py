@@ -1,6 +1,7 @@
 import typing as t
 
 class PACKET(t.TypedDict):
+    time: int
     ts: str
     rssi: int
     ch: int

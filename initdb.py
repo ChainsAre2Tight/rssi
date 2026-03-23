@@ -49,6 +49,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 measurement_id INTEGER,
                 device TEXT,
+                time INTEGER,
                 tsf TEXT,
                 rssi INTEGER,
                 channel INTEGER,

@@ -1,11 +1,13 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include "esp_sntp.h"
 #include "esp_wifi.h"
 #include "Arduino.h"
 
 // ==== Настройки Wi-Fi и сервера ====
 #define WIFI_SSID "dmitry-moosetop"
 #define WIFI_PASS "gQmB9LdM"
+#define SNTP_SERVER "10.42.0.1"
 #define SERVER_URL "http://10.42.0.1:5000/upload"
 #define DEVICE_NAME "ESP32_05"
 
@@ -15,6 +17,7 @@
 #define NUM_CHANNELS 13
 
 struct Packet {
+    time_t time;
     uint8_t src_mac[6];
     uint8_t dst_mac[6];
     uint8_t bssid[6];
@@ -45,6 +48,8 @@ String jsonEscape(const char* str) {
 Packet parsePacket(wifi_promiscuous_pkt_t* pkt) {
     Packet p;
     memset(&p, 0, sizeof(Packet));
+    
+    time(&p.time);
 
     wifi_pkt_rx_ctrl_t ctrl = pkt->rx_ctrl;
     p.rssi = ctrl.rssi;
@@ -130,6 +135,58 @@ void resumeSniffer() {
     Serial.println("[SNIFFER] Promiscuous ENABLED");
 }
 
+void syncSNTP() {
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    Serial.print("[WIFI] Connecting for SNTP sync...");
+    int retry = 0;
+    digitalWrite(LED_BUILTIN, LOW);
+    while (WiFi.status() != WL_CONNECTED) {
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(300);
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(200);
+        Serial.print(".");
+        retry++;
+    }
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println();
+
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("[WIFI] Failed to connect");
+        return;
+    }
+    delay(50);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(50);
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("[WIFI] Connected, syncing time...");
+    sntp_set_sync_interval(1 * 60 * 60 * 1000UL);  // 1 hour
+    sntp_set_time_sync_notification_cb(notify);
+    esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, SNTP_SERVER);
+    esp_sntp_init();
+    // setTimezone();
+    wait4SNTP();
+}
+
+void printTime() {
+    struct tm timeinfo;
+    getLocalTime(&timeinfo);
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+}
+
+void notify(struct timeval* t) {
+    Serial.println("time synchronized");
+    printTime();
+}
+
+void wait4SNTP() {
+    while (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED) {
+        delay(100);
+        Serial.println("waiting ...");
+    }
+}
+
 void sendBatch() {
     if (activeCount == 0) {
         Serial.println("[UPLOAD] No packets to send");
@@ -192,6 +249,7 @@ void sendBatch() {
             String ssidSafe = buffer[i].ssid[0] ? jsonEscape(buffer[i].ssid) : "";
 
             json += "{";
+            json += "\"time\":" + String(buffer[i].time) + ",";
             json += "\"ts\":" + String(buffer[i].tsf) + ",";
             json += "\"rssi\":" + String(buffer[i].rssi) + ",";
             json += "\"ch\":" + String(buffer[i].channel) + ",";
@@ -231,6 +289,7 @@ void setup() {
     Serial.begin(115200);
     initSniffer();
     digitalWrite(LED_BUILTIN, HIGH);
+    syncSNTP();
 }
 
 unsigned long lastUpload = 0;
