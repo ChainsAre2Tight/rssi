@@ -165,7 +165,8 @@ void syncSNTP() {
     esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
     esp_sntp_setservername(0, SNTP_SERVER);
     esp_sntp_init();
-    // setTimezone();
+    setenv("TZ", "MSK-3", 1);
+    tzset();
     wait4SNTP();
 }
 
