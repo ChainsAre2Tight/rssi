@@ -3,6 +3,7 @@ import typing as t
 class PACKET(t.TypedDict):
     time: int
     rssi: int
+    noise_floor: int
     ch: int
     type: int
     sub: int
@@ -15,6 +16,7 @@ class PACKET(t.TypedDict):
 class CSI_PACKET(t.TypedDict):
     time: int
     rssi: int
+    noise_floor: int
     ch: int
     type: int
     sub: int
@@ -22,6 +24,7 @@ class CSI_PACKET(t.TypedDict):
     src: str
     dst: str
     bssid: str
+    csi: list[int]
 
 class DEVICE(t.TypedDict):
     name: str

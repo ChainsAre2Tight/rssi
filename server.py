@@ -12,12 +12,14 @@ app = Flask(config.NAME)
 def upload_csi():
     data = request.get_json()
     if not data:
+        print(1, request.data)
         return "Invalid JSON", 400
 
     device = data.get("device", "")
     packets: List[my_types.CSI_PACKET] = data.get("packets", [])
 
     if not packets:
+        print(2, request.data)
         return "No packets", 400
 
     storage.insert_csi_packets(config.MEASUREMENT_ID, device, packets)

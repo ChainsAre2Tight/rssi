@@ -21,7 +21,7 @@
 
 // ==== Настройки сниффера ====
 #define MAX_PACKETS 500
-#define HOP_INTERVAL_MS 500
+#define HOP_INTERVAL_MS 1000
 #define NUM_CHANNELS 13
 
 #define UPLOAD_INTERVAL 10000 // 10 секунд

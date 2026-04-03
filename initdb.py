@@ -51,6 +51,7 @@ def init_db():
                 device TEXT,
                 time INTEGER,
                 rssi INTEGER,
+                noise_floor INTEGER,
                 channel INTEGER,
                 type INTEGER,
                 subtype INTEGER,
@@ -71,6 +72,7 @@ def init_db():
                 device TEXT,
                 time INTEGER,
                 rssi INTEGER,
+                noise_floor INTEGER,
                 channel INTEGER,
                 type INTEGER,
                 subtype INTEGER,
@@ -78,6 +80,7 @@ def init_db():
                 src_mac TEXT,
                 dst_mac TEXT,
                 bssid TEXT,
+                csi TEXT,
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (device) REFERENCES devices(name),
                 FOREIGN KEY (measurement_id) REFERENCES measurement(id)

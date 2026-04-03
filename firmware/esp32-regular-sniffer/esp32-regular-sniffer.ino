@@ -14,6 +14,7 @@ struct Packet {
     uint8_t dst_mac[6];
     uint8_t bssid[6];
     int rssi;
+    int noise_floor;
     int channel;
     int type;
     int subtype;
@@ -48,6 +49,7 @@ void packetHandler(void* buf, wifi_promiscuous_pkt_type_t type) {
 
     wifi_pkt_rx_ctrl_t ctrl = pkt->rx_ctrl;
     p.rssi = ctrl.rssi;
+    p.noise_floor = ctrl.noise_floor;
     p.channel = ctrl.channel;
 
     memcpy(p.src_mac, pkt->payload + 10, 6);
@@ -62,12 +64,43 @@ void packetHandler(void* buf, wifi_promiscuous_pkt_type_t type) {
 
     p.seq = (((pkt->payload[22] << 8) | pkt->payload[23])) >> 4;
 
-    if (p.type == 0) { 
-        uint8_t ssid_len = pkt->payload[37];
+    if (p.type == 0 && (
+        p.subtype == 0 || p.subtype == 2 || p.subtype == 4 || p.subtype == 5 || p.subtype == 8
+        )
+    ) { 
+        int ssid_start = -1;  // default: not present / unknown
+
+        switch (p.subtype) {
+            case 0: // Association Request
+                ssid_start = 28; // 24 + 4
+                break;
+
+            case 2: // Reassociation Request
+                ssid_start = 34; // 24 + 10
+                break;
+
+            case 4: // Probe Request
+                ssid_start = 24; // 24 + 0
+                break;
+
+            case 5: // Probe Response
+                ssid_start = 36; // 24 + 12
+                break;
+
+            case 8: // Beacon
+                ssid_start = 36; // 24 + 12
+                break;
+
+            default:
+                ssid_start = -1; // no SSID in this subtype
+                break;
+        }
+
+        uint8_t ssid_len = pkt->payload[ssid_start+1];
         if (ssid_len > 32) ssid_len = 32;
 
         for (int i = 0; i < ssid_len; i++) {
-            char c = pkt->payload[38 + i];
+            char c = pkt->payload[ssid_start + i + 2];
             if (c >= 32 && c <= 126)  // только печатаемые ASCII
                 p.ssid[i] = c;
             else
@@ -163,6 +196,7 @@ void sendBatch() {
             json += "{";
             json += "\"time\":" + String(buffer[i].time) + ",";
             json += "\"rssi\":" + String(buffer[i].rssi) + ",";
+            json += "\"noise_floor\":" + String(buffer[i].noise_floor) + ",";
             json += "\"ch\":" + String(buffer[i].channel) + ",";
             json += "\"type\":" + String(buffer[i].type) + ",";
             json += "\"sub\":" + String(buffer[i].subtype) + ",";
@@ -199,9 +233,9 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     Serial.begin(115200);
     digitalWrite(LED_BUILTIN, HIGH);
-    // syncSNTP();
+    syncSNTP();
     initSniffer();
-    // xTaskCreatePinnedToCore(channelHoppingTask, "ChannelHopping", 2048, NULL, 1, NULL, 1);
+    xTaskCreatePinnedToCore(channelHoppingTask, "ChannelHopping", 2048, NULL, 1, NULL, 1);
 }
 
 unsigned long lastUpload = 0;

@@ -10,6 +10,7 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
             device,
             pkt.get("time", 123),
             pkt.get("rssi", 0),
+            pkt.get("noise_floor", 0),
             pkt.get("ch", 0),
             pkt.get("type", 0),
             pkt.get("sub", 0),
@@ -25,9 +26,9 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
         cur = conn.cursor()
         cur.executemany("""
             INSERT INTO packets (
-                measurement_id, device, time, rssi, channel, type,
+                measurement_id, device, time, rssi, noise_floor, channel, type,
                 subtype, seq, src_mac, dst_mac, bssid, ssid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, 
             values,
         )
@@ -40,6 +41,7 @@ def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.
             device,
             pkt.get("time", 123),
             pkt.get("rssi", 0),
+            pkt.get("noise_floor", 0),
             pkt.get("ch", 0),
             pkt.get("type", 0),
             pkt.get("sub", 0),
@@ -47,6 +49,7 @@ def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.
             pkt.get("src", ""),
             pkt.get("dst", ""),
             pkt.get("bssid", ""),
+            ",".join([str(value) for value in pkt.get("csi", [])]),
         )
         for pkt in packets
     ]
@@ -54,9 +57,9 @@ def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.
         cur = conn.cursor()
         cur.executemany("""
             INSERT INTO csi_packets (
-                measurement_id, device, time, rssi, channel, type,
-                subtype, seq, src_mac, dst_mac, bssid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                measurement_id, device, time, rssi, noise_floor, channel, type,
+                subtype, seq, src_mac, dst_mac, bssid, csi
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, 
             values,
         )
