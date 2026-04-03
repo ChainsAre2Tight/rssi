@@ -50,7 +50,6 @@ def init_db():
                 measurement_id INTEGER,
                 device TEXT,
                 time INTEGER,
-                tsf TEXT,
                 rssi INTEGER,
                 channel INTEGER,
                 type INTEGER,
@@ -60,6 +59,25 @@ def init_db():
                 dst_mac TEXT,
                 bssid TEXT,
                 ssid TEXT,
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (device) REFERENCES devices(name),
+                FOREIGN KEY (measurement_id) REFERENCES measurement(id)
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS csi_packets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                measurement_id INTEGER,
+                device TEXT,
+                time INTEGER,
+                rssi INTEGER,
+                channel INTEGER,
+                type INTEGER,
+                subtype INTEGER,
+                seq INTEGER,
+                src_mac TEXT,
+                dst_mac TEXT,
+                bssid TEXT,
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (device) REFERENCES devices(name),
                 FOREIGN KEY (measurement_id) REFERENCES measurement(id)

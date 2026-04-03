@@ -9,7 +9,6 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
             measurement_id,
             device,
             pkt.get("time", 123),
-            str(pkt.get("ts", "")),
             pkt.get("rssi", 0),
             pkt.get("ch", 0),
             pkt.get("type", 0),
@@ -26,9 +25,38 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
         cur = conn.cursor()
         cur.executemany("""
             INSERT INTO packets (
-                measurement_id, device, time, tsf, rssi, channel, type,
+                measurement_id, device, time, rssi, channel, type,
                 subtype, seq, src_mac, dst_mac, bssid, ssid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, 
+            values,
+        )
+        conn.commit()
+
+def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.CSI_PACKET]):
+    values = [
+        (
+            measurement_id,
+            device,
+            pkt.get("time", 123),
+            pkt.get("rssi", 0),
+            pkt.get("ch", 0),
+            pkt.get("type", 0),
+            pkt.get("sub", 0),
+            pkt.get("seq", 0),
+            pkt.get("src", ""),
+            pkt.get("dst", ""),
+            pkt.get("bssid", ""),
+        )
+        for pkt in packets
+    ]
+    with storage.Connect() as conn:
+        cur = conn.cursor()
+        cur.executemany("""
+            INSERT INTO csi_packets (
+                measurement_id, device, time, rssi, channel, type,
+                subtype, seq, src_mac, dst_mac, bssid
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, 
             values,
         )

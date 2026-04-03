@@ -8,6 +8,23 @@ import my_types
 
 app = Flask(config.NAME)
 
+@app.route("/upload-csi", methods=["POST"])
+def upload_csi():
+    data = request.get_json()
+    if not data:
+        return "Invalid JSON", 400
+
+    device = data.get("device", "")
+    packets: List[my_types.CSI_PACKET] = data.get("packets", [])
+
+    if not packets:
+        return "No packets", 400
+
+    storage.insert_csi_packets(config.MEASUREMENT_ID, device, packets)
+
+    print(f"[UPLOAD] Received {len(packets)} packets with CSI data from {device}")
+    return jsonify({"status": "ok", "received": len(packets)}), 200
+
 @app.route("/upload", methods=["POST"])
 def upload():
     data = request.get_json()
