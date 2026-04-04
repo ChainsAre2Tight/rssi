@@ -5,6 +5,7 @@ def init_db():
     with storage.Connect() as conn:
         cursor = conn.cursor()
         cursor.execute("PRAGMA foreign_keys = ON;")
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS devices (
                 name TEXT PRIMARY KEY,
@@ -12,28 +13,7 @@ def init_db():
                 mac TEXT UNIQUE
             )
         """)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS measurements (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                room_id INTEGER NOT NULL,
-                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                description TEXT,
-                FOREIGN KEY (room_id) REFERENCES room(id)
-            )
-        """)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS positions (
-                measurement_id INTEGER NOT NULL,
-                device TEXT NOT NULL,
-                description TEXT,
-                x REAL NOT NULL,
-                y REAL NOT NULL,
-                z REAL NOT NULL,
-                PRIMARY KEY (measurement_id, device),
-                FOREIGN KEY (device) REFERENCES devices(name),
-                FOREIGN KEY (measurement_id) REFERENCES measurement(id)
-            )
-        """)
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS rooms (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,6 +24,31 @@ def init_db():
                 coeff REAL NOT NULL DEFAULT 2.0
             )
         """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS measurements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                room_id INTEGER NOT NULL,
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                description TEXT,
+                FOREIGN KEY (room_id) REFERENCES rooms(id)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS positions (
+                measurement_id INTEGER NOT NULL,
+                device TEXT NOT NULL,
+                description TEXT,
+                x REAL NOT NULL,
+                y REAL NOT NULL,
+                z REAL NOT NULL,
+                PRIMARY KEY (measurement_id, device),
+                FOREIGN KEY (device) REFERENCES devices(name),
+                FOREIGN KEY (measurement_id) REFERENCES measurements(id)
+            )
+        """)
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS packets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,11 +65,13 @@ def init_db():
                 dst_mac TEXT,
                 bssid TEXT,
                 ssid TEXT,
+                processed INTEGER DEFAULT 0,
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (device) REFERENCES devices(name),
-                FOREIGN KEY (measurement_id) REFERENCES measurement(id)
+                FOREIGN KEY (measurement_id) REFERENCES measurements(id)
             )
         """)
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS csi_packets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,9 +90,10 @@ def init_db():
                 csi TEXT,
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (device) REFERENCES devices(name),
-                FOREIGN KEY (measurement_id) REFERENCES measurement(id)
+                FOREIGN KEY (measurement_id) REFERENCES measurements(id)
             )
         """)
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS time_sync (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,7 +104,105 @@ def init_db():
                 FOREIGN KEY (device) REFERENCES devices(name)
             )
         """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                measurement_id INTEGER NOT NULL,
+                src_mac TEXT NOT NULL,
+                seq INTEGER NOT NULL,
+                type INTEGER NOT NULL,
+                subtype INTEGER NOT NULL,
+                dst_mac TEXT,
+                bssid TEXT,
+                first_boot_time_us INTEGER NOT NULL,
+                last_boot_time_us INTEGER NOT NULL,
+                approx_unix_time_us INTEGER NOT NULL,
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (measurement_id) REFERENCES measurements(id)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS event_observations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_id INTEGER NOT NULL,
+                device TEXT NOT NULL,
+                boot_time_us INTEGER NOT NULL,
+                approx_unix_time_us INTEGER NOT NULL,
+                rssi INTEGER,
+                noise_floor INTEGER,
+                channel INTEGER,
+                packet_id INTEGER,
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+                FOREIGN KEY (device) REFERENCES devices(name),
+                FOREIGN KEY (packet_id) REFERENCES packets(id)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_packets_time
+            ON packets(boot_time_us)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_packets_src_seq
+            ON packets(src_mac, seq)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_packets_measurement_time
+            ON packets(measurement_id, boot_time_us)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_packets_processed
+            ON packets(processed)
+        """)
+
+        cursor.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_events_identity
+            ON events(measurement_id, src_mac, seq, type, subtype, approx_unix_time_us)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_events_time
+            ON events(approx_unix_time_us)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_events_src
+            ON events(src_mac)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_events_dst
+            ON events(dst_mac);
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_event_obs_event
+            ON event_observations(event_id)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_event_obs_device
+            ON event_observations(device)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_event_obs_time
+            ON event_observations(boot_time_us)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX idx_time_sync_device_boot
+            ON time_sync(device, boot_time_us);
+        """)
+
         conn.commit()
+
 
 if __name__ == "__main__":
     init_db()

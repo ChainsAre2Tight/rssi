@@ -1,9 +1,10 @@
 from typing import List, Tuple
+import sqlite3
 
 import storage
 import my_types
 
-def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACKET]):
+def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, packets: List[my_types.PACKET]):
     values = [
         (
             measurement_id,
@@ -22,19 +23,20 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
         )
         for pkt in packets
     ]
-    with storage.Connect() as conn:
-        cur = conn.cursor()
-        cur.executemany("""
-            INSERT INTO packets (
-                measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
-                subtype, seq, src_mac, dst_mac, bssid, ssid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, 
-            values,
-        )
-        conn.commit()
 
-def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.CSI_PACKET]):
+    cur = conn.cursor()
+    cur.executemany("""
+        INSERT INTO packets (
+            measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
+            subtype, seq, src_mac, dst_mac, bssid, ssid
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, 
+        values,
+    )
+
+    conn.commit()
+
+def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: str, packets: List[my_types.CSI_PACKET]):
     values = [
         (
             measurement_id,
@@ -53,17 +55,16 @@ def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.
         )
         for pkt in packets
     ]
-    with storage.Connect() as conn:
-        cur = conn.cursor()
-        cur.executemany("""
-            INSERT INTO csi_packets (
-                measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
-                subtype, seq, src_mac, dst_mac, bssid, csi
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, 
-            values,
-        )
-        conn.commit()
+    cur = conn.cursor()
+    cur.executemany("""
+        INSERT INTO csi_packets (
+            measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
+            subtype, seq, src_mac, dst_mac, bssid, csi
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, 
+        values,
+    )
+    conn.commit()
 
 def index_rssi(
         measurement_id: int,

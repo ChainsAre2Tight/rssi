@@ -22,7 +22,8 @@ def upload_csi():
         print(2, request.data)
         return "No packets", 400
 
-    storage.insert_csi_packets(config.MEASUREMENT_ID, device, packets)
+    with storage.Connect() as conn:
+        storage.insert_csi_packets(conn, config.MEASUREMENT_ID, device, packets)
 
     print(f"[UPLOAD] Received {len(packets)} packets with CSI data from {device}")
     return jsonify({"status": "ok", "received": len(packets)}), 200
@@ -39,7 +40,8 @@ def upload():
     if not packets:
         return "No packets", 400
 
-    storage.insert_packets(config.MEASUREMENT_ID, device, packets)
+    with storage.Connect() as conn:
+        storage.insert_packets(conn, config.MEASUREMENT_ID, device, packets)
 
     print(f"[UPLOAD] Received {len(packets)} packets from {device}")
     return jsonify({"status": "ok", "received": len(packets)}), 200
@@ -64,7 +66,8 @@ def upload_time_sync():
         "boot_unix_time": boot_unix_time
     }
 
-    storage.insert_time_sync(device, sync_event)
+    with storage.Connect() as conn:
+        storage.insert_time_sync(conn, device, sync_event)
 
     print(f"[SYNC] Received time sync from {device} boot={boot_time_us} unix={boot_unix_time}")
     return jsonify({"status": "ok"}), 200
