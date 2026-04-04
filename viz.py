@@ -32,8 +32,8 @@ def get_data() -> list[dict[str, str]]:
         data.append({
             "name": f"{device["name"]} {device["description"]}",
             "coords": np.array([x, y, z]),
-            "rssi_base": np.array(base_rssi) + device['gain'],
-            "rssi": np.array(rssi) + device['gain'],
+            "rssi_base": np.array(base_rssi),
+            "rssi": np.array(rssi),
         })
     return data
 
@@ -56,7 +56,7 @@ n = 3
 P0_values = np.linspace(-80, -50, 30)
 # bounds = ((0, 6), (0, 3), (0, 3))  # кубический объём
 # bounds = ((-1, 1), (-1, 1), (-1, 1))
-bounds = ((1.5, 3.5), (0, 2), (0, 2))  # кубический объём
+bounds = ((0, 4), (0, 4), (0, 3))  # кубический объём
 
 
 def compute_radius_2(power, gain, rssi):
@@ -161,12 +161,12 @@ ax.scatter(base_position[0], base_position[1], base_position[2], color='y', s=50
 u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
 radii_mean = compute_radii(P0_values[len(P0_values)//2])
 for (x, y, z), r, name in zip(points, radii_mean, names):
-    ax.plot_surface(
-        x + r*np.cos(u)*np.sin(v),
-        y + r*np.sin(u)*np.sin(v),
-        z + r*np.cos(v),
-        color='b', alpha=0.15
-    )
+    # ax.plot_surface(
+    #     x + r*np.cos(u)*np.sin(v),
+    #     y + r*np.sin(u)*np.sin(v),
+    #     z + r*np.cos(v),
+    #     color='b', alpha=0.15
+    # )
     ax.scatter(x, y, z, color='r', s=50)
     ax.text(x, y, z, name, color='k', fontsize=9, ha='center', va='bottom')
 

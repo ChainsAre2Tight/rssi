@@ -38,7 +38,7 @@ class Config:
         d0: float = 1.0,
         h_G: float = 1e-3,
         d_min: float = 1e-2,
-        p0_bounds: Tuple[float, float] = (-100.0, 50.0),
+        p0_bounds: Tuple[float, float] = (-80.0, -40.0),
         tol: float = 1e-6,
         max_iter: int = 100,
         aggregate_rssi: str = "median",  # or "mean"

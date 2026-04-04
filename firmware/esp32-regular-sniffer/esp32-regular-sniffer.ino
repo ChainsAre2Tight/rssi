@@ -9,7 +9,7 @@
 #define DEVICE_NAME "ESP32_01"
 
 struct Packet {
-    time_t time;
+    int boot_time_us;
     uint8_t src_mac[6];
     uint8_t dst_mac[6];
     uint8_t bssid[6];
@@ -38,14 +38,14 @@ String jsonEscape(const char* str) {
 }
 
 void packetHandler(void* buf, wifi_promiscuous_pkt_type_t type) {
+    int capture_time = esp_timer_get_time();
     if (activeCount >= MAX_PACKETS) return;
 
     wifi_promiscuous_pkt_t* pkt = (wifi_promiscuous_pkt_t*)buf;
 
     Packet p;
     memset(&p, 0, sizeof(Packet));
-    
-    time(&p.time);
+    p.boot_time_us = capture_time;
 
     wifi_pkt_rx_ctrl_t ctrl = pkt->rx_ctrl;
     p.rssi = ctrl.rssi;
@@ -171,6 +171,13 @@ void sendBatch() {
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("[WIFI] Connected, sending batch...");
 
+    int sync_attempts = 0;
+    while (server_sntp_resync_pending && sync_attempts < 3) {
+        send_sntp_resync(String(DEVICE_NAME));
+        sync_attempts++;
+        delay(50);
+    }
+
     const int batchSize = 50;
     int sent = 0;
 
@@ -194,7 +201,7 @@ void sendBatch() {
             String ssidSafe = buffer[i].ssid[0] ? jsonEscape(buffer[i].ssid) : "";
 
             json += "{";
-            json += "\"time\":" + String(buffer[i].time) + ",";
+            json += "\"boot_time_us\":" + String(buffer[i].boot_time_us) + ",";
             json += "\"rssi\":" + String(buffer[i].rssi) + ",";
             json += "\"noise_floor\":" + String(buffer[i].noise_floor) + ",";
             json += "\"ch\":" + String(buffer[i].channel) + ",";
@@ -211,7 +218,7 @@ void sendBatch() {
         json += "]}";
 
         HTTPClient http;
-        http.begin(SERVER_URL);
+        http.begin(API_URL_REGULAR);
         http.addHeader("Content-Type", "application/json");
         int httpCode = http.POST(json);
         if (httpCode > 0) {

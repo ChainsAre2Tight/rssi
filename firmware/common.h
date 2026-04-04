@@ -6,13 +6,19 @@
 #include "esp_sntp.h"
 #include "esp_wifi.h"
 #include "Arduino.h"
+#include <stdint.h>
+#include <string.h>
+#include <HTTPClient.h>
 
 // ==== Настройки Wi-Fi и сервера ====
 #define WIFI_SSID "dmitry-moosetop"
 #define WIFI_PASS "gQmB9LdM"
 #define SNTP_SERVER "10.42.0.1"
-#define SERVER_URL "http://10.42.0.1:5000/upload"
-#define SERVER_URL_CSI "http://10.42.0.1:5000/upload-csi"
+#define SERVER_URL "http://10.42.0.1:5000"
+
+#define API_URL_REGULAR SERVER_URL "/upload"
+#define API_URL_CSI SERVER_URL "/upload-csi"
+#define API_URL_SNTP_UPDATE SERVER_URL "/sync"
 
 // #define WIFI_SSID "WIN-RPM7N83F4EC 3999"
 // #define WIFI_PASS "3vA=8168"
@@ -41,9 +47,37 @@ void printTime() {
     Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 }
 
+static __INT64_TYPE__ boot_time_us = 0;
+static time_t boot_unix_time = 0;
+static bool server_sntp_resync_pending = false;
+
 void notify(struct timeval* t) {
+    boot_time_us = esp_timer_get_time();
+    time(&boot_unix_time);
+    server_sntp_resync_pending = true;
     Serial.println("time synchronized");
     printTime();
+}
+
+void send_sntp_resync(String device_name) {
+    Serial.println("[HTTP] Sending SNTP sync data");
+    String json = "{\"device\":\"" + device_name
+    + "\", \"boot_time_us\":" + String(boot_time_us)
+    + ", \"boot_unix_time\":" + String(boot_unix_time) + "}";
+
+    HTTPClient http;
+    http.begin(API_URL_SNTP_UPDATE);
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST(json);
+    if (httpCode == 200) {
+        Serial.printf("[HTTP] Success! Response: %d\n", httpCode);
+        server_sntp_resync_pending = false;
+    } else if (httpCode > 0) {
+        Serial.printf("[HTTP] Error! Response: %d\n", httpCode);
+    } else {
+        Serial.printf("[HTTP] Error: %s\n", http.errorToString(httpCode).c_str());
+    }
+    http.end();
 }
 
 void wait4SNTP() {

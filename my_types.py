@@ -1,7 +1,7 @@
 import typing as t
 
 class PACKET(t.TypedDict):
-    time: int
+    boot_time_us: int
     rssi: int
     noise_floor: int
     ch: int
@@ -14,7 +14,7 @@ class PACKET(t.TypedDict):
     ssid: str
 
 class CSI_PACKET(t.TypedDict):
-    time: int
+    boot_time_us: int
     rssi: int
     noise_floor: int
     ch: int
@@ -31,3 +31,7 @@ class DEVICE(t.TypedDict):
     description: str
     gain: int
     mac: str
+
+class TIME_SYNC(t.TypedDict):
+    boot_time_us: int
+    unix_time: int

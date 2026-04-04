@@ -8,7 +8,7 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
         (
             measurement_id,
             device,
-            pkt.get("time", 123),
+            pkt.get("boot_time_us", 0),
             pkt.get("rssi", 0),
             pkt.get("noise_floor", 0),
             pkt.get("ch", 0),
@@ -26,7 +26,7 @@ def insert_packets(measurement_id: int, device: str, packets: List[my_types.PACK
         cur = conn.cursor()
         cur.executemany("""
             INSERT INTO packets (
-                measurement_id, device, time, rssi, noise_floor, channel, type,
+                measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
                 subtype, seq, src_mac, dst_mac, bssid, ssid
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, 
@@ -39,7 +39,7 @@ def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.
         (
             measurement_id,
             device,
-            pkt.get("time", 123),
+            pkt.get("boot_time_us", 0),
             pkt.get("rssi", 0),
             pkt.get("noise_floor", 0),
             pkt.get("ch", 0),
@@ -57,7 +57,7 @@ def insert_csi_packets(measurement_id: int, device: str, packets: List[my_types.
         cur = conn.cursor()
         cur.executemany("""
             INSERT INTO csi_packets (
-                measurement_id, device, time, rssi, noise_floor, channel, type,
+                measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
                 subtype, seq, src_mac, dst_mac, bssid, csi
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, 

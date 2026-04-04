@@ -49,7 +49,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 measurement_id INTEGER,
                 device TEXT,
-                time INTEGER,
+                boot_time_us INTEGER,
                 rssi INTEGER,
                 noise_floor INTEGER,
                 channel INTEGER,
@@ -70,7 +70,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 measurement_id INTEGER,
                 device TEXT,
-                time INTEGER,
+                boot_time_us INTEGER,
                 rssi INTEGER,
                 noise_floor INTEGER,
                 channel INTEGER,
@@ -84,6 +84,16 @@ def init_db():
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (device) REFERENCES devices(name),
                 FOREIGN KEY (measurement_id) REFERENCES measurement(id)
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS time_sync (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                device TEXT NOT NULL,
+                boot_time_us INTEGER NOT NULL,
+                unix_time INTEGER NOT NULL,
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (device) REFERENCES devices(name)
             )
         """)
         conn.commit()

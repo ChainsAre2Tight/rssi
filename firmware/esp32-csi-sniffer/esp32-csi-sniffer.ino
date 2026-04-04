@@ -10,7 +10,7 @@
 #define DEVICE_NAME "ESP32_02"
 
 struct CsiPacket {
-    time_t time;
+    int boot_time_us;
     uint8_t src_mac[6];
     uint8_t dst_mac[6];
     uint8_t bssid[6];
@@ -28,12 +28,13 @@ CsiPacket buffer[MAX_PACKETS];
 volatile int activeCount = 0;
 
 void csiPacketHandler(void *ctx, wifi_csi_info_t *pkt) {
+    int capture_time = esp_timer_get_time();
     if (activeCount >= MAX_PACKETS) return;
 
     CsiPacket p;
     memset(&p, 0, sizeof(CsiPacket));
     
-    time(&p.time);
+    p.boot_time_us = capture_time;
 
     wifi_pkt_rx_ctrl_t rx_ctrl = pkt->rx_ctrl;
     uint8_t frame_ctrl1 = pkt->hdr[0];
@@ -138,6 +139,13 @@ void sendBatch() {
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("[WIFI] Connected, sending batch...");
 
+    int sync_attempts = 0;
+    while (server_sntp_resync_pending && sync_attempts < 3) {
+        send_sntp_resync(String(DEVICE_NAME));
+        sync_attempts++;
+        delay(50);
+    }
+
     const int batchSize = 50;
     int sent = 0;
 
@@ -161,7 +169,7 @@ void sendBatch() {
 
 
             json += "{";
-            json += "\"time\":" + String(buffer[i].time) + ",";
+            json += "\"boot_time_us\":" + String(buffer[i].boot_time_us) + ",";
             json += "\"rssi\":" + String(buffer[i].rssi) + ",";
             json += "\"noise_floor\":" + String(buffer[i].noise_floor) + ",";
             json += "\"ch\":" + String(buffer[i].channel) + ",";
@@ -188,7 +196,7 @@ void sendBatch() {
         json += "]}";
 
         HTTPClient http;
-        http.begin(SERVER_URL_CSI);
+        http.begin(API_URL_CSI);
         http.addHeader("Content-Type", "application/json");
         int httpCode = http.POST(json);
         if (httpCode > 0) {
