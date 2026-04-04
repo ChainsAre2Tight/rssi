@@ -1,170 +1,183 @@
-from typing import Dict, List
+from collections import defaultdict
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple
 
 import my_types
 
+
+MERGE_WINDOW_US = 5_000
+REORDER_WINDOW_US = 20_000_000
+
+
+@dataclass(slots=True)
+class _ActiveEvent:
+    src_mac: str
+    seq: int
+    type: int
+    subtype: int
+    dst_mac: str | None
+    bssid: str | None
+
+    first_time_us: int
+    last_time_us: int
+
+    observations: List[my_types.ObservationRow] = field(default_factory=list)
+
+    def try_merge(self, pkt: my_types.TimedPacket) -> bool:
+
+        t = pkt.approx_unix_time_us
+
+        new_first = min(self.first_time_us, t)
+        new_last = max(self.last_time_us, t)
+
+
+        if new_last - new_first > MERGE_WINDOW_US:
+            return False
+
+        self.first_time_us = new_first
+        self.last_time_us = new_last
+
+        self.observations.append(
+            my_types.ObservationRow(
+                device=pkt.device,
+                boot_time_us=pkt.boot_time_us,
+                approx_unix_time_us=t,
+                rssi=pkt.rssi,
+                noise_floor=pkt.noise_floor,
+                channel=pkt.channel,
+                packet_id=pkt.id,
+            )
+        )
+
+        return True
+
+
 class EventReconstructor:
 
-    def __init__(
-        self,
-        merge_window_us: int = 20_000,
-        reorder_window_us: int = 20_000_000,
-    ):
-        self.merge_window_us = merge_window_us
-        self.reorder_window_us = reorder_window_us
+    def __init__(self):
 
-        self.active_events: Dict[my_types.EventKey, List[my_types.ActiveEvent]] = {}
+        self.active: Dict[
+            Tuple[str, int, int, int],
+            List[_ActiveEvent],
+        ] = defaultdict(list)
 
-        self.max_seen_time_us: int = 0
+        self.max_seen_time = 0
 
-        self.ready_events: List[my_types.EventRow] = []
-        self.ready_observations: List[my_types.ObservationRow] = []
+    def process(self, pkt: my_types.TimedPacket) -> None:
 
+        t = pkt.approx_unix_time_us
 
-    def process(self, packet: my_types.TimedPacket) -> None:
+        if t > self.max_seen_time:
+            self.max_seen_time = t
 
-        t = packet.approx_unix_time_us
+        key = (pkt.src_mac, pkt.seq, pkt.type, pkt.subtype)
 
-        if t > self.max_seen_time_us:
-            self.max_seen_time_us = t
+        events = self.active[key]
 
-        key: my_types.EventKey = (
-            packet.src_mac,
-            packet.seq,
-            packet.type,
-            packet.subtype,
+        for ev in events:
+            if ev.try_merge(pkt):
+                return
+
+        ev = _ActiveEvent(
+            src_mac=pkt.src_mac,
+            seq=pkt.seq,
+            type=pkt.type,
+            subtype=pkt.subtype,
+            dst_mac=pkt.dst_mac,
+            bssid=pkt.bssid,
+            first_time_us=t,
+            last_time_us=t,
         )
 
-        obs = my_types.ObservationRow(
-            device=packet.device,
-            boot_time_us=packet.boot_time_us,
-            approx_unix_time_us=packet.approx_unix_time_us,
-            rssi=packet.rssi,
-            noise_floor=packet.noise_floor,
-            channel=packet.channel,
-            packet_id=packet.id,
+        ev.observations.append(
+            my_types.ObservationRow(
+                device=pkt.device,
+                boot_time_us=pkt.boot_time_us,
+                approx_unix_time_us=t,
+                rssi=pkt.rssi,
+                noise_floor=pkt.noise_floor,
+                channel=pkt.channel,
+                packet_id=pkt.id,
+            )
         )
 
-        events = self.active_events.get(key)
+        events.append(ev)
 
-        if events is None:
-            event = self._create_event(packet, obs)
-            self.active_events[key] = [event]
-        else:
-            if not self._try_merge(events, packet, obs):
-                event = self._create_event(packet, obs)
-                events.append(event)
-
-        self._advance_watermark()
-
-    def pop_ready(self):
-
-        events = self.ready_events
-        observations = self.ready_observations
-
-        self.ready_events = []
-        self.ready_observations = []
-
-        return events, observations
-
-    def flush_all(self):
-
-        for events in self.active_events.values():
-            for event in events:
-                self._finalize_event(event)
-
-        self.active_events.clear()
-
-        return self.pop_ready()
-
-    def _create_event(
+    def pop_ready(
         self,
-        packet: my_types.TimedPacket,
-        obs: my_types.ObservationRow
-    ) -> my_types.ActiveEvent:
+    ) -> Tuple[List[my_types.EventRow], List[List[my_types.ObservationRow]]]:
 
-        event = my_types.ActiveEvent(
-            src_mac=packet.src_mac,
-            dst_mac=packet.dst_mac,
-            bssid=packet.bssid,
-            type=packet.type,
-            subtype=packet.subtype,
-            seq=packet.seq,
-            first_time_us=packet.approx_unix_time_us,
-            last_time_us=packet.approx_unix_time_us,
-        )
+        watermark = self.max_seen_time - REORDER_WINDOW_US
 
-        event.observations.append(obs)
+        ready_events: List[my_types.EventRow] = []
+        ready_obs: List[List[my_types.ObservationRow]] = []
 
-        return event
+        for key in list(self.active.keys()):
 
-    def _try_merge(
-        self,
-        events: List[my_types.ActiveEvent],
-        packet: my_types.TimedPacket,
-        obs: my_types.ObservationRow,
-    ) -> bool:
-
-        t = packet.approx_unix_time_us
-
-        for event in events:
-
-            new_first = min(event.first_time_us, t)
-            new_last = max(event.last_time_us, t)
-
-            if new_last - new_first <= self.merge_window_us:
-
-                event.first_time_us = new_first
-                event.last_time_us = new_last
-                event.observations.append(obs)
-
-                return True
-
-        return False
-
-    def _advance_watermark(self):
-
-        watermark = self.max_seen_time_us - self.reorder_window_us
-
-        remove_keys = []
-
-        for key, events in self.active_events.items():
-
+            events = self.active[key]
             remaining = []
 
-            for event in events:
+            for ev in events:
 
-                if event.last_time_us < watermark:
-                    self._finalize_event(event)
+                if ev.last_time_us < watermark:
+
+                    ready_events.append(
+                        my_types.EventRow(
+                            src_mac=ev.src_mac,
+                            seq=ev.seq,
+                            type=ev.type,
+                            subtype=ev.subtype,
+                            dst_mac=ev.dst_mac,
+                            bssid=ev.bssid,
+                            first_time_us=ev.first_time_us,
+                            last_time_us=ev.last_time_us,
+                            approx_time_us=(
+                                ev.first_time_us + ev.last_time_us
+                            ) // 2,
+                        )
+                    )
+
+                    ready_obs.append(ev.observations)
+
                 else:
-                    remaining.append(event)
+                    remaining.append(ev)
 
             if remaining:
-                self.active_events[key] = remaining
+                self.active[key] = remaining
             else:
-                remove_keys.append(key)
+                del self.active[key]
 
-        for key in remove_keys:
-            del self.active_events[key]
+        return ready_events, ready_obs
 
-    def _finalize_event(self, event: my_types.ActiveEvent):
+    def flush_all(
+        self,
+    ) -> Tuple[List[my_types.EventRow], List[List[my_types.ObservationRow]]]:
 
-        first = event.first_time_us
-        last = event.last_time_us
+        ready_events: List[my_types.EventRow] = []
+        ready_obs: List[List[my_types.ObservationRow]] = []
 
-        approx = (first + last) // 2
+        for events in self.active.values():
 
-        event_row = my_types.EventRow(
-            src_mac=event.src_mac,
-            dst_mac=event.dst_mac,
-            bssid=event.bssid,
-            type=event.type,
-            subtype=event.subtype,
-            seq=event.seq,
-            first_time_us=first,
-            last_time_us=last,
-            approx_time_us=approx,
-        )
+            for ev in events:
 
-        self.ready_events.append(event_row)
+                ready_events.append(
+                    my_types.EventRow(
+                        src_mac=ev.src_mac,
+                        seq=ev.seq,
+                        type=ev.type,
+                        subtype=ev.subtype,
+                        dst_mac=ev.dst_mac,
+                        bssid=ev.bssid,
+                        first_time_us=ev.first_time_us,
+                        last_time_us=ev.last_time_us,
+                        approx_time_us=(
+                            ev.first_time_us + ev.last_time_us
+                        ) // 2,
+                    )
+                )
 
-        self.ready_observations.extend(event.observations)
+                ready_obs.append(ev.observations)
+
+        self.active.clear()
+
+        return ready_events, ready_obs

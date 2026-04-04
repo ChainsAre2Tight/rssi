@@ -143,43 +143,18 @@ def init_db():
         """)
 
         cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_packets_time
-            ON packets(boot_time_us)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_packets_src_seq
-            ON packets(src_mac, seq)
-        """)
-
-        cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_packets_measurement_time
             ON packets(measurement_id, boot_time_us)
         """)
 
         cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_packets_processed
-            ON packets(processed)
+            CREATE INDEX IF NOT EXISTS idx_events_measurement_time
+            ON events(measurement_id, approx_unix_time_us)
         """)
 
         cursor.execute("""
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_events_identity
-            ON events(measurement_id, src_mac, seq, type, subtype, approx_unix_time_us)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_events_time
-            ON events(approx_unix_time_us)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_events_src
-            ON events(src_mac)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_events_dst
-            ON events(dst_mac);
+            CREATE INDEX IF NOT EXISTS idx_events_src_time
+            ON events(src_mac, approx_unix_time_us)
         """)
 
         cursor.execute("""
@@ -188,18 +163,8 @@ def init_db():
         """)
 
         cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_event_obs_device
-            ON event_observations(device)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_event_obs_time
-            ON event_observations(boot_time_us)
-        """)
-
-        cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_time_sync_device_boot
-            ON time_sync(device, boot_time_us);
+            ON time_sync(device, boot_time_us)
         """)
 
         conn.commit()

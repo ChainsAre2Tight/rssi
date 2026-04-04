@@ -50,7 +50,7 @@ def reconstruct_measurement(
         if events:
 
             event_buffer.extend(events)
-            obs_buffer.append(observations)
+            obs_buffer.extend(observations)
 
         # --- flush batch ---
         if len(event_buffer) >= batch_commit_events:
@@ -69,7 +69,7 @@ def reconstruct_measurement(
     events, observations = recon.flush_all()
 
     event_buffer.extend(events)
-    obs_buffer.append(observations)
+    obs_buffer.extend(observations)
 
     if event_buffer:
 
@@ -79,3 +79,5 @@ def reconstruct_measurement(
 
     if processed_packet_ids:
         mark_packets_processed(conn, processed_packet_ids)
+    
+    print("active events:", sum(len(v) for v in recon.active.values()))

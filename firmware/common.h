@@ -30,6 +30,9 @@
 #define HOP_INTERVAL_MS 1000
 #define NUM_CHANNELS 13
 
+#define CYCLES_BEFORE_RESYNC 10
+static int cycle_counter = 0;
+
 #define UPLOAD_INTERVAL 10000 // 10 секунд
 
 void channelHoppingTask(void* pvParameter) {

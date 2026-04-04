@@ -1,5 +1,5 @@
 import typing as t
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 class PACKET(t.TypedDict):
     boot_time_us: int
@@ -100,18 +100,3 @@ class EventRow:
     first_time_us: int
     last_time_us: int
     approx_time_us: int
-
-@dataclass(slots=True)
-class ActiveEvent:
-    src_mac: str
-    dst_mac: str | None
-    bssid: str | None
-
-    type: int
-    subtype: int
-    seq: int
-
-    first_time_us: int
-    last_time_us: int
-
-    observations: t.List[ObservationRow] = field(default_factory=list)

@@ -7,7 +7,7 @@
 
 #include "../common.h"
 
-#define DEVICE_NAME "ESP32_02"
+#define DEVICE_NAME "ESP32_08"
 
 struct CsiPacket {
     int boot_time_us;
@@ -230,6 +230,12 @@ unsigned long lastUpload = 0;
 
 void loop() {
     unsigned long now = millis();
+
+     if (cycle_counter == CYCLES_BEFORE_RESYNC) {
+        syncSNTP();
+        cycle_counter = 0;
+    }
+
     if (now - lastUpload > UPLOAD_INTERVAL) {
         Serial.println("[SNIFFER] Promiscuous DISABLED");
         digitalWrite(LED_BUILTIN, LOW);
@@ -243,6 +249,8 @@ void loop() {
 
         lastUpload = now;
         digitalWrite(LED_BUILTIN, HIGH);
+
+        cycle_counter++;
     }
 
     delay(500);
