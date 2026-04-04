@@ -1,8 +1,10 @@
-from typing import List, Tuple
+from typing import List, Iterator
 import sqlite3
 
 import storage
 import my_types
+
+from compute.time_synchronization import MeasurementTimeMapper
 
 def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, packets: List[my_types.PACKET]):
     values = [
@@ -21,7 +23,7 @@ def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, p
             pkt.get("bssid", ""),
             pkt.get("ssid", "")
         )
-        for pkt in packets
+        for pkt in packets # probably should sort before inserting, might benchmark later
     ]
 
     cur = conn.cursor()
@@ -53,7 +55,7 @@ def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: st
             pkt.get("bssid", ""),
             ",".join([str(value) for value in pkt.get("csi", [])]),
         )
-        for pkt in packets
+        for pkt in packets # probably should sort before inserting, might benchmark later
     ]
     cur = conn.cursor()
     cur.executemany("""
@@ -65,6 +67,84 @@ def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: st
         values,
     )
     conn.commit()
+
+
+def stream_timed_packets(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    mapper: MeasurementTimeMapper,
+) -> Iterator[my_types.TimedPacket]:
+
+    cur = conn.cursor()
+
+    rows = cur.execute(
+        """
+        SELECT
+            id,
+            device,
+            boot_time_us,
+            rssi,
+            noise_floor,
+            channel,
+            type,
+            subtype,
+            seq,
+            src_mac,
+            dst_mac,
+            bssid
+        FROM packets
+        WHERE measurement_id = ?
+        AND processed = 0
+        ORDER BY id
+        """,
+        (measurement_id,),
+    )
+
+    for row in rows:
+
+        approx_unix_time_us = mapper.map(
+            row["device"],
+            row["boot_time_us"],
+        )
+
+        yield my_types.TimedPacket(
+            id=row["id"],
+            device=row["device"],
+
+            boot_time_us=row["boot_time_us"],
+            approx_unix_time_us=approx_unix_time_us,
+
+            rssi=row["rssi"],
+            noise_floor=row["noise_floor"],
+            channel=row["channel"],
+
+            type=row["type"],
+            subtype=row["subtype"],
+            seq=row["seq"],
+
+            src_mac=row["src_mac"],
+            dst_mac=row["dst_mac"],
+            bssid=row["bssid"],
+        )
+
+def mark_packets_processed(
+    conn: sqlite3.Connection,
+    packet_ids: List[int],
+):
+
+    if not packet_ids:
+        return
+
+    cur = conn.cursor()
+
+    cur.executemany(
+        """
+        UPDATE packets
+        SET processed = 1
+        WHERE id = ?
+        """,
+        [(pid,) for pid in packet_ids],
+    )
 
 def index_rssi(
         measurement_id: int,

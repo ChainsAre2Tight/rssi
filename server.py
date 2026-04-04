@@ -67,7 +67,7 @@ def upload_time_sync():
     }
 
     with storage.Connect() as conn:
-        storage.insert_time_sync(conn, device, sync_event)
+        storage.insert_time_sync(conn, config.MEASUREMENT_ID, device, sync_event)
 
     print(f"[SYNC] Received time sync from {device} boot={boot_time_us} unix={boot_unix_time}")
     return jsonify({"status": "ok"}), 200

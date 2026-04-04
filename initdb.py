@@ -97,9 +97,10 @@ def init_db():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS time_sync (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                measurement_id INTEGER,
                 device TEXT NOT NULL,
                 boot_time_us INTEGER NOT NULL,
-                unix_time INTEGER NOT NULL,
+                unix_time_us INTEGER NOT NULL,
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (device) REFERENCES devices(name)
             )
@@ -115,8 +116,8 @@ def init_db():
                 subtype INTEGER NOT NULL,
                 dst_mac TEXT,
                 bssid TEXT,
-                first_boot_time_us INTEGER NOT NULL,
-                last_boot_time_us INTEGER NOT NULL,
+                first_time_us INTEGER NOT NULL,
+                last_time_us INTEGER NOT NULL,
                 approx_unix_time_us INTEGER NOT NULL,
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (measurement_id) REFERENCES measurements(id)
@@ -197,7 +198,7 @@ def init_db():
         """)
 
         cursor.execute("""
-            CREATE INDEX idx_time_sync_device_boot
+            CREATE INDEX IF NOT EXISTS idx_time_sync_device_boot
             ON time_sync(device, boot_time_us);
         """)
 
