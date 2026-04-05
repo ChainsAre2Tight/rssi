@@ -6,7 +6,7 @@
 
 #include "../common.h"
 
-#define DEVICE_NAME "ESP32_07"
+#define DEVICE_NAME "ESP32_03"
 
 struct Packet {
     int boot_time_us;

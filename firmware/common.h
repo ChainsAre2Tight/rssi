@@ -36,28 +36,68 @@ static int cycle_counter = 0;
 #define BASE_HOP_INTERVAL_MS 250
 #define HOP_JITTER_MS        100
 
-static const uint8_t SCAN_CHANNELS[] = {1, 6, 11};
-static const size_t NUM_SCAN_CHANNELS = sizeof(SCAN_CHANNELS) / sizeof(SCAN_CHANNELS[0]);
+#define ANCHOR_CHANNEL       6
+
+#define ANCHOR_PROBABILITY   50   // % chance to go to anchor
+#define STAY_PROBABILITY     20   // % chance to stay on current channel
+#define BURST_PROBABILITY    15   // % chance to start anchor burst
+
+#define BURST_MIN_HOPS       3
+#define BURST_MAX_HOPS       6
+
+static const uint8_t CHANNELS[] = {1, 6, 11};
+static const size_t NUM_CHANNELS = sizeof(CHANNELS) / sizeof(CHANNELS[0]);
 
 void channelHoppingTask(void* pvParameter)
 {
-    size_t index = 0;
+    uint8_t current_channel = CHANNELS[esp_random() % NUM_CHANNELS];
 
-    while (true) {
+    int burst_remaining = 0;
 
-        uint8_t channel = SCAN_CHANNELS[index];
-        esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+    while (true)
+    {
+        esp_wifi_set_channel(current_channel, WIFI_SECOND_CHAN_NONE);
 
-        // Move to next channel
-        index = (index + 1) % NUM_SCAN_CHANNELS;
+        uint32_t r = esp_random() % 100;
 
-        // Random jitter: [-JITTER, +JITTER]
+        if (burst_remaining > 0)
+        {
+            // Continue anchor burst
+            current_channel = ANCHOR_CHANNEL;
+            burst_remaining--;
+        }
+        else
+        {
+            if (r < BURST_PROBABILITY)
+            {
+                // Start anchor burst
+                burst_remaining =
+                    BURST_MIN_HOPS +
+                    (esp_random() % (BURST_MAX_HOPS - BURST_MIN_HOPS + 1));
+
+                current_channel = ANCHOR_CHANNEL;
+                burst_remaining--;
+            }
+            else if (r < BURST_PROBABILITY + STAY_PROBABILITY)
+            {
+                // Stay on same channel
+            }
+            else if (r < BURST_PROBABILITY + STAY_PROBABILITY + ANCHOR_PROBABILITY)
+            {
+                // Move to anchor
+                current_channel = ANCHOR_CHANNEL;
+            }
+            else
+            {
+                // Random channel
+                current_channel = CHANNELS[esp_random() % NUM_CHANNELS];
+            }
+        }
+
         int jitter = (esp_random() % (2 * HOP_JITTER_MS)) - HOP_JITTER_MS;
         int delay_ms = BASE_HOP_INTERVAL_MS + jitter;
 
-        if (delay_ms < 10) {
-            delay_ms = 10; // safety minimum
-        }
+        if (delay_ms < 10) delay_ms = 10;
 
         vTaskDelay(pdMS_TO_TICKS(delay_ms));
     }

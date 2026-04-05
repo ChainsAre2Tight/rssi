@@ -7,7 +7,7 @@
 
 #include "../common.h"
 
-#define DEVICE_NAME "ESP32_08"
+#define DEVICE_NAME "ESP32_04"
 
 struct CsiPacket {
     int boot_time_us;
