@@ -70,7 +70,9 @@ def build_time_mapper(
                 r2 = rows[i + 1]
 
                 a = (r2.unix_time_us - r1.unix_time_us) / (r2.boot_time_us - r1.boot_time_us)
+                # a = 1.0
                 b = r1.unix_time_us - a * r1.boot_time_us
+                print(device, a, b, r2.unix_time_us-r1.unix_time_us, r2.boot_time_us-r1.boot_time_us)
 
                 segments.append(my_types.SyncSegment(r1.boot_time_us, a, b))
 

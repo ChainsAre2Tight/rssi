@@ -5,8 +5,8 @@ from typing import Dict, List, Tuple
 import my_types
 
 
-MERGE_WINDOW_US = 5_000
-REORDER_WINDOW_US = 20_000_000
+MERGE_WINDOW_US = 50_000
+REORDER_WINDOW_US = 30_000_000
 
 
 @dataclass(slots=True)
@@ -70,7 +70,7 @@ class EventReconstructor:
         if t > self.max_seen_time:
             self.max_seen_time = t
 
-        key = (pkt.src_mac, pkt.seq, pkt.type, pkt.subtype)
+        key = (pkt.src_mac, pkt.seq, pkt.type, pkt.subtype, pkt.dst_mac, pkt.bssid, pkt.channel)
 
         events = self.active[key]
 

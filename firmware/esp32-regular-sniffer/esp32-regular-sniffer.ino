@@ -6,10 +6,10 @@
 
 #include "../common.h"
 
-#define DEVICE_NAME "ESP32_03"
+#define DEVICE_NAME "ESP32_02"
 
 struct Packet {
-    int boot_time_us;
+    int64_t boot_time_us;
     uint8_t src_mac[6];
     uint8_t dst_mac[6];
     uint8_t bssid[6];

@@ -14,7 +14,7 @@ def insert_time_sync(conn: sqlite3.Connection, measurement_id: int, device: str,
             measurement_id,
             device,
             sync_event.get("boot_time_us", 0),
-            int(sync_event.get("boot_unix_time", 0) * 1_000_000),
+            int(sync_event.get("boot_unix_time", 0)),
         )
     )
 
@@ -35,7 +35,7 @@ def load_time_sync(
             unix_time_us
         FROM time_sync
         WHERE measurement_id = ?
-        ORDER BY device, boot_time_us
+        ORDER BY device, boot_time_us ASC
         """,
         (measurement_id,),
     )

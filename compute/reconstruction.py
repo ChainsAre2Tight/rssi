@@ -24,6 +24,7 @@ def reconstruct_measurement(
 
     # --- load time sync ---
     sync_rows = load_time_sync(conn, measurement_id)
+    print(sync_rows)
 
     if not sync_rows:
         raise RuntimeError("No time sync data for measurement")

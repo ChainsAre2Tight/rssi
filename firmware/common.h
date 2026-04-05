@@ -28,7 +28,7 @@
 
 // ==== Настройки сниффера ====
 #define MAX_PACKETS 500
-#define CYCLES_BEFORE_RESYNC 10
+#define CYCLES_BEFORE_RESYNC 3
 static int cycle_counter = 0;
 
 #define UPLOAD_INTERVAL 10000 // 10 секунд
@@ -115,10 +115,9 @@ static bool server_sntp_resync_pending = false;
 
 void notify(struct timeval* t) {
     boot_time_us = esp_timer_get_time();
-    time(&boot_unix_time);
+    boot_unix_time = (int64_t)t->tv_sec * 1000000LL + t->tv_usec;
+
     server_sntp_resync_pending = true;
-    Serial.println("time synchronized");
-    printTime();
 }
 
 void send_sntp_resync(String device_name) {
