@@ -6,7 +6,7 @@
 
 #include "../common.h"
 
-#define DEVICE_NAME "ESP32_02"
+#define DEVICE_NAME "ESP32_07"
 
 struct Packet {
     int64_t boot_time_us;
@@ -250,10 +250,12 @@ unsigned long lastUpload = 0;
 void loop() {
     unsigned long now = millis();
 
-    if (cycle_counter == CYCLES_BEFORE_RESYNC) {
-        syncSNTP();
-        cycle_counter = 0;
+#if PERIODIC_TIME_SYNC
+    if (now - lastPeriodicSync > PERIODIC_SYNC_INTERVAL) {
+        generatePeriodicSync();
+        lastPeriodicSync = now;
     }
+#endif
 
     if (now - lastUpload > UPLOAD_INTERVAL) {
         Serial.println("[SNIFFER] Promiscuous DISABLED");
@@ -267,7 +269,6 @@ void loop() {
 
         lastUpload = now;
         digitalWrite(LED_BUILTIN, HIGH);
-        cycle_counter++;
     }
 
     delay(500);

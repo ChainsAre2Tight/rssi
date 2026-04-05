@@ -28,8 +28,8 @@
 
 // ==== Настройки сниффера ====
 #define MAX_PACKETS 500
-#define CYCLES_BEFORE_RESYNC 3
-static int cycle_counter = 0;
+#define PERIODIC_TIME_SYNC        1        // 1 = enable periodic sync rows
+#define PERIODIC_SYNC_INTERVAL    60000UL  // ms (60s recommended)
 
 #define UPLOAD_INTERVAL 10000 // 10 секунд
 
@@ -112,12 +112,27 @@ void printTime() {
 static __INT64_TYPE__ boot_time_us = 0;
 static time_t boot_unix_time = 0;
 static bool server_sntp_resync_pending = false;
+static unsigned long lastPeriodicSync = 0;
 
 void notify(struct timeval* t) {
     boot_time_us = esp_timer_get_time();
     boot_unix_time = (int64_t)t->tv_sec * 1000000LL + t->tv_usec;
 
     server_sntp_resync_pending = true;
+
+    Serial.println("[TIME] SNPT sync generated");
+}
+
+void generatePeriodicSync() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    boot_time_us = esp_timer_get_time();
+    boot_unix_time = (int64_t)tv.tv_sec * 1000000LL + tv.tv_usec;
+
+    server_sntp_resync_pending = true;
+
+    Serial.println("[TIME] Periodic sync generated");
 }
 
 void send_sntp_resync(String device_name) {
@@ -149,7 +164,9 @@ void wait4SNTP() {
 }
 
 void syncSNTP() {
+    Serial.printf("Before begin: %d\n", esp_timer_get_time());
     WiFi.begin(WIFI_SSID, WIFI_PASS);
+    Serial.printf("after begin: %d\n", esp_timer_get_time());
     Serial.print("[WIFI] Connecting for SNTP sync...");
     int retry = 0;
     digitalWrite(LED_BUILTIN, LOW);
@@ -173,14 +190,21 @@ void syncSNTP() {
     delay(50);
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("[WIFI] Connected, syncing time...");
-    sntp_set_sync_interval(1 * 60 * 60 * 1000UL);  // 1 hour
+    sntp_set_sync_interval(60 * 1000UL);  // 1 minute
     sntp_set_time_sync_notification_cb(notify);
     esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
     esp_sntp_setservername(0, SNTP_SERVER);
+    Serial.printf("Before sntp init: %d\n", esp_timer_get_time());
     esp_sntp_init();
+    Serial.printf("after sntp init: %d\n", esp_timer_get_time());
     setenv("TZ", "MSK-3", 1);
     tzset();
+    Serial.printf("Before sntp wait: %d\n", esp_timer_get_time());
     wait4SNTP();
+    Serial.printf("after sntp wait: %d\n", esp_timer_get_time());
+    Serial.printf("Before disconnect: %d\n", esp_timer_get_time());
+    WiFi.disconnect(true);
+    Serial.printf("after disconnect: %d\n", esp_timer_get_time());
 }
 
 #endif

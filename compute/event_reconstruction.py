@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 import my_types
 
 
-MERGE_WINDOW_US = 50_000
+MERGE_WINDOW_US = 100_000
 REORDER_WINDOW_US = 30_000_000
 
 
