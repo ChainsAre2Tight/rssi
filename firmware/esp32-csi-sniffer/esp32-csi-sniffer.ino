@@ -34,9 +34,9 @@ volatile int activeCount = 0;
 unsigned long lastUpload = 0;
 
 void csiPacketHandler(void *ctx, wifi_csi_info_t *pkt) {
+    if (activeCount >= MAX_PACKETS) return;
 
     int64_t capture_time = esp_timer_get_time();
-    if (activeCount >= MAX_PACKETS) return;
 
     CsiPacket p;
     memset(&p, 0, sizeof(CsiPacket));
@@ -62,10 +62,16 @@ void csiPacketHandler(void *ctx, wifi_csi_info_t *pkt) {
     p.noise_floor = rx_ctrl.noise_floor;
     p.csi_length = pkt->len;
 
-    p.csi_buffer = (int8_t*)malloc(p.csi_length * sizeof(int8_t));
-    memcpy(p.csi_buffer, pkt->buf, p.csi_length * sizeof(int8_t));
+    p.csi_buffer = (int8_t*)malloc(p.csi_length);
 
-    buffer[activeCount++] = p;
+    if (p.csi_buffer == NULL) {
+        return;  // drop packet safely
+    }
+
+    memcpy(p.csi_buffer, pkt->buf, p.csi_length);
+
+    buffer[activeCount] = p;
+    activeCount++;
 }
 
 void initSniffer() {
@@ -204,7 +210,10 @@ void sendBatch() {
 
             if (i != end - 1) json += ",";
 
-            free(buffer[i].csi_buffer);
+            if (buffer[i].csi_buffer) {
+                free(buffer[i].csi_buffer);
+                buffer[i].csi_buffer = NULL;
+            }
         }
 
         json += "]}";
