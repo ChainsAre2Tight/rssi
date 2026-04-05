@@ -1,14 +1,15 @@
 #ifndef _COMMON_
 #define _COMMON_ 1
 
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include "esp_sntp.h"
-#include "esp_wifi.h"
-#include "Arduino.h"
 #include <stdint.h>
 #include <string.h>
+
+#include <WiFi.h>
 #include <HTTPClient.h>
+#include "Arduino.h"
+#include "esp_sntp.h"
+#include "esp_wifi.h"
+#include "esp_system.h"
 
 // ==== Настройки Wi-Fi и сервера ====
 #define WIFI_SSID "dmitry-moosetop"
@@ -27,20 +28,38 @@
 
 // ==== Настройки сниффера ====
 #define MAX_PACKETS 500
-#define HOP_INTERVAL_MS 1000
-#define NUM_CHANNELS 13
-
 #define CYCLES_BEFORE_RESYNC 10
 static int cycle_counter = 0;
 
 #define UPLOAD_INTERVAL 10000 // 10 секунд
 
-void channelHoppingTask(void* pvParameter) {
-    uint8_t channel = 1;
+#define BASE_HOP_INTERVAL_MS 250
+#define HOP_JITTER_MS        100
+
+static const uint8_t SCAN_CHANNELS[] = {1, 6, 11};
+static const size_t NUM_SCAN_CHANNELS = sizeof(SCAN_CHANNELS) / sizeof(SCAN_CHANNELS[0]);
+
+void channelHoppingTask(void* pvParameter)
+{
+    size_t index = 0;
+
     while (true) {
+
+        uint8_t channel = SCAN_CHANNELS[index];
         esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-        channel = (channel % NUM_CHANNELS) + 1;
-        vTaskDelay(HOP_INTERVAL_MS / portTICK_PERIOD_MS);
+
+        // Move to next channel
+        index = (index + 1) % NUM_SCAN_CHANNELS;
+
+        // Random jitter: [-JITTER, +JITTER]
+        int jitter = (esp_random() % (2 * HOP_JITTER_MS)) - HOP_JITTER_MS;
+        int delay_ms = BASE_HOP_INTERVAL_MS + jitter;
+
+        if (delay_ms < 10) {
+            delay_ms = 10; // safety minimum
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(delay_ms));
     }
 }
 
