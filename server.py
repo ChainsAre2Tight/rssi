@@ -10,7 +10,11 @@ app = Flask(config.NAME)
 
 @app.route("/upload-csi", methods=["POST"])
 def upload_csi():
-    data = request.get_json()
+    try:
+        data = request.get_json()
+    except Exception as e:
+        print(request.data)
+        raise e
     if not data:
         print(1, request.data)
         return "Invalid JSON", 400

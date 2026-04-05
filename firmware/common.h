@@ -27,7 +27,6 @@
 // #define SERVER_URL "http://192.168.137.1/upload"
 
 // ==== Настройки сниффера ====
-#define MAX_PACKETS 500
 #define PERIODIC_TIME_SYNC        1        // 1 = enable periodic sync rows
 #define PERIODIC_SYNC_INTERVAL    60000UL  // ms (60s recommended)
 

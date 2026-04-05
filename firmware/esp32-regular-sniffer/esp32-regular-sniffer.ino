@@ -15,6 +15,8 @@
 
 #include "../common.h"
 
+#define MAX_PACKETS 512
+
 struct Packet {
     int64_t boot_time_us;
     uint8_t src_mac[6];
@@ -185,7 +187,7 @@ void sendBatch() {
         delay(50);
     }
 
-    const int batchSize = 50;
+    const int batchSize = 64;
     int sent = 0;
 
     while (sent < activeCount) {

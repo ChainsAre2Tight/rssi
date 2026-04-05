@@ -13,6 +13,9 @@
 
 #include "../common.h"
 
+#define MAX_PACKETS 192
+#define CSI_MAX_LEN 304
+
 struct CsiPacket {
     int64_t boot_time_us;
     uint8_t src_mac[6];
@@ -28,12 +31,14 @@ struct CsiPacket {
     int8_t* csi_buffer;
 };
 
-CsiPacket buffer[MAX_PACKETS];
-volatile int activeCount = 0;
+static CsiPacket buffer[MAX_PACKETS];
+static int8_t csi_pool[MAX_PACKETS][CSI_MAX_LEN];
 
+volatile int activeCount = 0;
 unsigned long lastUpload = 0;
 
 void csiPacketHandler(void *ctx, wifi_csi_info_t *pkt) {
+
     if (activeCount >= MAX_PACKETS) return;
 
     int64_t capture_time = esp_timer_get_time();
@@ -60,17 +65,16 @@ void csiPacketHandler(void *ctx, wifi_csi_info_t *pkt) {
 
     p.seq = pkt->rx_seq;
     p.noise_floor = rx_ctrl.noise_floor;
+
     p.csi_length = pkt->len;
+    if (p.csi_length > CSI_MAX_LEN) p.csi_length = CSI_MAX_LEN;
 
-    p.csi_buffer = (int8_t*)malloc(p.csi_length);
-
-    if (p.csi_buffer == NULL) {
-        return;  // drop packet safely
-    }
+    p.csi_buffer = csi_pool[activeCount];
 
     memcpy(p.csi_buffer, pkt->buf, p.csi_length);
 
     buffer[activeCount] = p;
+
     activeCount++;
 }
 
@@ -89,7 +93,7 @@ void initSniffer() {
     wifi_csi_config_t csi_config = {
         .lltf_en           = true,
         .htltf_en          = true,
-        .stbc_htltf2_en    = true,
+        .stbc_htltf2_en    = false, // too much space
         .ltf_merge_en      = true,
         .channel_filter_en = true,
         .manu_scale        = false,
@@ -160,7 +164,7 @@ void sendBatch() {
         delay(50);
     }
 
-    const int batchSize = 50;
+    const int batchSize = 32;
 
     int sent = 0;
 
@@ -209,11 +213,6 @@ void sendBatch() {
             json += "}";
 
             if (i != end - 1) json += ",";
-
-            if (buffer[i].csi_buffer) {
-                free(buffer[i].csi_buffer);
-                buffer[i].csi_buffer = NULL;
-            }
         }
 
         json += "]}";
