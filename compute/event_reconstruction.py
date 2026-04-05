@@ -17,6 +17,7 @@ class _ActiveEvent:
     subtype: int
     dst_mac: str | None
     bssid: str | None
+    ssid: str | None
 
     first_time_us: int
     last_time_us: int
@@ -70,7 +71,7 @@ class EventReconstructor:
         if t > self.max_seen_time:
             self.max_seen_time = t
 
-        key = (pkt.src_mac, pkt.seq, pkt.type, pkt.subtype, pkt.dst_mac, pkt.bssid, pkt.channel)
+        key = (pkt.src_mac, pkt.seq, pkt.type, pkt.subtype, pkt.dst_mac, pkt.bssid, pkt.channel, pkt.ssid)
 
         events = self.active[key]
 
@@ -85,6 +86,7 @@ class EventReconstructor:
             subtype=pkt.subtype,
             dst_mac=pkt.dst_mac,
             bssid=pkt.bssid,
+            ssid=pkt.ssid,
             first_time_us=t,
             last_time_us=t,
         )
@@ -129,6 +131,7 @@ class EventReconstructor:
                             subtype=ev.subtype,
                             dst_mac=ev.dst_mac,
                             bssid=ev.bssid,
+                            ssid=ev.ssid,
                             first_time_us=ev.first_time_us,
                             last_time_us=ev.last_time_us,
                             approx_time_us=(
@@ -168,6 +171,7 @@ class EventReconstructor:
                         subtype=ev.subtype,
                         dst_mac=ev.dst_mac,
                         bssid=ev.bssid,
+                        ssid=ev.ssid,
                         first_time_us=ev.first_time_us,
                         last_time_us=ev.last_time_us,
                         approx_time_us=(

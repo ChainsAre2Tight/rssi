@@ -116,6 +116,7 @@ def init_db():
                 subtype INTEGER NOT NULL,
                 dst_mac TEXT,
                 bssid TEXT,
+                ssid TEXT,
                 first_time_us INTEGER NOT NULL,
                 last_time_us INTEGER NOT NULL,
                 approx_unix_time_us INTEGER NOT NULL,

@@ -74,6 +74,7 @@ class TimedPacket:
     src_mac: str
     dst_mac: str | None
     bssid: str | None
+    ssid: str | None
 
 
 @dataclass(slots=True)
@@ -96,6 +97,7 @@ class EventRow:
     type: int
     subtype: int
     seq: int
+    ssid: str | None
 
     first_time_us: int
     last_time_us: int

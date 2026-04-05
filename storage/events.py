@@ -22,6 +22,7 @@ def insert_events(
             ev.subtype,
             ev.dst_mac,
             ev.bssid,
+            ev.ssid,
             ev.first_time_us,
             ev.last_time_us,
             ev.approx_time_us,
@@ -29,7 +30,7 @@ def insert_events(
         for ev in events
     ]
 
-    placeholders = ",".join(["(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"] * len(values))
+    placeholders = ",".join(["(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"] * len(values))
 
     flat_values = [v for row in values for v in row]
 
@@ -42,6 +43,7 @@ def insert_events(
             subtype,
             dst_mac,
             bssid,
+            ssid,
             first_time_us,
             last_time_us,
             approx_unix_time_us

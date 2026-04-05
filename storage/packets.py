@@ -91,7 +91,8 @@ def stream_timed_packets(
             seq,
             src_mac,
             dst_mac,
-            bssid
+            bssid,
+            ssid
         FROM packets
         WHERE measurement_id = ?
         AND processed = 0
@@ -125,6 +126,7 @@ def stream_timed_packets(
             src_mac=row["src_mac"],
             dst_mac=row["dst_mac"],
             bssid=row["bssid"],
+            ssid=row["ssid"],
         )
 
 def mark_packets_processed(
