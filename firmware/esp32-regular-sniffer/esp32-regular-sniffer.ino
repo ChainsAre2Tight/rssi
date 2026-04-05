@@ -4,9 +4,16 @@
 #include "esp_wifi.h"
 #include "Arduino.h"
 
-#include "../common.h"
+#define CHANNEL_PRESET_FOCUS_1
+#define DEVICE_NAME "ESP32_01"
 
-#define DEVICE_NAME "ESP32_07"
+// #define CHANNEL_PRESET_FOCUS_6
+// #define DEVICE_NAME "ESP32_03"
+
+// #define CHANNEL_PRESET_FOCUS_11
+// #define DEVICE_NAME "ESP32_07"
+
+#include "../common.h"
 
 struct Packet {
     int64_t boot_time_us;
@@ -38,7 +45,7 @@ String jsonEscape(const char* str) {
 }
 
 void packetHandler(void* buf, wifi_promiscuous_pkt_type_t type) {
-    int capture_time = esp_timer_get_time();
+    int64_t capture_time = esp_timer_get_time();
     if (activeCount >= MAX_PACKETS) return;
 
     wifi_promiscuous_pkt_t* pkt = (wifi_promiscuous_pkt_t*)buf;

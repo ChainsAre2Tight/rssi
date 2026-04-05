@@ -38,20 +38,88 @@
 
 #define ANCHOR_CHANNEL       6
 
-#define ANCHOR_PROBABILITY   50   // % chance to go to anchor
-#define STAY_PROBABILITY     20   // % chance to stay on current channel
-#define BURST_PROBABILITY    15   // % chance to start anchor burst
+#define ANCHOR_PROBABILITY   50
+#define STAY_PROBABILITY     20
+#define BURST_PROBABILITY    15
 
 #define BURST_MIN_HOPS       3
 #define BURST_MAX_HOPS       6
 
-static const uint8_t CHANNELS[] = {1, 6, 11};
-static const size_t NUM_CHANNELS = sizeof(CHANNELS) / sizeof(CHANNELS[0]);
+// -------- SENSOR FOCUS CHANNEL 1 --------
+// #define CHANNEL_PRESET_FOCUS_1
+
+// -------- SENSOR FOCUS CHANNEL 6 --------
+// #define CHANNEL_PRESET_FOCUS_6
+
+// -------- SENSOR FOCUS CHANNEL 11 --------
+// #define CHANNEL_PRESET_FOCUS_11
+
+// -------- BALANCED SCANNING --------
+// #define CHANNEL_PRESET_BALANCED
+
+
+#if defined(CHANNEL_PRESET_FOCUS_1)
+
+static const uint8_t CHANNEL_WEIGHT[13] = {
+/*ch 1  2  3  4  5  6  7  8  9 10 11 12 13*/
+   22,10, 6, 3, 3, 8, 3, 3, 3, 4, 8, 2, 2
+};
+
+#elif defined(CHANNEL_PRESET_FOCUS_6)
+
+static const uint8_t CHANNEL_WEIGHT[13] = {
+/*ch 1  2  3  4  5  6  7  8  9 10 11 12 13*/
+    8, 4, 3, 3,10,24,10, 3, 3, 4, 8, 2, 2
+};
+
+#elif defined(CHANNEL_PRESET_FOCUS_11)
+
+static const uint8_t CHANNEL_WEIGHT[13] = {
+/*ch 1  2  3  4  5  6  7  8  9 10 11 12 13*/
+    8, 4, 3, 3, 8, 8, 3, 3, 6,10,24, 6, 3
+};
+
+#elif defined(CHANNEL_PRESET_BALANCED)
+
+static const uint8_t CHANNEL_WEIGHT[13] = {
+/*ch 1  2  3  4  5  6  7  8  9 10 11 12 13*/
+   14, 6, 4, 3, 6,14, 6, 3, 4, 6,14, 3, 3
+};
+
+#endif
+
+uint8_t pickWeightedChannel()
+{
+    static uint16_t total_weight = 0;
+    static bool initialized = false;
+
+    if (!initialized)
+    {
+        for (int i = 0; i < 13; i++)
+        {
+            total_weight += CHANNEL_WEIGHT[i];
+        }
+        initialized = true;
+    }
+
+    uint16_t r = esp_random() % total_weight;
+
+    for (int i = 0; i < 13; i++)
+    {
+        if (r < CHANNEL_WEIGHT[i])
+        {
+            return i + 1;
+        }
+
+        r -= CHANNEL_WEIGHT[i];
+    }
+
+    return ANCHOR_CHANNEL;
+}
 
 void channelHoppingTask(void* pvParameter)
 {
-    uint8_t current_channel = CHANNELS[esp_random() % NUM_CHANNELS];
-
+    uint8_t current_channel = pickWeightedChannel();
     int burst_remaining = 0;
 
     while (true)
@@ -62,7 +130,7 @@ void channelHoppingTask(void* pvParameter)
 
         if (burst_remaining > 0)
         {
-            // Continue anchor burst
+            // continue anchor burst
             current_channel = ANCHOR_CHANNEL;
             burst_remaining--;
         }
@@ -70,7 +138,7 @@ void channelHoppingTask(void* pvParameter)
         {
             if (r < BURST_PROBABILITY)
             {
-                // Start anchor burst
+                // start anchor burst
                 burst_remaining =
                     BURST_MIN_HOPS +
                     (esp_random() % (BURST_MAX_HOPS - BURST_MIN_HOPS + 1));
@@ -80,24 +148,25 @@ void channelHoppingTask(void* pvParameter)
             }
             else if (r < BURST_PROBABILITY + STAY_PROBABILITY)
             {
-                // Stay on same channel
+                // stay on channel
             }
             else if (r < BURST_PROBABILITY + STAY_PROBABILITY + ANCHOR_PROBABILITY)
             {
-                // Move to anchor
+                // jump to anchor
                 current_channel = ANCHOR_CHANNEL;
             }
             else
             {
-                // Random channel
-                current_channel = CHANNELS[esp_random() % NUM_CHANNELS];
+                // weighted random channel
+                current_channel = pickWeightedChannel();
             }
         }
 
         int jitter = (esp_random() % (2 * HOP_JITTER_MS)) - HOP_JITTER_MS;
         int delay_ms = BASE_HOP_INTERVAL_MS + jitter;
 
-        if (delay_ms < 10) delay_ms = 10;
+        if (delay_ms < 10)
+            delay_ms = 10;
 
         vTaskDelay(pdMS_TO_TICKS(delay_ms));
     }

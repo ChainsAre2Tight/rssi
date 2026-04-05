@@ -5,9 +5,13 @@
 #include "Arduino.h"
 #include <stdlib.h>
 
-#include "../common.h"
+#define CHANNEL_PRESET_BALANCED
 
-#define DEVICE_NAME "ESP32_08"
+#define DEVICE_NAME "ESP32_02"
+// #define DEVICE_NAME "ESP32_04"
+// #define DEVICE_NAME "ESP32_08"
+
+#include "../common.h"
 
 struct CsiPacket {
     int64_t boot_time_us;
@@ -31,7 +35,7 @@ unsigned long lastUpload = 0;
 
 void csiPacketHandler(void *ctx, wifi_csi_info_t *pkt) {
 
-    int capture_time = esp_timer_get_time();
+    int64_t capture_time = esp_timer_get_time();
     if (activeCount >= MAX_PACKETS) return;
 
     CsiPacket p;
