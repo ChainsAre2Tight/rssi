@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 class PACKET(t.TypedDict):
     boot_time_us: int
+    unix_time_us: int
     rssi: int
     noise_floor: int
     ch: int
@@ -16,6 +17,7 @@ class PACKET(t.TypedDict):
 
 class CSI_PACKET(t.TypedDict):
     boot_time_us: int
+    unix_time_us: int
     rssi: int
     noise_floor: int
     ch: int
@@ -50,9 +52,6 @@ class SyncSegment:
     boot_start: int
     a: float
     b: float
-
-
-EventKey = t.Tuple[str, int, int, int]
 
 
 @dataclass(slots=True)

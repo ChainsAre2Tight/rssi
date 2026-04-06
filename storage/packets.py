@@ -12,6 +12,7 @@ def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, p
             measurement_id,
             device,
             pkt.get("boot_time_us", 0),
+            pkt.get("unix_time_us", 0),
             pkt.get("rssi", 0),
             pkt.get("noise_floor", 0),
             pkt.get("ch", 0),
@@ -29,9 +30,9 @@ def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, p
     cur = conn.cursor()
     cur.executemany("""
         INSERT INTO packets (
-            measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
+            measurement_id, device, boot_time_us, unix_time_us, rssi, noise_floor, channel, type,
             subtype, seq, src_mac, dst_mac, bssid, ssid
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, 
         values,
     )
@@ -44,6 +45,7 @@ def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: st
             measurement_id,
             device,
             pkt.get("boot_time_us", 0),
+            pkt.get("unix_time_us", 0),
             pkt.get("rssi", 0),
             pkt.get("noise_floor", 0),
             pkt.get("ch", 0),
@@ -60,9 +62,9 @@ def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: st
     cur = conn.cursor()
     cur.executemany("""
         INSERT INTO csi_packets (
-            measurement_id, device, boot_time_us, rssi, noise_floor, channel, type,
+            measurement_id, device, boot_time_us, unix_time_us, rssi, noise_floor, channel, type,
             subtype, seq, src_mac, dst_mac, bssid, csi
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, 
         values,
     )
