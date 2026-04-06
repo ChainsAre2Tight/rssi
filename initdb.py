@@ -2,7 +2,7 @@ import storage
 
 
 def init_db():
-    with storage.Connect() as conn:
+    with storage.Session() as conn:
 
         # enforce it here if disabled for debug in regular config
         conn.execute("PRAGMA foreign_keys = ON")

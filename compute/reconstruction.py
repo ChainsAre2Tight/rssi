@@ -95,12 +95,12 @@ class _EventReconstructor:
 
     def pop_ready(
         self,
-    ) -> Tuple[List[my_types.EventRow], List[List[my_types.ObservationRow]]]:
+    ) -> Tuple[List[my_types.EventRow], List[List[int]]]:
 
         watermark = self.max_seen_time - REORDER_WINDOW_US
 
         ready_events: List[my_types.EventRow] = []
-        ready_obs: List[List[my_types.ObservationRow]] = []
+        ready_obs: List[List[int]] = []
 
         for key in list(self.active.keys()):
 
@@ -142,10 +142,10 @@ class _EventReconstructor:
 
     def flush_all(
         self,
-    ) -> Tuple[List[my_types.EventRow], List[List[my_types.ObservationRow]]]:
+    ) -> Tuple[List[my_types.EventRow], List[List[int]]]:
 
         ready_events: List[my_types.EventRow] = []
-        ready_obs: List[List[my_types.ObservationRow]] = []
+        ready_obs: List[List[int]] = []
 
         for events in self.active.values():
 
@@ -186,7 +186,7 @@ def reconstruct_measurement(
     processed_packet_ids: List[int] = []
 
     event_buffer: List[my_types.EventRow] = []
-    obs_buffer: List[List[my_types.ObservationRow]] = []
+    obs_buffer: List[List[int]] = []
 
     for pkt in stream_timed_packets(conn, measurement_id):
 

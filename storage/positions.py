@@ -1,7 +1,7 @@
 from storage.connection import Connect
 
 def get_device_position(measurement_id: int, device: str) -> tuple[float, float, float]:
-    with Connect() as conn:
+    with Session() as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT x, y, z

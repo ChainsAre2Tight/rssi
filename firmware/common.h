@@ -164,7 +164,7 @@ void printTime() {
 }
 
 void notify(struct timeval* t) {
-    Serial.println("[TIME] SNPT sync generated");
+    Serial.println("[TIME] SNPT sync recieved");
 }
 
 void wait4SNTP() {

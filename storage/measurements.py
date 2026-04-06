@@ -1,7 +1,7 @@
 from storage.connection import Connect
 
 def insert_measurement(room_id: int) -> int:
-    with Connect() as conn:
+    with Session() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO measurements (room_id)
@@ -14,7 +14,7 @@ def insert_measurement(room_id: int) -> int:
     return id
 
 def get_latest_measurement_id() -> int:
-    with Connect() as conn:
+    with Session() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT id FROM measurements ORDER BY 1 DESC LIMIT 1

@@ -152,7 +152,7 @@ def index_rssi(
         ssid: str,
     ) -> List[int]:
 
-    with storage.Connect() as conn:
+    with storage.Session() as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT rssi
@@ -172,7 +172,7 @@ def index_devices_by_ssid(
         ssid: str,
     ) -> List[my_types.DEVICE]:
 
-    with storage.Connect() as conn:
+    with storage.Session() as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT
@@ -201,7 +201,7 @@ def index_other_devices_by_device(
         device: str,
     ) -> List[my_types.DEVICE]:
 
-    with storage.Connect() as conn:
+    with storage.Session() as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT
@@ -230,7 +230,7 @@ def index_rssi_by_device_and_mac(
     device: str,
     src_mac: str,
 ) -> List[int]:
-    with storage.Connect() as conn:
+    with storage.Session() as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT rssi

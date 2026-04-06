@@ -26,7 +26,7 @@ def upload_csi():
         print(2, request.data)
         return "No packets", 400
 
-    with storage.Connect() as conn:
+    with storage.Session() as conn:
         storage.insert_csi_packets(conn, config.MEASUREMENT_ID, device, packets)
 
     print(f"[UPLOAD] Received {len(packets)} packets with CSI data from {device}")
@@ -44,7 +44,7 @@ def upload():
     if not packets:
         return "No packets", 400
 
-    with storage.Connect() as conn:
+    with storage.Session() as conn:
         storage.insert_packets(conn, config.MEASUREMENT_ID, device, packets)
 
     print(f"[UPLOAD] Received {len(packets)} packets from {device}")

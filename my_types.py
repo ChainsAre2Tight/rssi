@@ -37,35 +37,6 @@ class DEVICE(t.TypedDict):
     gain: int
     mac: str
 
-class TIME_SYNC(t.TypedDict):
-    boot_time_us: int
-    unix_time: int
-
-@dataclass(slots=True)
-class TimeSyncRow:
-    device: str
-    measurement_id: int
-    boot_time_us: int
-    unix_time_us: int
-
-@dataclass(slots=True)
-class SyncSegment:
-    """unix = a * boot + b"""
-    boot_start: int
-    a: float
-    b: float
-
-@dataclass(slots=True)
-class ObservationRow:
-    device: str
-    boot_time_us: int
-    unix_time_us: int
-    rssi: int
-    noise_floor: int
-    channel: int
-    packet_id: int
-
-
 @dataclass(slots=True)
 class EventRow:
     src_mac: str
