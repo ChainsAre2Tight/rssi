@@ -2,7 +2,6 @@ import typing as t
 from dataclasses import dataclass
 
 class PACKET(t.TypedDict):
-    boot_time_us: int
     unix_time_us: int
     rssi: int
     noise_floor: int
@@ -20,7 +19,6 @@ class ID_PACKET(PACKET):
     device: str
 
 class CSI_PACKET(t.TypedDict):
-    boot_time_us: int
     unix_time_us: int
     rssi: int
     noise_floor: int

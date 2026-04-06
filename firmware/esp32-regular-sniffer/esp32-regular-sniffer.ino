@@ -18,7 +18,6 @@
 #define MAX_PACKETS 512
 
 struct Packet {
-    int64_t boot_time_us;
     int64_t unix_time_us;
     uint8_t src_mac[6];
     uint8_t dst_mac[6];
@@ -49,7 +48,6 @@ String jsonEscape(const char* str) {
 
 void packetHandler(void* buf, wifi_promiscuous_pkt_type_t type) {
     if (activeCount >= MAX_PACKETS) return;
-    int64_t capture_time = esp_timer_get_time();
 
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -58,7 +56,6 @@ void packetHandler(void* buf, wifi_promiscuous_pkt_type_t type) {
 
     Packet p;
     memset(&p, 0, sizeof(Packet));
-    p.boot_time_us = capture_time;
     p.unix_time_us = (int64_t)tv.tv_sec * 1000000LL + tv.tv_usec;
 
     wifi_pkt_rx_ctrl_t ctrl = pkt->rx_ctrl;
@@ -208,7 +205,6 @@ void sendBatch() {
             String ssidSafe = buffer[i].ssid[0] ? jsonEscape(buffer[i].ssid) : "";
 
             json += "{";
-            json += "\"boot_time_us\":" + String(buffer[i].boot_time_us) + ",";
             json += "\"unix_time_us\":" + String(buffer[i].unix_time_us) + ",";
             json += "\"rssi\":" + String(buffer[i].rssi) + ",";
             json += "\"noise_floor\":" + String(buffer[i].noise_floor) + ",";

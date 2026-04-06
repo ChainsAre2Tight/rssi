@@ -17,7 +17,6 @@
 #define CSI_MAX_LEN 304
 
 struct CsiPacket {
-    int64_t boot_time_us;
     int64_t unix_time_us;
     uint8_t src_mac[6];
     uint8_t dst_mac[6];
@@ -42,14 +41,11 @@ void csiPacketHandler(void *ctx, wifi_csi_info_t *pkt) {
 
     if (activeCount >= MAX_PACKETS) return;
 
-    int64_t capture_time = esp_timer_get_time();
-
     struct timeval tv;
     gettimeofday(&tv, NULL);
 
     CsiPacket p;
     memset(&p, 0, sizeof(CsiPacket));
-    p.boot_time_us = capture_time;
     p.unix_time_us = (int64_t)tv.tv_sec * 1000000LL + tv.tv_usec;
 
     wifi_pkt_rx_ctrl_t rx_ctrl = pkt->rx_ctrl;
@@ -185,7 +181,6 @@ void sendBatch() {
                      buffer[i].bssid[3], buffer[i].bssid[4], buffer[i].bssid[5]);
 
             json += "{";
-            json += "\"boot_time_us\":" + String(buffer[i].boot_time_us) + ",";
             json += "\"unix_time_us\":" + String(buffer[i].unix_time_us) + ",";
             json += "\"rssi\":" + String(buffer[i].rssi) + ",";
             json += "\"noise_floor\":" + String(buffer[i].noise_floor) + ",";

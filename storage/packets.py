@@ -10,7 +10,6 @@ def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, p
         (
             measurement_id,
             device,
-            pkt.get("boot_time_us", 0),
             pkt.get("unix_time_us", 0),
             pkt.get("rssi", 0),
             pkt.get("noise_floor", 0),
@@ -29,21 +28,18 @@ def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, p
     cur = conn.cursor()
     cur.executemany("""
         INSERT INTO packets (
-            measurement_id, device, boot_time_us, unix_time_us, rssi, noise_floor, channel, type,
+            measurement_id, device, unix_time_us, rssi, noise_floor, channel, type,
             subtype, seq, src_mac, dst_mac, bssid, ssid
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, 
         values,
     )
-
-    conn.commit()
 
 def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: str, packets: List[my_types.CSI_PACKET]):
     values = [
         (
             measurement_id,
             device,
-            pkt.get("boot_time_us", 0),
             pkt.get("unix_time_us", 0),
             pkt.get("rssi", 0),
             pkt.get("noise_floor", 0),
@@ -61,13 +57,12 @@ def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: st
     cur = conn.cursor()
     cur.executemany("""
         INSERT INTO csi_packets (
-            measurement_id, device, boot_time_us, unix_time_us, rssi, noise_floor, channel, type,
+            measurement_id, device, unix_time_us, rssi, noise_floor, channel, type,
             subtype, seq, src_mac, dst_mac, bssid, csi
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, 
         values,
     )
-    conn.commit()
 
 
 def stream_timed_packets(
@@ -83,7 +78,6 @@ def stream_timed_packets(
         SELECT
             id,
             device,
-            boot_time_us,
             unix_time_us,
             rssi,
             noise_floor,
@@ -115,7 +109,6 @@ def stream_timed_packets(
             yield my_types.ID_PACKET(
                 id=row["id"],
                 device=row["device"],
-                boot_time_us=row["boot_time_us"],
                 unix_time_us=row["unix_time_us"],
                 rssi=row["rssi"],
                 noise_floor=row["noise_floor"],
