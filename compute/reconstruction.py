@@ -1,16 +1,178 @@
+from typing import Dict, List, Tuple
+from collections import defaultdict
+from dataclasses import dataclass, field
+
 import sqlite3
-from typing import List
 
 import my_types
-
-from storage.packets import stream_timed_packets
-from compute.event_reconstruction import EventReconstructor
-
 from storage import (
+    stream_timed_packets,
     insert_events,
-    insert_event_observations,
-    mark_packets_processed,
+    link_packets_to_events,
 )
+
+
+MERGE_WINDOW_US = 100_000
+REORDER_WINDOW_US = 30_000_000
+
+
+@dataclass(slots=True)
+class _ActiveEvent:
+    src_mac: str
+    seq: int
+    type: int
+    subtype: int
+    dst_mac: str | None
+    bssid: str | None
+    ssid: str | None
+
+    first_time_us: int
+    last_time_us: int
+
+    # stores ids of packets to link them to events later
+    observations: List[int] = field(default_factory=list)
+
+    def try_merge(self, pkt: my_types.ID_PACKET) -> bool:
+
+        t = pkt["unix_time_us"]
+
+        new_first = min(self.first_time_us, t)
+        new_last = max(self.last_time_us, t)
+
+
+        if new_last - new_first > MERGE_WINDOW_US:
+            return False
+
+        self.first_time_us = new_first
+        self.last_time_us = new_last
+
+        self.observations.append(pkt["id"])
+
+        return True
+
+
+class _EventReconstructor:
+
+    def __init__(self):
+
+        self.active: Dict[
+            Tuple[str, int, int, int],
+            List[_ActiveEvent],
+        ] = defaultdict(list)
+
+        self.max_seen_time = 0
+
+    def process(self, pkt: my_types.ID_PACKET) -> None:
+
+        t = pkt["unix_time_us"]
+
+        if t > self.max_seen_time:
+            self.max_seen_time = t
+
+        key = (pkt["src"], pkt["seq"], pkt["type"], pkt["sub"], pkt["dst"], pkt["bssid"], pkt["ch"], pkt["ssid"])
+
+        events = self.active[key]
+
+        for ev in events:
+            if ev.try_merge(pkt):
+                return
+
+        ev = _ActiveEvent(
+            src_mac=pkt["src"],
+            seq=pkt["seq"],
+            type=pkt["type"],
+            subtype=pkt["sub"],
+            dst_mac=pkt["dst"],
+            bssid=pkt["bssid"],
+            ssid=pkt["ssid"],
+            first_time_us=t,
+            last_time_us=t,
+        )
+
+        ev.observations.append(pkt["id"])
+
+        events.append(ev)
+
+    def pop_ready(
+        self,
+    ) -> Tuple[List[my_types.EventRow], List[List[my_types.ObservationRow]]]:
+
+        watermark = self.max_seen_time - REORDER_WINDOW_US
+
+        ready_events: List[my_types.EventRow] = []
+        ready_obs: List[List[my_types.ObservationRow]] = []
+
+        for key in list(self.active.keys()):
+
+            events = self.active[key]
+            remaining = []
+
+            for ev in events:
+
+                if ev.last_time_us < watermark:
+
+                    ready_events.append(
+                        my_types.EventRow(
+                            src_mac=ev.src_mac,
+                            seq=ev.seq,
+                            type=ev.type,
+                            subtype=ev.subtype,
+                            dst_mac=ev.dst_mac,
+                            bssid=ev.bssid,
+                            ssid=ev.ssid,
+                            first_time_us=ev.first_time_us,
+                            last_time_us=ev.last_time_us,
+                            approx_time_us=(
+                                ev.first_time_us + ev.last_time_us
+                            ) // 2,
+                        )
+                    )
+
+                    ready_obs.append(ev.observations)
+
+                else:
+                    remaining.append(ev)
+
+            if remaining:
+                self.active[key] = remaining
+            else:
+                del self.active[key]
+
+        return ready_events, ready_obs
+
+    def flush_all(
+        self,
+    ) -> Tuple[List[my_types.EventRow], List[List[my_types.ObservationRow]]]:
+
+        ready_events: List[my_types.EventRow] = []
+        ready_obs: List[List[my_types.ObservationRow]] = []
+
+        for events in self.active.values():
+
+            for ev in events:
+
+                ready_events.append(
+                    my_types.EventRow(
+                        src_mac=ev.src_mac,
+                        seq=ev.seq,
+                        type=ev.type,
+                        subtype=ev.subtype,
+                        dst_mac=ev.dst_mac,
+                        bssid=ev.bssid,
+                        ssid=ev.ssid,
+                        first_time_us=ev.first_time_us,
+                        last_time_us=ev.last_time_us,
+                        approx_time_us=(
+                            ev.first_time_us + ev.last_time_us
+                        ) // 2,
+                    )
+                )
+
+                ready_obs.append(ev.observations)
+
+        self.active.clear()
+
+        return ready_events, ready_obs
 
 
 def reconstruct_measurement(
@@ -19,7 +181,7 @@ def reconstruct_measurement(
     batch_commit_events: int = 50,
 ) -> None:
 
-    recon = EventReconstructor()
+    recon = _EventReconstructor()
 
     processed_packet_ids: List[int] = []
 
@@ -40,8 +202,7 @@ def reconstruct_measurement(
 
             event_ids = insert_events(conn, measurement_id, event_buffer)
 
-            insert_event_observations(conn, event_ids, obs_buffer)
-            mark_packets_processed(conn, processed_packet_ids)
+            link_packets_to_events(conn, event_ids, obs_buffer)
 
             event_buffer.clear()
             obs_buffer.clear()
@@ -54,7 +215,4 @@ def reconstruct_measurement(
 
     if event_buffer:
         event_ids = insert_events(conn, measurement_id, event_buffer)
-        insert_event_observations(conn, event_ids, obs_buffer)
-
-    if processed_packet_ids:
-        mark_packets_processed(conn, processed_packet_ids)
+        link_packets_to_events(conn, event_ids, obs_buffer)

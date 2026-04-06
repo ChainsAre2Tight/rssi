@@ -98,7 +98,7 @@ def stream_timed_packets(
         FROM packets
         WHERE
             measurement_id = ?
-            AND processed = 0
+            AND event_id IS NULL
         ORDER BY unix_time_us, device
         """,
         (measurement_id,),
@@ -129,24 +129,29 @@ def stream_timed_packets(
                 ssid=row["ssid"],
             )
 
-def mark_packets_processed(
-    conn: sqlite3.Connection,
-    packet_ids: List[int],
-):
 
-    if not packet_ids:
-        return
+def link_packets_to_events(
+    conn: sqlite3.Connection,
+    event_ids: List[int],
+    observations_per_event: List[List[int]],
+):
 
     cur = conn.cursor()
 
-    cur.executemany(
+    for event_id, packet_ids in zip(event_ids, observations_per_event):
+
+        if not packet_ids:
+            continue
+
+        placeholders = ",".join("?" for _ in packet_ids)
+
+        query = f"""
+            UPDATE packets
+            SET event_id = ?
+            WHERE id IN ({placeholders})
         """
-        UPDATE packets
-        SET processed = 1
-        WHERE id = ?
-        """,
-        [(pid,) for pid in packet_ids],
-    )
+
+        cur.execute(query, [event_id] + packet_ids)
 
 def index_rssi(
         measurement_id: int,
