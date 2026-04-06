@@ -185,13 +185,6 @@ void sendBatch() {
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("[WIFI] Connected, sending batch...");
 
-    int sync_attempts = 0;
-    while (server_sntp_resync_pending && sync_attempts < 3) {
-        send_sntp_resync(String(DEVICE_NAME));
-        sync_attempts++;
-        delay(50);
-    }
-
     const int batchSize = 64;
     int sent = 0;
 
@@ -264,13 +257,6 @@ unsigned long lastUpload = 0;
 
 void loop() {
     unsigned long now = millis();
-
-#if PERIODIC_TIME_SYNC
-    if (now - lastPeriodicSync > PERIODIC_SYNC_INTERVAL) {
-        generatePeriodicSync();
-        lastPeriodicSync = now;
-    }
-#endif
 
     if (now - lastUpload > UPLOAD_INTERVAL) {
         Serial.println("[SNIFFER] Promiscuous DISABLED");

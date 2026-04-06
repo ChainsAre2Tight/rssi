@@ -97,18 +97,6 @@ def init_db():
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS time_sync (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                measurement_id INTEGER,
-                device TEXT NOT NULL,
-                boot_time_us INTEGER NOT NULL,
-                unix_time_us INTEGER NOT NULL,
-                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (device) REFERENCES devices(name)
-            )
-        """)
-
-        cursor.execute("""
             CREATE TABLE IF NOT EXISTS events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 measurement_id INTEGER NOT NULL,
@@ -127,13 +115,14 @@ def init_db():
             )
         """)
 
+        # could as well be one-to-many table...
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS event_observations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 event_id INTEGER NOT NULL,
                 device TEXT NOT NULL,
                 boot_time_us INTEGER NOT NULL,
-                approx_unix_time_us INTEGER NOT NULL,
+                unix_time_us INTEGER NOT NULL,
                 rssi INTEGER,
                 noise_floor INTEGER,
                 channel INTEGER,
@@ -163,11 +152,6 @@ def init_db():
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_event_obs_event
             ON event_observations(event_id)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_time_sync_device_boot
-            ON time_sync(device, boot_time_us)
         """)
 
         conn.commit()

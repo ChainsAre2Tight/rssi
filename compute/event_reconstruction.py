@@ -24,9 +24,9 @@ class _ActiveEvent:
 
     observations: List[my_types.ObservationRow] = field(default_factory=list)
 
-    def try_merge(self, pkt: my_types.TimedPacket) -> bool:
+    def try_merge(self, pkt: my_types.ID_PACKET) -> bool:
 
-        t = pkt.approx_unix_time_us
+        t = pkt["unix_time_us"]
 
         new_first = min(self.first_time_us, t)
         new_last = max(self.last_time_us, t)
@@ -40,13 +40,13 @@ class _ActiveEvent:
 
         self.observations.append(
             my_types.ObservationRow(
-                device=pkt.device,
-                boot_time_us=pkt.boot_time_us,
-                approx_unix_time_us=t,
-                rssi=pkt.rssi,
-                noise_floor=pkt.noise_floor,
-                channel=pkt.channel,
-                packet_id=pkt.id,
+                device=pkt["device"],
+                boot_time_us=pkt["boot_time_us"],
+                unix_time_us=pkt["unix_time_us"],
+                rssi=pkt["rssi"],
+                noise_floor=pkt["noise_floor"],
+                channel=pkt["ch"],
+                packet_id=pkt["id"],
             )
         )
 
@@ -64,14 +64,14 @@ class EventReconstructor:
 
         self.max_seen_time = 0
 
-    def process(self, pkt: my_types.TimedPacket) -> None:
+    def process(self, pkt: my_types.ID_PACKET) -> None:
 
-        t = pkt.approx_unix_time_us
+        t = pkt["unix_time_us"]
 
         if t > self.max_seen_time:
             self.max_seen_time = t
 
-        key = (pkt.src_mac, pkt.seq, pkt.type, pkt.subtype, pkt.dst_mac, pkt.bssid, pkt.channel, pkt.ssid)
+        key = (pkt["src"], pkt["seq"], pkt["type"], pkt["sub"], pkt["dst"], pkt["bssid"], pkt["ch"], pkt["ssid"])
 
         events = self.active[key]
 
@@ -80,26 +80,26 @@ class EventReconstructor:
                 return
 
         ev = _ActiveEvent(
-            src_mac=pkt.src_mac,
-            seq=pkt.seq,
-            type=pkt.type,
-            subtype=pkt.subtype,
-            dst_mac=pkt.dst_mac,
-            bssid=pkt.bssid,
-            ssid=pkt.ssid,
+            src_mac=pkt["src"],
+            seq=pkt["seq"],
+            type=pkt["type"],
+            subtype=pkt["sub"],
+            dst_mac=pkt["dst"],
+            bssid=pkt["bssid"],
+            ssid=pkt["ssid"],
             first_time_us=t,
             last_time_us=t,
         )
 
         ev.observations.append(
             my_types.ObservationRow(
-                device=pkt.device,
-                boot_time_us=pkt.boot_time_us,
-                approx_unix_time_us=t,
-                rssi=pkt.rssi,
-                noise_floor=pkt.noise_floor,
-                channel=pkt.channel,
-                packet_id=pkt.id,
+                device=pkt["device"],
+                boot_time_us=pkt["boot_time_us"],
+                unix_time_us=pkt["unix_time_us"],
+                rssi=pkt["rssi"],
+                noise_floor=pkt["noise_floor"],
+                channel=pkt["ch"],
+                packet_id=pkt["id"],
             )
         )
 

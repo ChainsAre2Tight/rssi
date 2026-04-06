@@ -26,9 +26,7 @@
 // #define SNTP_SERVER "192.168.137.1"
 // #define SERVER_URL "http://192.168.137.1/upload"
 
-// ==== Настройки сниффера ====
-#define PERIODIC_TIME_SYNC        1        // 1 = enable periodic sync rows
-#define PERIODIC_SYNC_INTERVAL    60000UL  // ms (60s recommended)
+#define PERIODIC_SYNC_INTERVAL    64000UL  // ms -> 64s
 
 #define UPLOAD_INTERVAL 10000 // 10 секунд
 
@@ -87,8 +85,7 @@ static const uint8_t CHANNEL_WEIGHT[13] = {
 
 #endif
 
-uint8_t pickWeightedChannel()
-{
+uint8_t pickWeightedChannel() {
     static uint16_t total_weight = 0;
     static bool initialized = false;
 
@@ -116,25 +113,20 @@ uint8_t pickWeightedChannel()
     return ANCHOR_CHANNEL;
 }
 
-void channelHoppingTask(void* pvParameter)
-{
+void channelHoppingTask(void* pvParameter) {
     uint8_t current_channel = pickWeightedChannel();
     int burst_remaining = 0;
 
-    while (true)
-    {
+    while (true) {
         esp_wifi_set_channel(current_channel, WIFI_SECOND_CHAN_NONE);
 
         uint32_t r = esp_random() % 100;
 
-        if (burst_remaining > 0)
-        {
+        if (burst_remaining > 0) {
             // continue anchor burst
             current_channel = ANCHOR_CHANNEL;
             burst_remaining--;
-        }
-        else
-        {
+        } else {
             if (r < BURST_PROBABILITY)
             {
                 // start anchor burst
@@ -144,18 +136,12 @@ void channelHoppingTask(void* pvParameter)
 
                 current_channel = ANCHOR_CHANNEL;
                 burst_remaining--;
-            }
-            else if (r < BURST_PROBABILITY + STAY_PROBABILITY)
-            {
+            } else if (r < BURST_PROBABILITY + STAY_PROBABILITY) {
                 // stay on channel
-            }
-            else if (r < BURST_PROBABILITY + STAY_PROBABILITY + ANCHOR_PROBABILITY)
-            {
+            } else if (r < BURST_PROBABILITY + STAY_PROBABILITY + ANCHOR_PROBABILITY) {
                 // jump to anchor
                 current_channel = ANCHOR_CHANNEL;
-            }
-            else
-            {
+            } else {
                 // weighted random channel
                 current_channel = pickWeightedChannel();
             }
@@ -177,51 +163,8 @@ void printTime() {
     Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 }
 
-static __INT64_TYPE__ boot_time_us = 0;
-static time_t boot_unix_time = 0;
-static bool server_sntp_resync_pending = false;
-static unsigned long lastPeriodicSync = 0;
-
 void notify(struct timeval* t) {
-    boot_time_us = esp_timer_get_time();
-    boot_unix_time = (int64_t)t->tv_sec * 1000000LL + t->tv_usec;
-
-    server_sntp_resync_pending = true;
-
     Serial.println("[TIME] SNPT sync generated");
-}
-
-void generatePeriodicSync() {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-
-    boot_time_us = esp_timer_get_time();
-    boot_unix_time = (int64_t)tv.tv_sec * 1000000LL + tv.tv_usec;
-
-    server_sntp_resync_pending = true;
-
-    Serial.println("[TIME] Periodic sync generated");
-}
-
-void send_sntp_resync(String device_name) {
-    Serial.println("[HTTP] Sending SNTP sync data");
-    String json = "{\"device\":\"" + device_name
-    + "\", \"boot_time_us\":" + String(boot_time_us)
-    + ", \"boot_unix_time\":" + String(boot_unix_time) + "}";
-
-    HTTPClient http;
-    http.begin(API_URL_SNTP_UPDATE);
-    http.addHeader("Content-Type", "application/json");
-    int httpCode = http.POST(json);
-    if (httpCode == 200) {
-        Serial.printf("[HTTP] Success! Response: %d\n", httpCode);
-        server_sntp_resync_pending = false;
-    } else if (httpCode > 0) {
-        Serial.printf("[HTTP] Error! Response: %d\n", httpCode);
-    } else {
-        Serial.printf("[HTTP] Error: %s\n", http.errorToString(httpCode).c_str());
-    }
-    http.end();
 }
 
 void wait4SNTP() {

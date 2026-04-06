@@ -157,16 +157,6 @@ void sendBatch() {
 
     Serial.println("[WIFI] Connected, sending batch...");
 
-    int sync_attempts = 0;
-
-    while (server_sntp_resync_pending && sync_attempts < 3) {
-
-        send_sntp_resync(String(DEVICE_NAME));
-
-        sync_attempts++;
-        delay(50);
-    }
-
     const int batchSize = 32;
 
     int sent = 0;
@@ -263,15 +253,6 @@ void setup() {
 void loop() {
 
     unsigned long now = millis();
-
-#if PERIODIC_TIME_SYNC
-    if (now - lastPeriodicSync > PERIODIC_SYNC_INTERVAL) {
-
-        generatePeriodicSync();
-
-        lastPeriodicSync = now;
-    }
-#endif
 
     if (now - lastUpload > UPLOAD_INTERVAL) {
 

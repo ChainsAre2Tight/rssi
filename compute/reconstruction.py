@@ -3,13 +3,10 @@ from typing import List
 
 import my_types
 
-from compute.time_synchronization import build_time_mapper
-from storage.timed_packets import stream_timed_packets
+from storage.packets import stream_timed_packets
 from compute.event_reconstruction import EventReconstructor
 
 from storage import (
-    Session,
-    load_time_sync,
     insert_events,
     insert_event_observations,
     mark_packets_processed,
@@ -22,16 +19,6 @@ def reconstruct_measurement(
     batch_commit_events: int = 50,
 ) -> None:
 
-    # --- load time sync ---
-    sync_rows = load_time_sync(conn, measurement_id)
-    print(sync_rows)
-
-    if not sync_rows:
-        raise RuntimeError("No time sync data for measurement")
-
-    mapper = build_time_mapper(sync_rows)
-
-    # --- reconstructor ---
     recon = EventReconstructor()
 
     processed_packet_ids: List[int] = []
@@ -39,46 +26,35 @@ def reconstruct_measurement(
     event_buffer: List[my_types.EventRow] = []
     obs_buffer: List[List[my_types.ObservationRow]] = []
 
-    # --- packet streaming ---
-    for pkt in stream_timed_packets(conn, measurement_id, mapper):
+    for pkt in stream_timed_packets(conn, measurement_id):
 
-        processed_packet_ids.append(pkt.id)
-
+        processed_packet_ids.append(pkt["id"])
         recon.process(pkt)
-
         events, observations = recon.pop_ready()
 
         if events:
-
             event_buffer.extend(events)
             obs_buffer.extend(observations)
 
-        # --- flush batch ---
         if len(event_buffer) >= batch_commit_events:
 
             event_ids = insert_events(conn, measurement_id, event_buffer)
 
             insert_event_observations(conn, event_ids, obs_buffer)
-
             mark_packets_processed(conn, processed_packet_ids)
 
             event_buffer.clear()
             obs_buffer.clear()
             processed_packet_ids.clear()
 
-    # --- flush remaining events ---
     events, observations = recon.flush_all()
 
     event_buffer.extend(events)
     obs_buffer.extend(observations)
 
     if event_buffer:
-
         event_ids = insert_events(conn, measurement_id, event_buffer)
-
         insert_event_observations(conn, event_ids, obs_buffer)
 
     if processed_packet_ids:
         mark_packets_processed(conn, processed_packet_ids)
-    
-    print("active events:", sum(len(v) for v in recon.active.values()))

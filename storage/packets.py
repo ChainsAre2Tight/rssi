@@ -4,7 +4,6 @@ import sqlite3
 import storage
 import my_types
 
-from compute.time_synchronization import MeasurementTimeMapper
 
 def insert_packets(conn: sqlite3.Connection, measurement_id: int, device: str, packets: List[my_types.PACKET]):
     values = [
@@ -74,17 +73,18 @@ def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: st
 def stream_timed_packets(
     conn: sqlite3.Connection,
     measurement_id: int,
-    mapper: MeasurementTimeMapper,
-) -> Iterator[my_types.TimedPacket]:
+    batch_size: int = 1000,
+) -> Iterator[my_types.ID_PACKET]:
 
     cur = conn.cursor()
 
-    rows = cur.execute(
+    cur.execute(
         """
         SELECT
             id,
             device,
             boot_time_us,
+            unix_time_us,
             rssi,
             noise_floor,
             channel,
@@ -96,40 +96,38 @@ def stream_timed_packets(
             bssid,
             ssid
         FROM packets
-        WHERE measurement_id = ?
-        AND processed = 0
-        ORDER BY id
+        WHERE
+            measurement_id = ?
+            AND processed = 0
+        ORDER BY unix_time_us, device
         """,
         (measurement_id,),
     )
 
-    for row in rows:
+    while True:
 
-        approx_unix_time_us = mapper.map(
-            row["device"],
-            row["boot_time_us"],
-        )
+        rows = cur.fetchmany(batch_size)
 
-        yield my_types.TimedPacket(
-            id=row["id"],
-            device=row["device"],
+        if not rows:
+            break
 
-            boot_time_us=row["boot_time_us"],
-            approx_unix_time_us=approx_unix_time_us,
-
-            rssi=row["rssi"],
-            noise_floor=row["noise_floor"],
-            channel=row["channel"],
-
-            type=row["type"],
-            subtype=row["subtype"],
-            seq=row["seq"],
-
-            src_mac=row["src_mac"],
-            dst_mac=row["dst_mac"],
-            bssid=row["bssid"],
-            ssid=row["ssid"],
-        )
+        for row in rows:
+            yield my_types.ID_PACKET(
+                id=row["id"],
+                device=row["device"],
+                boot_time_us=row["boot_time_us"],
+                unix_time_us=row["unix_time_us"],
+                rssi=row["rssi"],
+                noise_floor=row["noise_floor"],
+                ch=row["channel"],
+                type=row["type"],
+                sub=row["subtype"],
+                seq=row["seq"],
+                src=row["src_mac"],
+                dst=row["dst_mac"],
+                bssid=row["bssid"],
+                ssid=row["ssid"],
+            )
 
 def mark_packets_processed(
     conn: sqlite3.Connection,

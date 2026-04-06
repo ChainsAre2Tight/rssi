@@ -15,6 +15,10 @@ class PACKET(t.TypedDict):
     bssid: str
     ssid: str
 
+class ID_PACKET(PACKET):
+    id: int
+    device: str
+
 class CSI_PACKET(t.TypedDict):
     boot_time_us: int
     unix_time_us: int
@@ -53,34 +57,11 @@ class SyncSegment:
     a: float
     b: float
 
-
-@dataclass(slots=True)
-class TimedPacket:
-    id: int
-    device: str
-
-    boot_time_us: int
-    approx_unix_time_us: int
-
-    rssi: int
-    noise_floor: int
-    channel: int
-
-    type: int
-    subtype: int
-    seq: int
-
-    src_mac: str
-    dst_mac: str | None
-    bssid: str | None
-    ssid: str | None
-
-
 @dataclass(slots=True)
 class ObservationRow:
     device: str
     boot_time_us: int
-    approx_unix_time_us: int
+    unix_time_us: int
     rssi: int
     noise_floor: int
     channel: int
