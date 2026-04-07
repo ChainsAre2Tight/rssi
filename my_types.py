@@ -47,6 +47,7 @@ class EventRow:
     subtype: int
     seq: int
     ssid: str | None
+    role: str
 
     first_time_us: int
     last_time_us: int

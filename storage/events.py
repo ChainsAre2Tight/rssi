@@ -56,3 +56,33 @@ def insert_events(
     rows = cur.execute(sql, flat_values)
 
     return [row[0] for row in rows]
+
+def insert_event_packets(
+    conn: sqlite3.Connection,
+    event_ids: List[int],
+    packets_per_event: List[List[int]],
+) -> None:
+
+    if not event_ids:
+        return
+
+    values: List[tuple[int, int]] = []
+
+    for event_id, packet_ids in zip(event_ids, packets_per_event):
+
+        for pkt_id in packet_ids:
+            values.append((event_id, pkt_id))
+
+    if not values:
+        return
+
+    conn.executemany(
+        """
+        INSERT INTO event_packets (
+            event_id,
+            packet_id
+        )
+        VALUES (?, ?)
+        """,
+        values,
+    )

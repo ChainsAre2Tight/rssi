@@ -64,10 +64,11 @@ def insert_csi_packets(conn: sqlite3.Connection, measurement_id: int, device: st
         values,
     )
 
-
 def stream_timed_packets(
     conn: sqlite3.Connection,
     measurement_id: int,
+    start_time_us: int,
+    end_time_us: int,
     batch_size: int = 1000,
 ) -> Iterator[my_types.ID_PACKET]:
 
@@ -92,10 +93,11 @@ def stream_timed_packets(
         FROM packets
         WHERE
             measurement_id = ?
-            AND event_id IS NULL
+            AND unix_time_us >= ?
+            AND unix_time_us < ?
         ORDER BY unix_time_us, device
         """,
-        (measurement_id,),
+        (measurement_id, start_time_us, end_time_us),
     )
 
     while True:
@@ -121,7 +123,6 @@ def stream_timed_packets(
                 bssid=row["bssid"],
                 ssid=row["ssid"],
             )
-
 
 def link_packets_to_events(
     conn: sqlite3.Connection,
