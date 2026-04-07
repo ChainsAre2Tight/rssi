@@ -219,10 +219,15 @@ def reconstruct_window_packets(
     packet_links.extend(ready_packets)
 
     return events, packet_links
+
 def _classify_role(pkt: my_types.ID_PACKET) -> str:
-    """placeholder"""
-    if pkt["src"] == pkt["bssid"]:
+    bssid = pkt["bssid"]
+    src = pkt["src"]
+
+    if not bssid:
+        return "unknown"
+
+    if src == bssid:
         return "ap"
-    if pkt["dst"] == pkt["bssid"]:
-        return "client"
-    return "unknown"
+
+    return "client"

@@ -40,7 +40,7 @@ def run_window_worker(
             window_id, start_time_us, end_time_us = window
             try:
                 with storage.Session() as conn:
-                    logging.info("Running a processor agains a window %d", window_id)
+                    logging.info("Running a processor against window %d", window_id)
                     processor(
                         conn,
                         window_id,
