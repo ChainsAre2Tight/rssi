@@ -7,7 +7,7 @@ from storage.windows import (
     get_last_window,
     insert_window,
 )
-from storage.packets import get_first_packet_time
+from storage.packets import get_first_packet_time, get_last_packet_time
 
 
 def align_time_to_window(
@@ -16,11 +16,10 @@ def align_time_to_window(
 ) -> int:
 
     return (t // step_us) * step_us
-
 def try_create_next_window(
-    conn: sqlite3.Connection,
-    measurement_id: int,
-) -> bool:
+    conn,
+    measurement_id,
+):
 
     last = get_last_window(conn, measurement_id)
 
@@ -45,12 +44,18 @@ def try_create_next_window(
         start = last_start + config.WINDOW_STEP_US
         seq += 1
 
-    end = start + config.WINDOW_SIZE_US
+    max_packet_time = get_last_packet_time(
+        conn,
+        measurement_id,
+    )
 
-    now_us = int(time.time() * 1_000_000)
-
-    if now_us < end + config.WINDOW_MARGIN_US:
+    if max_packet_time is None:
         return False
+
+    if start > max_packet_time:
+        return False
+
+    end = start + config.WINDOW_SIZE_US
 
     return insert_window(
         conn,

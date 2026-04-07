@@ -110,6 +110,7 @@ def init_db():
                     processing_started_at INTEGER,
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(measurement_id, layer, sequence_id),
+                    UNIQUE(measurement_id, layer, start_time_us),
                     FOREIGN KEY (measurement_id) REFERENCES measurements(id)
                 )
             """)

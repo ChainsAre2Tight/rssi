@@ -1,4 +1,5 @@
-from storage.connection import Connect
+from storage.connection import Session
+
 
 def insert_measurement(room_id: int) -> int:
     with Session() as conn:

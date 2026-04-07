@@ -73,5 +73,5 @@ def run_window_worker(
             logging.debug("Window successfully created")
             continue
 
-        logging.debug("No packets for selected measurement exist, sleeping")
+        logging.debug("No windows are ready, sleeping...")
         time.sleep(sleep_seconds)

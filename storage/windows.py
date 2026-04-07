@@ -1,14 +1,17 @@
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple
 import sqlite3
 import time
 
-def claim_next_window(
-    conn: sqlite3.Connection,
-    measurement_id: int,
-    required_stage: str | None,
-) -> Optional[Tuple[int, int, int]]:
+import config
 
-    now = int(time.time())
+def claim_next_window(
+    conn,
+    measurement_id,
+    required_stage,
+):
+
+    now_us = int(time.time() * 1_000_000)
+    ready_threshold = now_us - config.WINDOW_MARGIN_US
 
     if required_stage is None:
 
@@ -25,12 +28,13 @@ def claim_next_window(
                     measurement_id = ?
                     AND stage IS NULL
                     AND status = 'pending'
+                    AND end_time_us <= ?
                 ORDER BY sequence_id
                 LIMIT 1
             )
             RETURNING id, start_time_us, end_time_us
             """,
-            (now, measurement_id),
+            (now_us, measurement_id, ready_threshold),
         ).fetchone()
 
     else:
@@ -48,12 +52,13 @@ def claim_next_window(
                     measurement_id = ?
                     AND stage = ?
                     AND status = 'pending'
+                    AND end_time_us <= ?
                 ORDER BY sequence_id
                 LIMIT 1
             )
             RETURNING id, start_time_us, end_time_us
             """,
-            (now, measurement_id, required_stage),
+            (now_us, measurement_id, required_stage, ready_threshold),
         ).fetchone()
 
     if row is None:

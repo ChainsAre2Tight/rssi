@@ -263,3 +263,22 @@ def get_first_packet_time(
     ).fetchone()
 
     return row["t"]
+
+def get_last_packet_time(
+    conn,
+    measurement_id,
+):
+
+    row = conn.execute(
+        """
+        SELECT MAX(unix_time_us) AS t
+        FROM packets
+        WHERE measurement_id = ?
+        """,
+        (measurement_id,),
+    ).fetchone()
+
+    if row is None:
+        return None
+
+    return row["t"]
