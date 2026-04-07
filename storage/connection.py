@@ -37,14 +37,21 @@ class Session:
 
 class Transaction:
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection, immediate: bool = False):
         self.conn = conn
+        self.immediate = immediate
 
     def __enter__(self):
-        self.conn.execute("BEGIN")
+
+        if self.immediate:
+            self.conn.execute("BEGIN IMMEDIATE")
+        else:
+            self.conn.execute("BEGIN")
+
         return self.conn
 
     def __exit__(self, exc_type, exc, tb):
+
         if exc_type is None:
             self.conn.commit()
         else:

@@ -105,7 +105,8 @@ def init_db():
                     sequence_id INTEGER NOT NULL,
                     start_time_us INTEGER NOT NULL,
                     end_time_us INTEGER NOT NULL,
-                    status TEXT NOT NULL,
+                    stage TEXT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending',
                     processing_started_at INTEGER,
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(measurement_id, layer, sequence_id),
@@ -116,6 +117,11 @@ def init_db():
             cursor.execute("""
                 CREATE INDEX IF NOT EXISTS idx_windows_measurement_status_time
                 ON windows(measurement_id, status, end_time_us)
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_windows_stage_status
+                ON windows(measurement_id, stage, status)
             """)
 
             cursor.execute("""
@@ -143,6 +149,11 @@ def init_db():
             """)
 
             cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_events_window
+                ON events(window_id)
+            """)
+
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS event_packets (
                     event_id INTEGER NOT NULL,
                     packet_id INTEGER NOT NULL,
@@ -150,6 +161,11 @@ def init_db():
                     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
                     FOREIGN KEY (packet_id) REFERENCES packets(id) ON DELETE CASCADE
                 )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_event_packets_packet
+                ON event_packets(packet_id)
             """)
 
             cursor.execute("""

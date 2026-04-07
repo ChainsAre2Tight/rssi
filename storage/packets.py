@@ -245,3 +245,21 @@ def index_rssi_by_device_and_mac(
         if rows:
             return [row[0] for row in rows]
         return []
+
+def get_first_packet_time(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> int | None:
+
+    cur = conn.cursor()
+
+    row = cur.execute(
+        """
+        SELECT MIN(unix_time_us) AS t
+        FROM packets
+        WHERE measurement_id = ?
+        """,
+        (measurement_id,),
+    ).fetchone()
+
+    return row["t"]

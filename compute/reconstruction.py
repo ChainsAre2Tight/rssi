@@ -187,20 +187,17 @@ class _EventReconstructor:
 
         return ready_events, ready_packets
 
-
-def reconstruct_window(
+def reconstruct_window_packets(
     conn: sqlite3.Connection,
     measurement_id: int,
-    window_id: int,
     start_time_us: int,
     end_time_us: int,
-    batch_commit_events: int = 50,
-) -> None:
+) -> Tuple[List[my_types.EventRow], List[List[int]]]:
 
     recon = _EventReconstructor()
 
-    event_buffer: List[my_types.EventRow] = []
-    packet_buffer: List[List[int]] = []
+    events: List[my_types.EventRow] = []
+    packet_links: List[List[int]] = []
 
     for pkt in stream_timed_packets(
         conn,
@@ -208,53 +205,20 @@ def reconstruct_window(
         start_time_us,
         end_time_us,
     ):
-
         recon.process(pkt)
 
-        events, packets = recon.pop_ready()
+        ready_events, ready_packets = recon.pop_ready()
 
-        if events:
-            event_buffer.extend(events)
-            packet_buffer.extend(packets)
+        if ready_events:
+            events.extend(ready_events)
+            packet_links.extend(ready_packets)
 
-        if len(event_buffer) >= batch_commit_events:
+    ready_events, ready_packets = recon.flush_all()
 
-            event_ids = insert_events(
-                conn,
-                measurement_id,
-                window_id,
-                event_buffer,
-            )
+    events.extend(ready_events)
+    packet_links.extend(ready_packets)
 
-            insert_event_packets(
-                conn,
-                event_ids,
-                packet_buffer,
-            )
-
-            event_buffer.clear()
-            packet_buffer.clear()
-
-    events, packets = recon.flush_all()
-
-    event_buffer.extend(events)
-    packet_buffer.extend(packets)
-
-    if event_buffer:
-
-        event_ids = insert_events(
-            conn,
-            measurement_id,
-            window_id,
-            event_buffer,
-        )
-
-        insert_event_packets(
-            conn,
-            event_ids,
-            packet_buffer,
-        )
-
+    return events, packet_links
 def _classify_role(pkt: my_types.ID_PACKET) -> str:
     """placeholder"""
     if pkt["src"] == pkt["bssid"]:
