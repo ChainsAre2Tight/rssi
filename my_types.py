@@ -1,8 +1,7 @@
 import typing as t
 from dataclasses import dataclass
-from enum import Enum
 
-class PACKET(t.TypedDict):
+class BASE_PACKET(t.TypedDict):
     unix_time_us: int
     rssi: int
     noise_floor: int
@@ -13,23 +12,15 @@ class PACKET(t.TypedDict):
     src: str
     dst: str
     bssid: str
+
+class PACKET(BASE_PACKET):
     ssid: str
 
 class ID_PACKET(PACKET):
     id: int
     device: str
 
-class CSI_PACKET(t.TypedDict):
-    unix_time_us: int
-    rssi: int
-    noise_floor: int
-    ch: int
-    type: int
-    sub: int
-    seq: int
-    src: str
-    dst: str
-    bssid: str
+class CSI_PACKET(BASE_PACKET):
     csi: list[int]
 
 class DEVICE(t.TypedDict):
@@ -55,7 +46,8 @@ class EventRow:
     approx_time_us: int
 
 #TODO: fix naming convention
-class STAGES(Enum):
+@dataclass(frozen=True)
+class STAGES:
     NONE = None
-    EVENTS = "reconstructed"
-    AP_OBSERVATIONS = "ap_observation"
+    EVENTS: str = "reconstructed"
+    AP_OBSERVATIONS: str = "ap_observation"

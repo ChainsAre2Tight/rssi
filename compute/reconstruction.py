@@ -79,7 +79,7 @@ class _EventReconstructor:
             if ev.try_merge(pkt):
                 return
 
-        role = _classify_role(pkt)
+        role = classify_role(pkt)
 
         ev = _ActiveEvent(
             src_mac=pkt["src"],
@@ -215,7 +215,7 @@ def reconstruct_window_packets(
 
     return events, packet_links
 
-def _classify_role(pkt: my_types.ID_PACKET) -> str:
+def classify_role(pkt: my_types.BASE_PACKET) -> str:
     bssid = pkt["bssid"]
     src = pkt["src"]
 

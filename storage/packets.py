@@ -1,4 +1,4 @@
-from typing import List, Iterator
+from typing import List, Iterator, Tuple
 import sqlite3
 
 import storage
@@ -146,6 +146,46 @@ def link_packets_to_events(
         """
 
         cur.execute(query, [event_id] + packet_ids)
+
+def load_csi_packets_in_window(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    start_time_us: int,
+    end_time_us: int,
+):
+    cur = conn.execute(
+        """
+        SELECT
+            id,
+            src_mac AS src,
+            dst_mac AS dst,
+            bssid
+        FROM csi_packets
+        WHERE measurement_id = ?
+        AND unix_time_us >= ?
+        AND unix_time_us < ?
+        """,
+        (measurement_id, start_time_us, end_time_us),
+    )
+
+    return cur.fetchall()
+
+def insert_observation_csi_packets(
+    conn: sqlite3.Connection,
+    rows: List[Tuple[int, int, str]],
+) -> None:
+
+    conn.executemany(
+        """
+        INSERT INTO observation_csi_packets (
+            observation_id,
+            csi_packet_id,
+            role
+        )
+        VALUES (?, ?, ?)
+        """,
+        rows,
+    )
 
 def index_rssi(
         measurement_id: int,

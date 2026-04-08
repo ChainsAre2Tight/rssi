@@ -8,6 +8,8 @@ import storage
 import config
 from config import logger
 
+from my_types import STAGES
+
 def reconstruction_processor(
     conn: sqlite3.Connection,
     window_id: int,
@@ -36,12 +38,3 @@ def reconstruction_processor(
             event_ids,
             packet_links,
         )
-
-
-if __name__ == "__main__":
-
-    run_window_worker(
-        required_stage=None,
-        completed_stage="reconstructed",
-        processor=reconstruction_processor,
-    )

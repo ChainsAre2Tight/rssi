@@ -6,7 +6,10 @@ from config import logger
 
 from storage.events import load_window_events, update_event_observation_ids
 from storage.ap_observations import insert_ap_observations
+from storage.packets import load_csi_packets_in_window, insert_observation_csi_packets
+
 import storage
+from compute.reconstruction import classify_role
 
 
 BROADCAST_BSSID = "FF:FF:FF:FF:FF:FF"
@@ -59,6 +62,37 @@ def observation_processor(
         len(unique_bssids),
     )
 
+    csi_packets = load_csi_packets_in_window(
+        conn,
+        config.MEASUREMENT_ID,
+        start_time_us,
+        end_time_us,
+    )
+
+    logger.info("%d CSI packets fall inside the selected window", len(csi_packets))
+
+    csi_rows: List[Tuple[int, int, str]] = []
+    for pkt in csi_packets:
+        bssid = pkt["bssid"]
+
+        if bssid is None:
+            continue
+
+        if bssid == BROADCAST_BSSID:
+            continue
+
+        obs_idx = bssid_index.get(bssid)
+
+        if obs_idx is None:
+            continue
+
+        role = classify_role(pkt)
+
+        csi_rows.append((obs_idx, pkt["id"], role))
+    
+    logger.info("%d CSI packets were linked to their AP observations", len(csi_rows))
+
+
     with storage.Transaction(conn):
 
         observation_ids = insert_ap_observations(
@@ -74,3 +108,10 @@ def observation_processor(
             update_rows.append((obs_id, event_id))
 
         update_event_observation_ids(conn, update_rows)
+
+        if csi_rows:
+            insert_rows: List[Tuple[int, int, str]] = []
+            for obs_idx, pkt_id, role in csi_rows:
+                obs_id = observation_ids[obs_idx]
+                insert_rows.append((obs_id, pkt_id, role))
+            insert_observation_csi_packets(conn, insert_rows)
