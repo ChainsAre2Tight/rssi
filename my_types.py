@@ -1,5 +1,6 @@
 import typing as t
 from dataclasses import dataclass
+from enum import Enum
 
 class PACKET(t.TypedDict):
     unix_time_us: int
@@ -52,3 +53,9 @@ class EventRow:
     first_time_us: int
     last_time_us: int
     approx_time_us: int
+
+#TODO: fix naming convention
+class STAGES(Enum):
+    NONE = None
+    EVENTS = "reconstructed"
+    AP_OBSERVATIONS = "ap_observation"
