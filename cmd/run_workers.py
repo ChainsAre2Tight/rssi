@@ -1,40 +1,79 @@
 import os
 import sys
+import time
+import signal
 import subprocess
+import threading
 
 from worker.registry import WORKERS
 
 
-def start_worker(worker):
+SHUTDOWN = False
+
+
+def run_worker_loop(worker_name: str, module: str, instance: int):
 
     env = os.environ.copy()
-    env["WORKER_NAME"] = worker.name
+    env["WORKER_NAME"] = f"{worker_name}-{instance}"
 
-    print(f"Starting worker: {worker.name}")
+    while not SHUTDOWN:
 
-    return subprocess.Popen(
-        [sys.executable, "-m", worker.module],
-        env=env,
-    )
+        print(f"Starting worker {worker_name}-{instance}")
+
+        process = subprocess.Popen(
+            [sys.executable, "-m", module],
+            env=env,
+        )
+
+        exit_code = process.wait()
+
+        if SHUTDOWN:
+            break
+
+        print(
+            f"Worker {worker_name}-{instance} exited with code {exit_code}, restarting..."
+        )
+
+        time.sleep(1)
+
+
+def shutdown_handler(signum, frame):
+    global SHUTDOWN
+    print("Shutdown signal received")
+    SHUTDOWN = True
 
 
 def main():
 
-    processes = []
+    signal.signal(signal.SIGINT, shutdown_handler)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+
+    threads = []
 
     for worker in WORKERS:
-        p = start_worker(worker)
-        processes.append(p)
+
+        for i in range(worker.instances):
+
+            t = threading.Thread(
+                target=run_worker_loop,
+                args=(worker.name, worker.module, i),
+                daemon=True,
+            )
+
+            t.start()
+            threads.append(t)
 
     try:
-        for p in processes:
-            p.wait()
+        while not SHUTDOWN:
+            time.sleep(1)
 
     except KeyboardInterrupt:
-        print("Stopping workers...")
+        shutdown_handler(None, None)
 
-        for p in processes:
-            p.terminate()
+    print("Waiting for workers to stop...")
+
+    for t in threads:
+        t.join()
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ from typing import List
 class WorkerSpec:
     name: str
     module: str
+    instances: int = 0
 
 
 WORKERS: List[WorkerSpec] = [
