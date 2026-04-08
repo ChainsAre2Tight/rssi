@@ -2,8 +2,8 @@ import sqlite3
 
 from worker.window_worker import run_window_worker
 from compute.reconstruction import reconstruct_window_packets
-from storage.events import insert_events
-from storage.events import insert_event_packets
+from storage import insert_events, insert_event_packets
+import storage
 
 import config
 from config import logger
@@ -24,18 +24,18 @@ def reconstruction_processor(
     )
     logger.info("Reconstructed %d events for window %d", len(events), window_id)
 
-    event_ids = insert_events(
-        conn,
-        config.MEASUREMENT_ID,
-        window_id,
-        events,
-    )
-
-    insert_event_packets(
-        conn,
-        event_ids,
-        packet_links,
-    )
+    with storage.Transaction(conn):
+        event_ids = insert_events(
+            conn,
+            config.MEASUREMENT_ID,
+            window_id,
+            events,
+        )
+        insert_event_packets(
+            conn,
+            event_ids,
+            packet_links,
+        )
 
 
 if __name__ == "__main__":
