@@ -5,9 +5,10 @@ import time
 import config
 
 def claim_next_window(
-    conn,
-    measurement_id,
-    required_stage,
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    layer: int,
+    required_stage: str,
 ):
 
     now_us = int(time.time() * 1_000_000)
@@ -27,6 +28,7 @@ def claim_next_window(
                 WHERE
                     measurement_id = ?
                     AND stage IS NULL
+                    AND layer = ?
                     AND status = 'pending'
                     AND end_time_us <= ?
                 ORDER BY sequence_id
@@ -34,7 +36,7 @@ def claim_next_window(
             )
             RETURNING id, start_time_us, end_time_us
             """,
-            (now_us, measurement_id, ready_threshold),
+            (now_us, measurement_id, layer, ready_threshold),
         ).fetchone()
 
     else:
@@ -51,6 +53,7 @@ def claim_next_window(
                 WHERE
                     measurement_id = ?
                     AND stage = ?
+                    AND layer = ?
                     AND status = 'pending'
                     AND end_time_us <= ?
                 ORDER BY sequence_id
@@ -58,7 +61,7 @@ def claim_next_window(
             )
             RETURNING id, start_time_us, end_time_us
             """,
-            (now_us, measurement_id, required_stage, ready_threshold),
+            (now_us, measurement_id, required_stage, layer, ready_threshold),
         ).fetchone()
 
     if row is None:
@@ -108,6 +111,7 @@ def fail_window(
 def get_last_window(
     conn: sqlite3.Connection,
     measurement_id: int,
+    layer: int,
 ) -> Optional[Tuple[int, int]]:
 
     cur = conn.cursor()
@@ -117,10 +121,11 @@ def get_last_window(
         SELECT sequence_id, start_time_us
         FROM windows
         WHERE measurement_id = ?
+            AND layer = ?
         ORDER BY sequence_id DESC
         LIMIT 1
         """,
-        (measurement_id,),
+        (measurement_id, layer),
     ).fetchone()
 
     if row is None:

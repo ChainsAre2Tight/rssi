@@ -32,6 +32,7 @@ def run_window_worker(
                 window = claim_next_window(
                     t,
                     config.MEASUREMENT_ID,
+                    0, # TODO: expose as a parameter
                     required_stage,
                 )
 
@@ -67,7 +68,11 @@ def run_window_worker(
         logging.debug("No window claimed, creating a new one...")
         with storage.Session() as conn:
             with storage.Transaction(conn, immediate=True) as t:
-                created = try_create_next_window(t, config.MEASUREMENT_ID)
+                created = try_create_next_window(
+                    t, 
+                    config.MEASUREMENT_ID,
+                    0, #TODO: expose as a parameter
+                )
 
         if created:
             logging.debug("Window successfully created")
