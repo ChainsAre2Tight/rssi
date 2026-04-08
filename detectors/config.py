@@ -24,9 +24,9 @@ class SSIDWhitelistSignals:
     unauthorized_ssid: SignalSpec
 
 
-# @dataclass(slots=True)
-# class BSSIDWhitelistSignals:
-#     unauthorized_bssid: SignalSpec
+@dataclass(slots=True)
+class BSSIDWhitelistSignals:
+    unauthorized_bssid: SignalSpec
 
 
 # @dataclass(slots=True)
@@ -43,7 +43,7 @@ class DetectorDefinitions:
 
     test: DetectorSpec
     ssid_whitelist: DetectorSpec
-    # bssid_whitelist: DetectorSpec
+    bssid_whitelist: DetectorSpec
     # hidden_ssid: DetectorSpec
     # beacon_ratio: DetectorSpec
 
@@ -69,15 +69,15 @@ DETECTORS = DetectorDefinitions(
         ),
     ),
 
-    # bssid_whitelist=DetectorSpec(
-    #     name="bssid_whitelist",
-    #     signals=BSSIDWhitelistSignals(
-    #         unauthorized_bssid=SignalSpec(
-    #             name="unauthorized_bssid",
-    #             severity="high",
-    #         )
-    #     ),
-    # ),
+    bssid_whitelist=DetectorSpec(
+        name="bssid_whitelist",
+        signals=BSSIDWhitelistSignals(
+            unauthorized_bssid=SignalSpec(
+                name="unauthorized_bssid",
+                severity="high",
+            )
+        ),
+    ),
 
     # hidden_ssid=DetectorSpec(
     #     name="hidden_ssid",
