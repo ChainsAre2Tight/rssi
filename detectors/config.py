@@ -28,6 +28,10 @@ class SSIDWhitelistSignals:
 class BSSIDWhitelistSignals:
     unauthorized_bssid: SignalSpec
 
+@dataclass(slots=True)
+class AuthorizedAPWrongSSIDSignals:
+    wrong_ssid: SignalSpec
+
 
 # @dataclass(slots=True)
 # class HiddenSSIDSignals:
@@ -42,8 +46,11 @@ class BSSIDWhitelistSignals:
 class DetectorDefinitions:
 
     test: DetectorSpec
+
     ssid_whitelist: DetectorSpec
     bssid_whitelist: DetectorSpec
+    authorized_ap_wrong_ssid: DetectorSpec
+
     # hidden_ssid: DetectorSpec
     # beacon_ratio: DetectorSpec
 
@@ -74,6 +81,16 @@ DETECTORS = DetectorDefinitions(
         signals=BSSIDWhitelistSignals(
             unauthorized_bssid=SignalSpec(
                 name="unauthorized_bssid",
+                severity="high",
+            )
+        ),
+    ),
+
+    authorized_ap_wrong_ssid=DetectorSpec(
+        name="authorized_ap_wrong_ssid",
+        signals=AuthorizedAPWrongSSIDSignals(
+            wrong_ssid=SignalSpec(
+                name="wrong_ssid",
                 severity="high",
             )
         ),

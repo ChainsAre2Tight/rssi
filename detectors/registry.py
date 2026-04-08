@@ -1,6 +1,7 @@
 from detectors.test_detector import TestDetector
 from detectors.ssid_whitelist import SSIDWhitelistDetector
 from detectors.bssid_whitelist import BSSIDWhitelistDetector
+from detectors.wrong_ssid import AuthorizedAPWrongSSIDDetector
 
 DETECTORS = [
     # testing stuff
@@ -9,7 +10,7 @@ DETECTORS = [
     # whitelist / authorization detectors
     SSIDWhitelistDetector(),            # SSID not present in whitelist
     BSSIDWhitelistDetector(),           # BSSID not authorized for a whitelisted SSID
-    # AuthorizedAPServingWrongSSID(),   # authorized AP broadcasting unexpected SSID
+    AuthorizedAPWrongSSIDDetector(),    # authorized AP broadcasting unexpected SSID
 
     # SSID visibility detectors
     # HiddenSSIDDetector(),             # SSID hidden in beacons but revealed elsewhere
