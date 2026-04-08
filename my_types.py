@@ -51,3 +51,33 @@ class STAGES:
     NONE = None
     EVENTS: str = "reconstructed"
     AP_OBSERVATIONS: str = "ap_observation"
+    DETECTION: str = "detected"
+
+@dataclass(slots=True)
+class DetectionSignal:
+    observation_id: t.Optional[int]
+
+    bssid: str
+    ssid: t.Optional[str]
+
+    detector: str
+    signal: str
+    severity: str
+
+    metadata_json: t.Optional[str]
+
+@dataclass(slots=True)
+class DetectionContext:
+
+    window_id: int
+    start_time_us: int
+    end_time_us: int
+
+    observation_ids: t.List[int]
+
+    bssid_by_observation: t.Dict[int, str]
+    events_by_observation: t.Dict[int, t.List[EventRow]]
+    ssids_by_observation: t.Dict[int, t.Set[str]]
+    hidden_ssid_observed: t.Dict[int, bool]
+
+    whitelist: dict

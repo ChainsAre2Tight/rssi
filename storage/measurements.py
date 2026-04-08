@@ -1,3 +1,7 @@
+import json
+
+import sqlite3
+
 from storage.connection import Session
 
 
@@ -22,4 +26,30 @@ def get_latest_measurement_id() -> int:
         """)
         id = cursor.fetchone()[0]
     return id
+
+def load_measurement_whitelist(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> dict:
+
+    cur = conn.execute(
+        """
+        SELECT whitelist_json
+        FROM measurements
+        WHERE id = ?
+        """,
+        (measurement_id,),
+    )
+
+    row = cur.fetchone()
+
+    if row is None:
+        return {}
+
+    whitelist_json = row[0]
+
+    if whitelist_json is None:
+        return {}
+
+    return json.loads(whitelist_json)
         

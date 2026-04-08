@@ -35,6 +35,7 @@ def init_db():
                     room_id INTEGER NOT NULL,
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     description TEXT,
+                    whitelist_json TEXT,
                     FOREIGN KEY (room_id) REFERENCES rooms(id)
                 )
             """)
@@ -192,6 +193,51 @@ def init_db():
                     FOREIGN KEY (csi_packet_id) REFERENCES csi_packets(id) ON DELETE CASCADE
                 )
             """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS detection_signals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                    measurement_id INTEGER NOT NULL,
+                    window_id INTEGER NOT NULL,
+
+                    start_time_us INTEGER NOT NULL,
+                    end_time_us INTEGER NOT NULL,
+
+                    observation_id INTEGER,
+
+                    bssid TEXT NOT NULL,
+                    ssid TEXT,
+
+                    detector TEXT NOT NULL,
+                    signal TEXT NOT NULL,
+                    severity TEXT NOT NULL,
+
+                    metadata_json TEXT,
+
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                    FOREIGN KEY (measurement_id) REFERENCES measurements(id),
+                    FOREIGN KEY (window_id) REFERENCES windows(id),
+                    FOREIGN KEY (observation_id) REFERENCES ap_observations(id)
+                )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_detection_signals_window
+                ON detection_signals(window_id);
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_detection_signals_measurement_time
+                ON detection_signals(measurement_id, start_time_us);
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_detection_signals_bssid
+                ON detection_signals(bssid);
+            """)
+
 
 
 if __name__ == "__main__":

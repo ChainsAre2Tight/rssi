@@ -129,3 +129,58 @@ def update_event_observation_ids(
         """,
         rows,
     )
+
+def load_events_for_observations(
+    conn: sqlite3.Connection,
+    observation_ids: List[int],
+) -> List[Tuple[int, my_types.EventRow]]:
+
+    if not observation_ids:
+        return []
+
+    placeholders = ",".join("?" * len(observation_ids))
+
+    cur = conn.execute(
+        f"""
+        SELECT
+            observation_id,
+            src_mac,
+            dst_mac,
+            bssid,
+            type,
+            subtype,
+            seq,
+            ssid,
+            role,
+            first_time_us,
+            last_time_us,
+            approx_unix_time_us
+        FROM events
+        WHERE observation_id IN ({placeholders})
+        """,
+        observation_ids,
+    )
+
+    rows = []
+
+    for row in cur.fetchall():
+
+        obs_id = row[0]
+
+        event = my_types.EventRow(
+            src_mac=row[1],
+            dst_mac=row[2],
+            bssid=row[3],
+            type=row[4],
+            subtype=row[5],
+            seq=row[6],
+            ssid=row[7],
+            role=row[8],
+            first_time_us=row[9],
+            last_time_us=row[10],
+            approx_time_us=row[11],
+        )
+
+        rows.append((obs_id, event))
+
+    return rows
