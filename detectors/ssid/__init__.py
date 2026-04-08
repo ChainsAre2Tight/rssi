@@ -1,1 +1,2 @@
 from detectors.ssid.hidden_ssid import HiddenSSIDDetector
+from detectors.ssid.similar_ssid import SSIDSimilarityDetector

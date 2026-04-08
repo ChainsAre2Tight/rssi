@@ -45,6 +45,11 @@ class BeaconRatioSignals:
     high_beacon_ratio: SignalSpec
 
 @dataclass(slots=True)
+class SSIDSimilaritySignals:
+    similar_ssid: SignalSpec
+    typosquat_ssid: SignalSpec
+
+@dataclass(slots=True)
 class DetectorDefinitions:
 
     test: DetectorSpec
@@ -53,8 +58,8 @@ class DetectorDefinitions:
     bssid_whitelist: DetectorSpec
     authorized_ap_wrong_ssid: DetectorSpec
     hidden_ssid: DetectorSpec
-
     beacon_ratio: DetectorSpec
+    ssid_similarity: DetectorSpec
 
 DETECTORS = DetectorDefinitions(
 
@@ -122,6 +127,20 @@ DETECTORS = DetectorDefinitions(
             high_beacon_ratio=SignalSpec(
                 name="high_beacon_ratio",
                 severity="medium",
+            ),
+        ),
+    ),
+
+    ssid_similarity=DetectorSpec(
+        name="ssid_similarity",
+        signals=SSIDSimilaritySignals(
+            similar_ssid=SignalSpec(
+                name="similar_ssid",
+                severity="high",
+            ),
+            typosquat_ssid=SignalSpec(
+                name="typosquat_ssid",
+                severity="critical",
             ),
         ),
     ),

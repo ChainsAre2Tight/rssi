@@ -5,7 +5,8 @@ from detectors.whitelists import (
     AuthorizedAPWrongSSIDDetector,
 )
 from detectors.ssid import (
-    HiddenSSIDDetector
+    HiddenSSIDDetector,
+    SSIDSimilarityDetector
 )
 from detectors.behaviour import (
     BeaconRatioDetector,
@@ -18,5 +19,5 @@ DETECTORS = [
     AuthorizedAPWrongSSIDDetector(),
     HiddenSSIDDetector(),
     BeaconRatioDetector(),
-    # SSIDSimilarityDetector(),         # SSID similar to whitelisted one
+    SSIDSimilarityDetector(),
 ]
