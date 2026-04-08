@@ -103,3 +103,41 @@ AGGREGATION_WINDOWS = WindowSpec(
     size_us=config.WINDOW_SIZE_US * 10,
     depends_on_layer=0
 )
+
+@dataclass(slots=True)
+class ObservationRow:
+    observation_id: int
+    bssid: str
+
+
+@dataclass(slots=True)
+class ObservationCsiLinkRow:
+    observation_id: int
+    csi_packet_id: int
+    role: str
+
+
+@dataclass(slots=True)
+class CsiPacketRow:
+    id: int
+    device: str
+    unix_time_us: int
+    rssi: int
+    noise_floor: int
+    channel: int
+    csi: str
+
+@dataclass(slots=True)
+class DatasetSample:
+
+    packet_id: int
+    timestamp_us: int
+
+    sensor: str
+    bssid: str
+
+    channel: int
+    rssi: int
+    noise_floor: int
+
+    csi: str

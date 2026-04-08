@@ -187,6 +187,51 @@ def insert_observation_csi_packets(
         rows,
     )
 
+def load_csi_packets(
+    conn: sqlite3.Connection,
+    packet_ids: List[int],
+) -> List[my_types.CsiPacketRow]:
+
+    if not packet_ids:
+        return []
+
+    placeholders = ",".join("?" for _ in packet_ids)
+
+    cur = conn.execute(
+        f"""
+        SELECT
+            id,
+            device,
+            unix_time_us,
+            rssi,
+            noise_floor,
+            channel,
+            csi
+        FROM csi_packets
+        WHERE id IN ({placeholders})
+        """,
+        packet_ids,
+    )
+
+    rows = cur.fetchall()
+
+    result: List[my_types.CsiPacketRow] = []
+
+    for row in rows:
+        result.append(
+            my_types.CsiPacketRow(
+                id=row[0],
+                device=row[1],
+                unix_time_us=row[2],
+                rssi=row[3],
+                noise_floor=row[4],
+                channel=row[5],
+                csi=row[6],
+            )
+        )
+
+    return result
+
 def index_rssi(
         measurement_id: int,
         device: str,
