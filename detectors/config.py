@@ -33,9 +33,10 @@ class AuthorizedAPWrongSSIDSignals:
     wrong_ssid: SignalSpec
 
 
-# @dataclass(slots=True)
-# class HiddenSSIDSignals:
-#     hidden_network: SignalSpec
+@dataclass(slots=True)
+class HiddenSSIDSignals:
+    hidden_ssid: SignalSpec
+    persistent_hidden_ssid: SignalSpec
 
 
 # @dataclass(slots=True)
@@ -51,7 +52,7 @@ class DetectorDefinitions:
     bssid_whitelist: DetectorSpec
     authorized_ap_wrong_ssid: DetectorSpec
 
-    # hidden_ssid: DetectorSpec
+    hidden_ssid: DetectorSpec
     # beacon_ratio: DetectorSpec
 
 DETECTORS = DetectorDefinitions(
@@ -96,15 +97,19 @@ DETECTORS = DetectorDefinitions(
         ),
     ),
 
-    # hidden_ssid=DetectorSpec(
-    #     name="hidden_ssid",
-    #     signals=HiddenSSIDSignals(
-    #         hidden_network=SignalSpec(
-    #             name="hidden_network",
-    #             severity="info",
-    #         )
-    #     ),
-    # ),
+    hidden_ssid=DetectorSpec(
+        name="hidden_ssid",
+        signals=HiddenSSIDSignals(
+            hidden_ssid=SignalSpec(
+                name="hidden_ssid",
+                severity="info",
+            ),
+            persistent_hidden_ssid=SignalSpec(
+                name="persistent_hidden_ssid",
+                severity="medium",
+            ),
+        ),
+    )
 
     # beacon_ratio=DetectorSpec(
     #     name="beacon_ratio",
