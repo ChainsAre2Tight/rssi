@@ -9,6 +9,8 @@ from storage.windows import (
 )
 from storage.packets import get_first_packet_time, get_last_packet_time
 
+import my_types
+
 
 def align_time_to_window(
     t: int,
@@ -20,10 +22,10 @@ def align_time_to_window(
 def try_create_next_window(
     conn: sqlite3.Connection,
     measurement_id: int,
-    layer: int
+    layer_config: my_types.WindowSpec,
 ):
 
-    last = get_last_window(conn, measurement_id, layer)
+    last = get_last_window(conn, measurement_id, layer_config.layer)
 
     if last is None:
 
@@ -35,7 +37,7 @@ def try_create_next_window(
         # TODO: add support for different window sizes for different layers
         start = align_time_to_window(
             first_packet,
-            config.WINDOW_STEP_US,
+            layer_config.step_us,
         )
 
         seq = 0
@@ -44,7 +46,7 @@ def try_create_next_window(
 
         seq, last_start = last
 
-        start = last_start + config.WINDOW_STEP_US
+        start = last_start + layer_config.step_us
         seq += 1
 
     max_packet_time = get_last_packet_time(
@@ -58,12 +60,12 @@ def try_create_next_window(
     if start > max_packet_time:
         return False
 
-    end = start + config.WINDOW_SIZE_US
+    end = start + layer_config.size_us
 
     return insert_window(
         conn,
         measurement_id,
-        layer,
+        layer_config.layer,
         sequence_id=seq,
         start_time_us=start,
         end_time_us=end,

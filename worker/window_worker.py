@@ -12,10 +12,13 @@ from storage.windows import (
     fail_window,
 )
 
+import my_types
+
 from compute.window import try_create_next_window
 
 
 def run_window_worker(
+    layer_config: my_types.WindowSpec,
     required_stage: str | None,
     completed_stage: str,
     processor: Callable[
@@ -32,7 +35,7 @@ def run_window_worker(
                 window = claim_next_window(
                     t,
                     config.MEASUREMENT_ID,
-                    0, # TODO: expose as a parameter
+                    layer_config.layer,
                     required_stage,
                 )
 
@@ -71,7 +74,7 @@ def run_window_worker(
                 created = try_create_next_window(
                     t, 
                     config.MEASUREMENT_ID,
-                    0, #TODO: expose as a parameter
+                    layer_config,
                 )
 
         if created:

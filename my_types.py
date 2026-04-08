@@ -1,5 +1,6 @@
 import typing as t
 from dataclasses import dataclass
+import config
 
 class BASE_PACKET(t.TypedDict):
     unix_time_us: int
@@ -81,3 +82,24 @@ class DetectionContext:
     hidden_ssid_observed: t.Dict[int, bool]
 
     whitelist: dict
+
+@dataclass(slots=True)
+class WindowSpec:
+    layer: int
+    step_us: int
+    size_us: int
+    depends_on_layer: int | None
+
+OBSERVATION_WINDOWS = WindowSpec(
+    layer=0,
+    step_us=config.WINDOW_STEP_US,
+    size_us=config.WINDOW_SIZE_US,
+    depends_on_layer=None
+)
+
+AGGREGATION_WINDOWS = WindowSpec(
+    layer=1,
+    step_us=config.WINDOW_STEP_US * 5,
+    size_us=config.WINDOW_SIZE_US * 10,
+    depends_on_layer=0
+)
