@@ -1,0 +1,1 @@
+from detectors.test.test_detector import TestDetector

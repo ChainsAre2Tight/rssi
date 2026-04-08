@@ -1,0 +1,1 @@
+from detectors.ssid.hidden_ssid import HiddenSSIDDetector

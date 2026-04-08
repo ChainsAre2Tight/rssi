@@ -1,0 +1,1 @@
+from detectors.behaviour.beacon_ratio import BeaconRatioDetector

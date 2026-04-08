@@ -1,0 +1,3 @@
+from detectors.whitelists.bssid_whitelist import BSSIDWhitelistDetector
+from detectors.whitelists.ssid_whitelist import SSIDWhitelistDetector
+from detectors.whitelists.wrong_ssid import AuthorizedAPWrongSSIDDetector
