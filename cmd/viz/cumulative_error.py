@@ -1,5 +1,5 @@
 import numpy as np
-from viz_skibidi import RSSILocalizer, Config
+from cmd.viz.viz_skibidi import RSSILocalizer, Config
 from compute.pair_calibrate import data, base_position
 from compute.calc_gain import calibrate_devices
 from compute.bbox import compute_bounding_box_center, angular_error
