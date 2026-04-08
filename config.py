@@ -15,6 +15,8 @@ VIZ_MEASUREMENT_ID: int = int(env("VIZ_MEASUREMENT_ID"))
 PATH_LOSS_EXPONENT: float = float(env("PATH_LOSS_EXPONENT"))
 ESP32_SIGNAL_STRENGTH: float = float(env("ESP32_SIGNAL_STRENGTH"))
 
+WHITELIST_PATH: str = env("WHITELIST_JSON_PATH", "whitelist.json")
+
 LOG_LEVEL: str = str(env("LOG_LEVEL", "info")).upper()
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),

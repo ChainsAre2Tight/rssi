@@ -6,5 +6,6 @@ sql/*
 *.env
 *.db
 *.sqlite
+*.json
 
 !backups/*
