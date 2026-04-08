@@ -1,5 +1,6 @@
 import typing as t
 from dataclasses import dataclass
+from abc import ABC, abstractmethod
 import config
 
 class BASE_PACKET(t.TypedDict):
@@ -147,3 +148,62 @@ class DatasetSample:
     noise_floor: int
 
     csi: str
+
+@dataclass(slots=True)
+class DatasetDescriptor:
+
+    measurement_id: int
+    window_id: int
+    version: int = 1
+
+@dataclass(slots=True)
+class DatasetMetadata:
+
+    measurement_id: int
+    window_id: int
+
+    start_time_us: int
+    end_time_us: int
+
+    dataset_version: int
+    schema_version: int
+
+    packet_count: int
+    sensor_count: int
+    ap_count: int
+
+class DatasetWriter(ABC):
+
+    @abstractmethod
+    def write_dataset(self, desc: DatasetDescriptor, dataset: dict) -> None:
+        pass
+
+    @abstractmethod
+    def write_metadata(self, desc: DatasetDescriptor, metadata: DatasetMetadata) -> None:
+        pass
+
+    def write(
+        self,
+        desc: DatasetDescriptor,
+        dataset: dict,
+        metadata: DatasetMetadata,
+    ) -> None:
+
+        self.write_dataset(desc, dataset)
+        self.write_metadata(desc, metadata)
+
+class DatasetReader(ABC):
+
+    @abstractmethod
+    def read_dataset(self, desc: DatasetDescriptor):
+        pass
+
+    @abstractmethod
+    def read_metadata(self, desc: DatasetDescriptor):
+        pass
+
+    def read(self, desc: DatasetDescriptor):
+        dataset = self.read_dataset(desc)
+        metadata = self.read_metadata(desc)
+
+        return dataset, metadata
