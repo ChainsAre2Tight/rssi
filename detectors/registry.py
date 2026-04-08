@@ -3,6 +3,7 @@ from detectors.ssid_whitelist import SSIDWhitelistDetector
 from detectors.bssid_whitelist import BSSIDWhitelistDetector
 from detectors.wrong_ssid import AuthorizedAPWrongSSIDDetector
 from detectors.hidden_ssid import HiddenSSIDDetector
+from detectors.beacon_ratio import BeaconRatioDetector
 
 DETECTORS = [
     # testing stuff
@@ -17,7 +18,7 @@ DETECTORS = [
     HiddenSSIDDetector(),               # SSID hidden
 
     # behavior detectors
-    # BeaconRatioDetector(),            # beacon/data ratio anomaly
+    BeaconRatioDetector(),              # beacon/data ratio anomaly
 
     # impersonation detectors
     # SSIDSimilarityDetector(),         # SSID similar to whitelisted one (evil twin)
