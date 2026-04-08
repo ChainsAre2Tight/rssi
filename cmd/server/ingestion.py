@@ -49,7 +49,7 @@ def upload_csi():
     with storage.Session() as conn:
         storage.insert_csi_packets(conn, config.MEASUREMENT_ID, device, packets)
 
-    logger.INFO(f"[UPLOAD] Received {len(packets)} packets with CSI data from {device}")
+    logger.info(f"[UPLOAD] Received {len(packets)} packets with CSI data from {device}")
     return jsonify({"status": "ok", "received": len(packets)}), 200
 
 @app.route("/upload", methods=["POST"])

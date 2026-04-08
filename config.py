@@ -1,4 +1,5 @@
 import logging
+import os
 
 from decouple import config as env
 
@@ -18,9 +19,10 @@ ESP32_SIGNAL_STRENGTH: float = float(env("ESP32_SIGNAL_STRENGTH"))
 WHITELIST_PATH: str = env("WHITELIST_JSON_PATH", "whitelist.json")
 
 LOG_LEVEL: str = str(env("LOG_LEVEL", "info")).upper()
+worker = os.environ.get("WORKER_NAME", "main")
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
-    format="%(asctime)s [%(levelname)s] %(name)s.%(funcName)s: %(message)s"
+    format=f"%(asctime)s [%(levelname)s] [{worker}] %(name)s.%(funcName)s: %(message)s",
 )
 logger = logging.getLogger("app")
 
