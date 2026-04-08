@@ -106,7 +106,7 @@ def init_db():
                     sequence_id INTEGER NOT NULL,
                     start_time_us INTEGER NOT NULL,
                     end_time_us INTEGER NOT NULL,
-                    stage TEXT NULL,
+                    stage INTEGER NULL,
                     status TEXT NOT NULL DEFAULT 'pending',
                     processing_started_at INTEGER,
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

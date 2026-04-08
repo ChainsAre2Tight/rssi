@@ -19,8 +19,8 @@ from compute.window import try_create_next_window
 
 def run_window_worker(
     layer_config: my_types.WindowSpec,
-    required_stage: str | None,
-    completed_stage: str,
+    required_stage: int | None,
+    completed_stage: int,
     processor: Callable[
         [sqlite3.Connection, int, int, int],
         None
@@ -35,7 +35,7 @@ def run_window_worker(
                 window = claim_next_window(
                     t,
                     config.MEASUREMENT_ID,
-                    layer_config.layer,
+                    layer_config,
                     required_stage,
                 )
 

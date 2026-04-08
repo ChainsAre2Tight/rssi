@@ -46,13 +46,16 @@ class EventRow:
     last_time_us: int
     approx_time_us: int
 
-#TODO: fix naming convention
 @dataclass(frozen=True)
 class STAGES:
     NONE = None
-    EVENTS: str = "reconstructed"
-    AP_OBSERVATIONS: str = "ap_observation"
-    DETECTION: str = "detected"
+    EVENTS: int = 1
+    AP_OBSERVATIONS: int = 2
+    DETECTION: int = 3
+
+class AGGREGATION_STAGES:
+    NONE = None
+    DATASET_BUILT = 1
 
 @dataclass(slots=True)
 class DetectionSignal:
@@ -88,7 +91,9 @@ class WindowSpec:
     layer: int
     step_us: int
     size_us: int
-    depends_on_layer: int | None
+
+    depends_on_layer: int | None = None
+    depends_on_stage: int | None = None
 
 OBSERVATION_WINDOWS = WindowSpec(
     layer=0,
@@ -101,7 +106,8 @@ AGGREGATION_WINDOWS = WindowSpec(
     layer=1,
     step_us=config.WINDOW_STEP_US * 5,
     size_us=config.WINDOW_SIZE_US * 10,
-    depends_on_layer=0
+    depends_on_layer=0,
+    depends_on_stage=STAGES.AP_OBSERVATIONS,
 )
 
 @dataclass(slots=True)
