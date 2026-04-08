@@ -1,5 +1,6 @@
+from typing import List, Tuple, Iterable
+
 import sqlite3
-from typing import List
 
 import my_types
 
@@ -94,3 +95,37 @@ def insert_event_packets(
 
     cur = conn.cursor()
     cur.execute(sql, flat_values)
+
+
+def load_window_events(
+    conn: sqlite3.Connection,
+    window_id: int,
+) -> List[Tuple[int, str | None]]:
+    """Returns list of (event_id, bssid)"""
+    cur = conn.execute(
+        """
+        SELECT id, bssid
+        FROM events
+        WHERE window_id = ?
+        """,
+        (window_id,),
+    )
+
+    return cur.fetchall()
+
+def update_event_observation_ids(
+    conn: sqlite3.Connection,
+    rows: Iterable[Tuple[int, int]],
+) -> None:
+    """
+    rows = (observation_id, event_id)
+    """
+
+    conn.executemany(
+        """
+        UPDATE events
+        SET observation_id = ?
+        WHERE id = ?
+        """,
+        rows,
+    )
