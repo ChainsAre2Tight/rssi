@@ -2,6 +2,7 @@ import json
 from typing import List
 
 from my_types import DetectionSignal, DetectionContext
+from detectors.config import DETECTORS
 
 
 class TestDetector:
@@ -27,9 +28,9 @@ class TestDetector:
                             observation_id=obs_id,
                             bssid=bssid,
                             ssid=ssid,
-                            detector="test_detector",
-                            signal="test_ssid_123321",
-                            severity="critical",
+                            detector=DETECTORS.test.name,
+                            signal=DETECTORS.test.signals.test_signal.name,
+                            severity=DETECTORS.test.signals.test_signal.severity,
                             metadata_json=json.dumps(
                                 {"test": "test123321"}
                             ),
@@ -43,9 +44,9 @@ class TestDetector:
                             observation_id=obs_id,
                             bssid=bssid,
                             ssid=ssid,
-                            detector="test_detector",
-                            signal="test_ssid_moosetop",
-                            severity="info",
+                            detector=DETECTORS.test.name,
+                            signal=DETECTORS.test.signals.test_signal.name,
+                            severity=DETECTORS.test.signals.test_signal.severity,
                             metadata_json=json.dumps(
                                 {"test": "mooooooooooooo"}
                             ),

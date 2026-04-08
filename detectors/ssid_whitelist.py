@@ -1,6 +1,7 @@
 import json
 
 import my_types
+from detectors.config import DETECTORS
 
 
 class SSIDWhitelistDetector:
@@ -32,9 +33,9 @@ class SSIDWhitelistDetector:
                         observation_id=obs_id,
                         bssid=bssid,
                         ssid=ssid,
-                        detector="ssid_whitelist",
-                        signal="unauthorized_ssid",
-                        severity="low",
+                        detector=DETECTORS.ssid_whitelist.name,
+                        signal=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.name,
+                        severity=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.severity,
                         metadata_json=json.dumps({
                             "ssid": ssid
                         }),

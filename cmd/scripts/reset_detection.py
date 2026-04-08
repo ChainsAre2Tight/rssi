@@ -24,10 +24,10 @@ def reset_detection(measurement_id: int) -> None:
                 UPDATE windows
                 SET stage = ?,
                     status = 'pending'
-                WHERE measurement_id = ?
-                    AND stage = 'detected'
+                WHERE measurement_id = ? AND (stage = ?
+                    OR (stage = ? AND status = 'failed'))
                 """,
-                (STAGES.AP_OBSERVATIONS, measurement_id,),
+                (STAGES.AP_OBSERVATIONS, measurement_id, STAGES.DETECTION, STAGES.AP_OBSERVATIONS,),
             )
 
 
