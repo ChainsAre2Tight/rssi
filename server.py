@@ -1,35 +1,55 @@
 from typing import List
 
 from flask import Flask, request, jsonify
+from werkzeug.exceptions import HTTPException
 
 import config
+from config import logger
 import storage
 import my_types
 
 app = Flask(config.NAME)
 
+@app.errorhandler(Exception)
+def handle_uncaught_exception(e):
+    raw_data = request.get_data(as_text=True)
+
+    if isinstance(e, HTTPException):
+        code = e.code
+        description = e.description
+    else:
+        code = 500
+        description = "Internal Server Error"
+
+    logger.exception(
+        "Unhandled exception",
+        extra={
+            "path": request.path,
+            "method": request.method,
+            "query": request.query_string.decode(),
+            "request_data": raw_data,
+            "status_code": code,
+        }
+    )
+
+    return jsonify({"error": description}), code
+
 @app.route("/upload-csi", methods=["POST"])
 def upload_csi():
-    try:
-        data = request.get_json()
-    except Exception as e:
-        print(request.data)
-        raise e
+    data = request.get_json()
     if not data:
-        print(1, request.data)
         return "Invalid JSON", 400
 
     device = data.get("device", "")
     packets: List[my_types.CSI_PACKET] = data.get("packets", [])
 
     if not packets:
-        print(2, request.data)
         return "No packets", 400
 
     with storage.Session() as conn:
         storage.insert_csi_packets(conn, config.MEASUREMENT_ID, device, packets)
 
-    print(f"[UPLOAD] Received {len(packets)} packets with CSI data from {device}")
+    logger.INFO(f"[UPLOAD] Received {len(packets)} packets with CSI data from {device}")
     return jsonify({"status": "ok", "received": len(packets)}), 200
 
 @app.route("/upload", methods=["POST"])

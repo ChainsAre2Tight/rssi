@@ -1,10 +1,10 @@
 import time
 from typing import Callable
-import logging
 
 import sqlite3
 
 import config
+from config import logger
 import storage
 from storage.windows import (
     claim_next_window,
@@ -28,7 +28,7 @@ def run_window_worker(
     while True:
         with storage.Session() as conn:
             with storage.Transaction(conn, immediate=True) as t:
-                logging.debug("Trying to claim a window...")
+                logger.debug("Trying to claim a window...")
                 window = claim_next_window(
                     t,
                     config.MEASUREMENT_ID,
@@ -37,11 +37,11 @@ def run_window_worker(
                 )
 
         if window is not None:
-            logging.debug("Window was claimed")
+            logger.debug("Window was claimed")
             window_id, start_time_us, end_time_us = window
             try:
                 with storage.Session() as conn:
-                    logging.info("Running a processor against window %d", window_id)
+                    logger.info("Running a processor against window %d", window_id)
                     processor(
                         conn,
                         window_id,
@@ -52,10 +52,10 @@ def run_window_worker(
                 with storage.Session() as conn:
                     with storage.Transaction(conn, immediate=True) as t:
                         complete_window_stage(t, window_id, completed_stage)
-                        logging.info("Window processed successfully")
+                        logger.info("Window processed successfully")
 
             except Exception as e:
-                logging.exception("Error during window processing: %e", e)
+                logger.exception("Error during window processing: %e", e)
                 with storage.Session() as conn:
                     with storage.Transaction(conn, immediate=True) as t:
                         fail_window(t, window_id)
@@ -65,7 +65,7 @@ def run_window_worker(
             continue
 
         created = False
-        logging.debug("No window claimed, creating a new one...")
+        logger.debug("No window claimed, trying to create a new one...")
         with storage.Session() as conn:
             with storage.Transaction(conn, immediate=True) as t:
                 created = try_create_next_window(
@@ -75,8 +75,8 @@ def run_window_worker(
                 )
 
         if created:
-            logging.debug("Window successfully created")
+            logger.debug("Window successfully created")
             continue
 
-        logging.debug("No windows are ready, sleeping...")
+        logger.debug("No windows are ready, sleeping for %s sec", sleep_seconds)
         time.sleep(sleep_seconds)

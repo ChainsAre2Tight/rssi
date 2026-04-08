@@ -6,7 +6,7 @@ from storage.events import insert_events
 from storage.events import insert_event_packets
 
 import config
-
+from config import logger
 
 def reconstruction_processor(
     conn: sqlite3.Connection,
@@ -15,12 +15,14 @@ def reconstruction_processor(
     end_time_us: int,
 ) -> None:
 
+    logger.debug("Reconstructing events for window %d", window_id)
     events, packet_links = reconstruct_window_packets(
         conn,
         config.MEASUREMENT_ID,
         start_time_us,
         end_time_us,
     )
+    logger.info("Reconstructed %d events for window %d", len(events), window_id)
 
     event_ids = insert_events(
         conn,

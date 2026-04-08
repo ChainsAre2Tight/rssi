@@ -5,16 +5,10 @@ from dataclasses import dataclass, field
 import sqlite3
 
 import my_types
-from storage import (
-    stream_timed_packets,
-    insert_events,
-    insert_event_packets,
-)
+import config
 
-
-MERGE_WINDOW_US = 100_000
-REORDER_WINDOW_US = 30_000_000
-
+from storage import stream_timed_packets
+from config import logger
 
 @dataclass(slots=True)
 class _ActiveEvent:
@@ -39,7 +33,7 @@ class _ActiveEvent:
         new_first = min(self.first_time_us, t)
         new_last = max(self.last_time_us, t)
 
-        if new_last - new_first > MERGE_WINDOW_US:
+        if new_last - new_first > config.MERGE_WINDOW_US:
             return False
 
         self.first_time_us = new_first
@@ -108,7 +102,7 @@ class _EventReconstructor:
         self,
     ) -> Tuple[List[my_types.EventRow], List[List[int]]]:
 
-        watermark = self.max_seen_time - REORDER_WINDOW_US
+        watermark = self.max_seen_time - config.REORDER_WINDOW_US
 
         ready_events: List[my_types.EventRow] = []
         ready_packets: List[List[int]] = []
@@ -207,6 +201,7 @@ def reconstruct_window_packets(
     ):
         recon.process(pkt)
 
+        # TODO: benchmark and run every M cycles, it itself is O(N)
         ready_events, ready_packets = recon.pop_ready()
 
         if ready_events:
