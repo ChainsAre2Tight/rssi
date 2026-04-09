@@ -1,6 +1,9 @@
 import typing as t
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+
+import sqlite3
+
 import config
 
 class BASE_PACKET(t.TypedDict):
@@ -207,3 +210,21 @@ class DatasetReader(ABC):
         metadata = self.read_metadata(desc)
 
         return dataset, metadata
+
+class Incident(ABC):
+
+    @abstractmethod
+    def to_dict(self) -> t.Dict[str, t.Any]:
+        pass
+
+class Modality(ABC):
+    name: str
+
+    @abstractmethod
+    def build_incidents(
+        self,
+        conn: sqlite3.Connection,
+        start_time: int,
+        end_time: int,
+    ) -> t.List[Incident]:
+        pass
