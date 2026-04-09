@@ -1,0 +1,1 @@
+from compute.modalities.logical import LogicalModality
