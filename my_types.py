@@ -277,6 +277,7 @@ class LogicalWarning:
     detector: str
     signal: str
     severity: Severity
+    metadata: t.Dict[str, t.Any]
     occurrences: list[LogicalWarningOccurrence]
 
 @dataclass(slots=True)
@@ -317,6 +318,7 @@ class LogicalIncident(Incident):
                     "signal": w.signal,
                     "severity": w.severity.value,
                     "occurrences": [asdict(o) for o in w.occurrences],
+                    "metadada": w.metadata,
                 }
                 for w in self.warnings
             ],

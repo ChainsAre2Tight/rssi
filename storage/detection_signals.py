@@ -24,7 +24,7 @@ def insert_detection_signals(
             s.ssid,
             s.detector,
             s.signal,
-            s.severity.value,
+            s.severity,
             s.metadata_json,
         )
         for s in signals

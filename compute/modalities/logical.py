@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 import my_types
 
@@ -133,15 +134,15 @@ class LogicalModality(my_types.Modality):
         signals: list[my_types.LogicalSignal],
     ) -> list[my_types.LogicalWarning]:
 
-        groups: dict[tuple[str, str, str], list[my_types.LogicalSignal]] = {}
+        groups: dict[tuple[str, str, str, str], list[my_types.LogicalSignal]] = {}
 
         for s in signals:
-            key = (s.detector, s.signal, s.severity)
+            key = (s.detector, s.signal, s.severity, s.metadata_json)
             groups.setdefault(key, []).append(s)
 
         warnings: list[my_types.LogicalWarning] = []
 
-        for (detector, signal, severity_str), group_signals in groups.items():
+        for (detector, signal, severity_str, metadata_json), group_signals in groups.items():
 
             severity = my_types.Severity.from_str(severity_str)
 
@@ -153,6 +154,7 @@ class LogicalModality(my_types.Modality):
                     signal=signal,
                     severity=severity,
                     occurrences=occurrences,
+                    metadata=json.loads(metadata_json),
                 )
             )
 
