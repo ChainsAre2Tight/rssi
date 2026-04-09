@@ -1,6 +1,7 @@
 import typing as t
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from enum import Enum
 
 import sqlite3
 
@@ -70,9 +71,15 @@ class DetectionSignal:
 
     detector: str
     signal: str
-    severity: str
+    severity: str # maybe enum?
 
     metadata_json: t.Optional[str]
+
+@dataclass(slots=True)
+class LogicalSignal(DetectionSignal):
+
+    start_time_us: int
+    end_time_us: int
 
 @dataclass(slots=True)
 class DetectionContext:
@@ -89,6 +96,37 @@ class DetectionContext:
     hidden_ssid_observed: t.Dict[int, bool]
 
     whitelist: dict
+
+
+class Severity(str, Enum):
+
+    INFO = "info"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+    @property
+    def rank(self) -> int:
+        return _SEVERITY_RANK[self]
+
+    @classmethod
+    def from_str(cls, value: str) -> "Severity":
+        try:
+            return cls(value)
+        except ValueError:
+            raise ValueError(f"Unknown severity: {value}")
+
+_SEVERITY_RANK = {
+    Severity.INFO: 0,
+    Severity.LOW: 1,
+    Severity.MEDIUM: 2,
+    Severity.HIGH: 3,
+    Severity.CRITICAL: 4,
+}
+
+def max_severity(values):
+    return max(values, key=lambda v: v.rank)
 
 @dataclass(slots=True)
 class WindowSpec:

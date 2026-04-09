@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from my_types import Severity
+
 
 @dataclass(slots=True)
 class SignalSpec:
@@ -68,7 +70,7 @@ DETECTORS = DetectorDefinitions(
         signals=TestSignals(
             test_signal=SignalSpec(
                 name="test_signal",
-                severity="info",
+                severity=Severity.INFO,
             )
         ),
     ),
@@ -78,7 +80,7 @@ DETECTORS = DetectorDefinitions(
         signals=SSIDWhitelistSignals(
             unauthorized_ssid=SignalSpec(
                 name="unauthorized_ssid",
-                severity="low",
+                severity=Severity.LOW,
             )
         ),
     ),
@@ -88,7 +90,7 @@ DETECTORS = DetectorDefinitions(
         signals=BSSIDWhitelistSignals(
             unauthorized_bssid=SignalSpec(
                 name="unauthorized_bssid",
-                severity="high",
+                severity=Severity.HIGH,
             )
         ),
     ),
@@ -98,7 +100,7 @@ DETECTORS = DetectorDefinitions(
         signals=AuthorizedAPWrongSSIDSignals(
             wrong_ssid=SignalSpec(
                 name="wrong_ssid",
-                severity="high",
+                severity=Severity.HIGH,
             )
         ),
     ),
@@ -112,7 +114,7 @@ DETECTORS = DetectorDefinitions(
             ),
             persistent_hidden_ssid=SignalSpec(
                 name="persistent_hidden_ssid",
-                severity="medium",
+                severity=Severity.MEDIUM,
             ),
         ),
     ),
@@ -126,7 +128,7 @@ DETECTORS = DetectorDefinitions(
             ),
             high_beacon_ratio=SignalSpec(
                 name="high_beacon_ratio",
-                severity="medium",
+                severity=Severity.MEDIUM,
             ),
         ),
     ),
@@ -136,11 +138,11 @@ DETECTORS = DetectorDefinitions(
         signals=SSIDSimilaritySignals(
             similar_ssid=SignalSpec(
                 name="similar_ssid",
-                severity="high",
+                severity=Severity.HIGH,
             ),
             typosquat_ssid=SignalSpec(
                 name="typosquat_ssid",
-                severity="critical",
+                severity=Severity.CRITICAL,
             ),
         ),
     ),
