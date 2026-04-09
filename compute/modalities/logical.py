@@ -92,6 +92,71 @@ class LogicalModality(my_types.Modality):
     ) -> my_types.Severity:
 
         return aggregate_severity(signals)
+    
+    def _merge_intervals(
+        self,
+        signals: list[my_types.LogicalSignal],
+    ) -> list[my_types.LogicalWarningOccurrence]:
+
+        intervals = sorted(
+            [(s.start_time_us, s.end_time_us) for s in signals]
+        )
+
+        merged: list[my_types.LogicalWarningOccurrence] = []
+
+        cur_start, cur_end = intervals[0]
+
+        for start, end in intervals[1:]:
+
+            if start <= cur_end:
+                cur_end = max(cur_end, end)
+            else:
+                merged.append(
+                    my_types.LogicalWarningOccurrence(
+                        start_time_us=cur_start,
+                        end_time_us=cur_end,
+                    )
+                )
+                cur_start, cur_end = start, end
+
+        merged.append(
+            my_types.LogicalWarningOccurrence(
+                start_time_us=cur_start,
+                end_time_us=cur_end,
+            )
+        )
+
+        return merged
+
+    def _build_warnings(
+        self,
+        signals: list[my_types.LogicalSignal],
+    ) -> list[my_types.LogicalWarning]:
+
+        groups: dict[tuple[str, str, str], list[my_types.LogicalSignal]] = {}
+
+        for s in signals:
+            key = (s.detector, s.signal, s.severity)
+            groups.setdefault(key, []).append(s)
+
+        warnings: list[my_types.LogicalWarning] = []
+
+        for (detector, signal, severity_str), group_signals in groups.items():
+
+            severity = my_types.Severity.from_str(severity_str)
+
+            occurrences = self._merge_intervals(group_signals)
+
+            warnings.append(
+                my_types.LogicalWarning(
+                    detector=detector,
+                    signal=signal,
+                    severity=severity,
+                    occurrences=occurrences,
+                )
+            )
+
+        return warnings
 
     def _build_incident(
         self,
@@ -100,14 +165,15 @@ class LogicalModality(my_types.Modality):
         severity: my_types.Severity,
     ) -> my_types.LogicalIncident:
 
+        warnings = self._build_warnings(signals)
+
         return my_types.LogicalIncident(
             bssid=group.bssid,
             ssid=group.ssid,
             severity=severity,
             start_time_us=group.first_seen_us,
             end_time_us=group.last_seen_us,
-            signals=signals,
-            # signals=[],
+            warnings=warnings,
         )
 
 

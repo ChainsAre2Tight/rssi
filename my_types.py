@@ -267,6 +267,19 @@ class LogicalSignal(DetectionSignal):
     end_time_us: int
 
 @dataclass(slots=True)
+class LogicalWarningOccurrence:
+    start_time_us: int
+    end_time_us: int
+
+
+@dataclass(slots=True)
+class LogicalWarning:
+    detector: str
+    signal: str
+    severity: Severity
+    occurrences: list[LogicalWarningOccurrence]
+
+@dataclass(slots=True)
 class LogicalIncidentGroup:
     bssid: str
     ssid: t.Optional[str]
@@ -285,7 +298,7 @@ class LogicalIncident(Incident):
     start_time_us: int
     end_time_us: int
 
-    signals: list[LogicalSignal]
+    warnings: list[LogicalWarning]
 
     def to_dict(self) -> dict:
 
@@ -298,5 +311,13 @@ class LogicalIncident(Incident):
             "severity": self.severity.value,
             "start_time_us": self.start_time_us,
             "end_time_us": self.end_time_us,
-            "signals": [asdict(s) for s in self.signals],
+            "warnings": [
+                {
+                    "detector": w.detector,
+                    "signal": w.signal,
+                    "severity": w.severity.value,
+                    "occurrences": [asdict(o) for o in w.occurrences],
+                }
+                for w in self.warnings
+            ],
         }
