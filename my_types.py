@@ -1,5 +1,5 @@
 import typing as t
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -74,12 +74,6 @@ class DetectionSignal:
     severity: str # maybe enum?
 
     metadata_json: t.Optional[str]
-
-@dataclass(slots=True)
-class LogicalSignal(DetectionSignal):
-
-    start_time_us: int
-    end_time_us: int
 
 @dataclass(slots=True)
 class DetectionContext:
@@ -266,3 +260,43 @@ class Modality(ABC):
         end_time: int,
     ) -> t.List[Incident]:
         pass
+
+@dataclass(slots=True)
+class LogicalSignal(DetectionSignal):
+    start_time_us: int
+    end_time_us: int
+
+@dataclass(slots=True)
+class LogicalIncidentGroup:
+    bssid: str
+    ssid: t.Optional[str]
+    first_seen_us: int
+    last_seen_us: int
+    signal_count: int
+
+@dataclass(slots=True)
+class LogicalIncident(Incident):
+
+    bssid: str
+    ssid: t.Optional[str]
+
+    severity: Severity
+
+    start_time_us: int
+    end_time_us: int
+
+    signals: list[LogicalSignal]
+
+    def to_dict(self) -> dict:
+
+        return {
+            "modality": "logical",
+            "identity": {
+                "bssid": self.bssid,
+                "ssid": self.ssid,
+            },
+            "severity": self.severity.value,
+            "start_time_us": self.start_time_us,
+            "end_time_us": self.end_time_us,
+            "signals": [asdict(s) for s in self.signals],
+        }
