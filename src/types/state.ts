@@ -52,8 +52,8 @@ export interface AppState {
 
     layout: {
         explorerWidth: number
-        timelineHeight: number
-        detailsHeight: number
+        globalTimelineHeight: number
+        warningTimelineHeight: number
     }
 
     ui: {
@@ -83,4 +83,10 @@ export interface AppState {
     hoverIncident: (id: string | null) => void
     hoverWarning: (type: string | null) => void
     setTimelineCursor: (timeUs: number | null) => void
+
+    setLayout: (
+        update:
+            | Partial<AppState["layout"]>
+            | ((prev: AppState["layout"]) => AppState["layout"])
+    ) => void
 }

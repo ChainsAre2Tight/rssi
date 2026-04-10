@@ -6,8 +6,8 @@ import type { AppState } from "../types/state"
 
 const defaultLayout = {
     explorerWidth: 300,
-    timelineHeight: 300,
-    detailsHeight: 400
+    globalTimelineHeight: 300,
+    warningTimelineHeight: 400
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -103,7 +103,6 @@ export const useAppStore = create<AppState>((set) => ({
             incidentsByModality: {
                 logical: [],
                 physical: [],
-                ml: []
             },
             loaded: false
         },
@@ -197,5 +196,13 @@ export const useAppStore = create<AppState>((set) => ({
                 ...state.hover,
                 timelineTimeUs: timeUs
             }
+    })),
+
+    setLayout: (update) =>
+        set((state) => ({
+            layout:
+                typeof update === "function"
+                    ? update(state.layout)
+                    : { ...state.layout, ...update }
+        }))
     }))
-}))

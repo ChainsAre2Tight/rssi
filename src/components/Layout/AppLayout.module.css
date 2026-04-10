@@ -1,31 +1,26 @@
 .root {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
     height: 100vh;
 }
 
 .topbar {
-    flex: 0 0 auto;
 }
 
 .timeline {
-    flex: 0 0 300px;
     border-bottom: 1px solid var(--color-border);
 }
 
 .main {
-    flex: 1;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
     min-height: 0;
 }
 
 .explorer {
-    width: 300px;
-    border-right: 1px solid var(--color-border);
     overflow: auto;
 }
 
 .details {
-    flex: 1;
     overflow: auto;
 }
