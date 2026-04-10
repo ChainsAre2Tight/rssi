@@ -1,4 +1,39 @@
 .root {
     height: 100%;
-    padding: var(--space-sm);
+    overflow-y: auto;
+}
+
+.empty {
+    padding: var(--space-md);
+    color: var(--color-text-secondary);
+}
+
+.row {
+    display: grid;
+
+    grid-template-columns:
+        12px
+        1fr
+        80px;
+
+    align-items: center;
+
+    padding:
+        var(--space-xs)
+        var(--space-sm);
+
+    cursor: pointer;
+}
+
+.row:hover {
+    background: var(--color-surface-hover);
+}
+
+.row[data-selected="true"] {
+    background: var(--color-accent);
+    color: white;
+}
+
+.durationPlaceholder {
+    height: 4px;
 }
