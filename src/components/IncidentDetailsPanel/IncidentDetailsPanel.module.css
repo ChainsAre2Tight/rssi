@@ -1,7 +1,15 @@
 .root {
-
-    display: flex;
-    flex-direction: column;
-
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
     height: 100%;
+    min-height: 0;
+}
+
+.timeline {
+    min-height: 0;
+}
+
+.details {
+    overflow: auto;
+    min-height: 0;
 }

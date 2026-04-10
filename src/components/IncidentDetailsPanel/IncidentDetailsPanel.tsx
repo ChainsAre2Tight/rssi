@@ -2,9 +2,30 @@ import IncidentHeader from "./IncidentHeader"
 import WarningTimeline from "./WarningTimeline"
 import WarningDetailsList from "./WarningDetailsList"
 
+import HorizontalResizer from "../Layout/HorizontalResizer"
+
 import styles from "./IncidentDetailsPanel.module.css"
 
+import { useAppStore } from "../../store/useAppStore"
+
 export default function IncidentDetailsPanel() {
+
+    const warningTimelineHeight = useAppStore(
+        (s) => s.layout.warningTimelineHeight
+    )
+
+    const setLayout = useAppStore((s) => s.setLayout)
+
+    function resizeTimeline(delta: number) {
+
+        setLayout((prev) => ({
+            ...prev,
+            warningTimelineHeight: Math.max(
+                100,
+                prev.warningTimelineHeight + delta
+            )
+        }))
+    }
 
     return (
 
@@ -12,9 +33,18 @@ export default function IncidentDetailsPanel() {
 
             <IncidentHeader />
 
-            <WarningTimeline />
+            <div
+                className={styles.timeline}
+                style={{ height: warningTimelineHeight }}
+            >
+                <WarningTimeline />
+            </div>
 
-            <WarningDetailsList />
+            <HorizontalResizer onDrag={resizeTimeline} />
+
+            <div className={styles.details}>
+                <WarningDetailsList />
+            </div>
 
         </div>
 
