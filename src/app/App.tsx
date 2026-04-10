@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import AppLayout from "../components/Layout/AppLayout"
 import { loadMockMeasurements } from "../features/measurements/mockMeasurements"
 import { useAppStore } from "../store/useAppStore"
+import ThemeToggle from "../components/ThemeToggle/ThemeToggle"
 
 export default function App() {
 
@@ -12,5 +13,10 @@ export default function App() {
       setMeasurements(data)
   }, [])
 
-  return <AppLayout />
+  return (
+    <>
+      <AppLayout />
+      <ThemeToggle />
+    </>
+  )
 }

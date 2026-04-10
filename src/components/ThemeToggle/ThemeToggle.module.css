@@ -1,0 +1,38 @@
+.button {
+    position: fixed;
+
+    right: var(--space-lg);
+    bottom: var(--space-lg);
+
+    z-index: 1000;
+
+    padding: var(--space-sm) var(--space-md);
+
+    border-radius: var(--radius-md);
+
+    border: 1px solid var(--color-border);
+
+    background: var(--color-panel-bg);
+    color: var(--color-text);
+
+    cursor: pointer;
+
+    font-family: var(--font-ui);
+    font-size: 13px;
+
+    transition: var(--transition-fast);
+}
+
+.button:hover {
+    opacity: 0.9;
+}
+
+.label::before {
+    content: "Light";
+}
+
+/* when dark theme active */
+
+:root[data-theme="dark"] .label::before {
+    content: "Dark";
+}
