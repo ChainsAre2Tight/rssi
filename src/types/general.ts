@@ -19,6 +19,7 @@ export interface Occurrence {
 }
 
 export interface Warning {
+    signal: string
     type: string
     severity: Severity
     occurrences: Occurrence[]

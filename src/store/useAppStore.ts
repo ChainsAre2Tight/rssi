@@ -53,12 +53,12 @@ export const useAppStore = create<AppState>((set) => ({
 
     selection: {
         incidentId: null,
-        warningType: null
+        warningKey: null
     },
 
     hover: {
         incidentId: null,
-        warningType: null,
+        warningKey: null,
         timelineTimeUs: null
     },
 
@@ -109,7 +109,7 @@ export const useAppStore = create<AppState>((set) => ({
 
         selection: {
             incidentId: null,
-            warningType: null
+            warningKey: null
         }
         })),
     
@@ -162,15 +162,15 @@ export const useAppStore = create<AppState>((set) => ({
             selection: {
                 ...state.selection,
                 incidentId: id,
-                warningType: null
+                warningKey: null
             }
         })),
 
-    selectWarning: (type) =>
+    selectWarning: (key) =>
         set((state) => ({
             selection: {
                 ...state.selection,
-                warningType: type
+                warningKey: key
             }
         })),
 
@@ -182,11 +182,11 @@ export const useAppStore = create<AppState>((set) => ({
             }
         })),
 
-    hoverWarning: (type) =>
+    hoverWarning: (key) =>
         set((state) => ({
             hover: {
                 ...state.hover,
-                warningType: type
+                warningKey: key
             }
         })),
 

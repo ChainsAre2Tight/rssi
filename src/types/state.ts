@@ -41,12 +41,12 @@ export interface AppState {
 
     selection: {
         incidentId: string | null
-        warningType: string | null
+        warningKey: string | null // something like incidentId + ":" + warning.signal .. althoug on different metadata might collide
     }
 
     hover: {
         incidentId: string | null
-        warningType: string | null
+        warningKey: string | null
         timelineTimeUs: number | null
     }
 
@@ -78,10 +78,10 @@ export interface AppState {
     setReportLoading: (loading: boolean) => void
 
     selectIncident: (id: string | null) => void
-    selectWarning: (type: string | null) => void
+    selectWarning: (key: string | null) => void
 
     hoverIncident: (id: string | null) => void
-    hoverWarning: (type: string | null) => void
+    hoverWarning: (key: string | null) => void
     setTimelineCursor: (timeUs: number | null) => void
 
     setLayout: (

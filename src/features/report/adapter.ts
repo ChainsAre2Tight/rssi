@@ -34,6 +34,7 @@ export function adaptReport(api: BackendReport) {
                 warnings: inc.warnings.map((w) => ({
                     type: w.signal,
                     severity: w.severity,
+                    signal: w.signal,
                     metadata: {},
                     occurrences: w.occurrences.map((o) => ({
                         startTimeUs: o.start_time_us,

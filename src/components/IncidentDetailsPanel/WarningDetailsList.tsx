@@ -1,18 +1,50 @@
+import { useAppStore } from "../../store/useAppStore"
+import WarningRow from "./WarningRow"
+
+const sevOrder = {
+    critical: 5,
+    high: 4,
+    medium: 3,
+    low: 2,
+    info: 1
+}
+
 export default function WarningDetailsList() {
 
-    return (
+    const incidentId = useAppStore(s => s.selection.incidentId)
+    const incidentsByModality = useAppStore(s => s.report.incidentsByModality)
 
+    const incident = Object.values(incidentsByModality)
+        .flat()
+        .find(i => i.id === incidentId)
+
+    if (!incident) {
+        return <div className="panelBody">No warnings</div>
+    }
+
+    const warnings = [...incident.warnings].sort(
+        (a, b) => sevOrder[b.severity] - sevOrder[a.severity]
+    )
+
+    return (
         <div className="panel">
 
             <div className="panelHeader">
-                Warning Details
+                Warnings
             </div>
 
             <div className="panelBody">
-                Warning list placeholder
+
+                {warnings.map(w => (
+                    <WarningRow
+                        key={w.signal}
+                        warning={w}
+                        incidentId={incident.id}
+                    />
+                ))}
+
             </div>
 
         </div>
-
     )
 }

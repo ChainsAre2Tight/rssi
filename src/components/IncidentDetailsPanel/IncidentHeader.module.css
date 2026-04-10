@@ -1,0 +1,36 @@
+.root {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 8px 12px;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.identity {
+    font-weight: 600;
+}
+
+.right {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.low { background: var(--sev-low); }
+.medium { background: var(--sev-medium); }
+.high { background: var(--sev-high); }
+.critical { background: var(--sev-critical); }
+.info { background: var(--sev-info); }
