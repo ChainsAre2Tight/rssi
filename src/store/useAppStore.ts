@@ -1,8 +1,7 @@
 import { create } from "zustand"
-
+import { persist } from "zustand/middleware"
 
 import type { AppState } from "../types/state"
-
 
 const defaultLayout = {
     explorerWidth: 300,
@@ -10,7 +9,10 @@ const defaultLayout = {
     warningTimelineHeight: 400
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>()(
+persist(
+(set) => ({
+
     context: {
         measurementId: null,
         mode: "report"
@@ -30,12 +32,10 @@ export const useAppStore = create<AppState>((set) => ({
     report: {
         startTimeUs: null,
         endTimeUs: null,
-
         incidentsByModality: {
             logical: [],
             physical: [],
         },
-
         loading: false,
         loaded: false
     },
@@ -69,6 +69,7 @@ export const useAppStore = create<AppState>((set) => ({
     },
 
     // ACTIONS
+
     setMeasurementsLoading: (loading) =>
         set((state) => ({
             measurements: {
@@ -88,40 +89,39 @@ export const useAppStore = create<AppState>((set) => ({
 
     setMeasurement: (id) =>
         set((state) => ({
-        context: {
-            ...state.context,
-            measurementId: id
-        },
-
-        active: {
-            ...state.active,
-            running: false
-        },
-
-        report: {
-            ...state.report,
-            incidentsByModality: {
-                logical: [],
-                physical: [],
+            context: {
+                ...state.context,
+                measurementId: id
             },
-            loaded: false
-        },
 
-        selection: {
-            incidentId: null,
-            warningKey: null
-        }
+            active: {
+                ...state.active,
+                running: false
+            },
+
+            report: {
+                ...state.report,
+                incidentsByModality: {
+                    logical: [],
+                    physical: [],
+                },
+                loaded: false
+            },
+
+            selection: {
+                incidentId: null,
+                warningKey: null
+            }
         })),
-    
-    // TODO: probably stop polling on mode change? we'll see
+
     setMode: (mode) =>
         set((state) => ({
-        context: {
-            ...state.context,
-            mode
-        }
+            context: {
+                ...state.context,
+                mode
+            }
         })),
-    
+
     setActiveRunning: (running) =>
         set((state) => ({
             active: {
@@ -140,10 +140,10 @@ export const useAppStore = create<AppState>((set) => ({
 
     setReportLoading: (loading) =>
         set((state) => ({
-        report: {
-            ...state.report,
-            loading
-        }
+            report: {
+                ...state.report,
+                loading
+            }
         })),
 
     setReport: (incidentsByModality, start, end) =>
@@ -196,7 +196,7 @@ export const useAppStore = create<AppState>((set) => ({
                 ...state.hover,
                 timelineTimeUs: timeUs
             }
-    })),
+        })),
 
     setLayout: (update) =>
         set((state) => ({
@@ -205,4 +205,40 @@ export const useAppStore = create<AppState>((set) => ({
                     ? update(state.layout)
                     : { ...state.layout, ...update }
         }))
-    }))
+
+}),
+{
+    name: "app-store",
+
+    version: 1,
+
+    partialize: (state) => ({
+        context: {
+            measurementId: state.context.measurementId,
+            mode: state.context.mode
+        },
+
+        layout: state.layout,
+
+        active: {
+            offsetS: state.active.offsetS
+        },
+
+        report: {
+            startTimeUs: state.report.startTimeUs,
+            endTimeUs: state.report.endTimeUs,
+            incidentsByModality: state.report.incidentsByModality
+        }
+    }),
+
+    onRehydrateStorage: () => (state) => {
+
+        if (!state) return
+
+        if (state.report.startTimeUs !== null) {
+            state.report.loaded = true
+        }
+
+    }
+}
+))
