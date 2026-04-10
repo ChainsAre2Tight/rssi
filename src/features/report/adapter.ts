@@ -35,7 +35,7 @@ export function adaptReport(api: BackendReport) {
                     type: w.signal,
                     severity: w.severity,
                     signal: w.signal,
-                    metadata: {},
+                    metadata: w.metadata,
                     occurrences: w.occurrences.map((o) => ({
                         startTimeUs: o.start_time_us,
                         endTimeUs: o.end_time_us

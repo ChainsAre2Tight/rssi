@@ -37,7 +37,7 @@ export default function WarningDetailsList() {
 
                 {warnings.map(w => (
                     <WarningRow
-                        key={w.signal}
+                        key={`${w.signal}:${JSON.stringify(w.metadata)}`}
                         warning={w}
                         incidentId={incident.id}
                     />

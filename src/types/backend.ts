@@ -18,6 +18,7 @@ export interface BackendIncident {
 export interface BackendWarning {
     signal: string
     severity: Severity
+    metadata: object
     occurrences: {
         start_time_us: number
         end_time_us: number

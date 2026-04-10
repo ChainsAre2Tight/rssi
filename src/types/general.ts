@@ -23,7 +23,7 @@ export interface Warning {
     type: string
     severity: Severity
     occurrences: Occurrence[]
-    metadata: Record<string, any>
+    metadata: object
 }
 
 export interface Incident {
