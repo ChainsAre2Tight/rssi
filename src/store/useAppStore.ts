@@ -22,6 +22,11 @@ export const useAppStore = create<AppState>((set) => ({
         loaded: false
     },
 
+    active: {
+        running: false,
+        offsetS: 300
+    },
+
     report: {
         startTimeUs: null,
         endTimeUs: null,
@@ -88,10 +93,18 @@ export const useAppStore = create<AppState>((set) => ({
             measurementId: id
         },
 
-        // reset report when measurement changes
+        active: {
+            ...state.active,
+            running: false
+        },
+
         report: {
             ...state.report,
-            incidents: [],
+            incidentsByModality: {
+                logical: [],
+                physical: [],
+                ml: []
+            },
             loaded: false
         },
 
@@ -100,13 +113,30 @@ export const useAppStore = create<AppState>((set) => ({
             warningType: null
         }
         })),
-
+    
+    // TODO: probably stop polling on mode change? we'll see
     setMode: (mode) =>
         set((state) => ({
         context: {
             ...state.context,
             mode
         }
+        })),
+    
+    setActiveRunning: (running) =>
+        set((state) => ({
+            active: {
+                ...state.active,
+                running
+            }
+        })),
+
+    setActiveOffset: (offset) =>
+        set((state) => ({
+            active: {
+                ...state.active,
+                offsetS: offset
+            }
         })),
 
     setReportLoading: (loading) =>

@@ -5,6 +5,7 @@ import { useAppStore } from "../../store/useAppStore"
 import MeasurementSelector from "./MeasurementSelector"
 import ModeToggle from "./ModeToggle"
 import ReportControls from "./ReportControls"
+import ActiveControls from "./ActiveControls"
 
 export default function TopBar() {
 
@@ -12,16 +13,15 @@ export default function TopBar() {
 
     return (
         <div className={styles.root}>
-
             <div className={styles.left}>
                 <MeasurementSelector />
                 <ModeToggle />
             </div>
 
             <div className={styles.right}>
+                {mode === "active" && <ActiveControls />}
                 {mode === "report" && <ReportControls />}
             </div>
-
         </div>
     )
 }

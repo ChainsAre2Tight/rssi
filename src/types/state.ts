@@ -13,7 +13,12 @@ export interface AppState {
         loaded: boolean
     }
 
-   report: {
+    active: {
+        running: boolean
+        offsetS: number
+    }
+
+    report: {
         startTimeUs: number | null
         endTimeUs: number | null
 
@@ -61,6 +66,9 @@ export interface AppState {
 
     setMeasurement: (id: number | null) => void
     setMode: (mode: "active" | "report") => void
+
+    setActiveRunning: (running: boolean) => void
+    setActiveOffset: (offset: number) => void
 
     setReport: (
         incidentsByModality: Record<Modality, Incident[]>,
