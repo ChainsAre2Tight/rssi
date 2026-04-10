@@ -1,8 +1,86 @@
 .details {
-    padding: 6px 24px 10px 24px;
+    padding: var(--space-sm) var(--space-lg) var(--space-md) var(--space-lg);
     font-size: 13px;
 }
 
 .block {
-    margin-top: 6px;
+    margin-top: var(--space-sm);
+}
+
+.value {
+    margin-left: var(--space-xs);
+}
+
+/* Severity pill */
+
+.severity {
+    margin-left: var(--space-xs);
+
+    padding: 2px 10px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    letter-spacing: 0.4px;
+
+    border: var(--panel-border-width) solid transparent;
+}
+
+/* severity colors */
+
+.severity.low {
+    background: var(--sev-low-bg);
+    border-color: var(--sev-low);
+    color: var(--sev-low);
+}
+
+.severity.medium {
+    background: var(--sev-medium-bg);
+    border-color: var(--sev-medium);
+    color: var(--sev-medium);
+}
+
+.severity.high {
+    background: var(--sev-high-bg);
+    border-color: var(--sev-high);
+    color: var(--sev-high);
+}
+
+.severity.critical {
+    background: var(--sev-critical-bg);
+    border-color: var(--sev-critical);
+    color: var(--sev-critical);
+}
+
+.severity.info {
+    background: var(--sev-info-bg);
+    border-color: var(--sev-info);
+    color: var(--sev-info);
+}
+
+/* metadata */
+
+.metadataList {
+    margin-top: var(--space-xs);
+}
+
+.metadataRow {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.key {
+    font-weight: 500;
+}
+
+/* occurrences */
+
+.occurrenceList {
+    margin-top: var(--space-xs);
+}
+
+.occurrenceRow {
+    font-family: monospace;
 }
