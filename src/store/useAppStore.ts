@@ -29,7 +29,6 @@ export const useAppStore = create<AppState>((set) => ({
         incidentsByModality: {
             logical: [],
             physical: [],
-            ml: []
         },
 
         loading: false,

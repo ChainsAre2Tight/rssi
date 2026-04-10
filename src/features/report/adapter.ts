@@ -1,28 +1,6 @@
-import type { Incident, Modality, Severity } from "../../types/general"
+import type { Incident, Modality } from "../../types/general"
+import type { BackendReport } from "../../types/backend"
 
-interface BackendReport {
-    end_time_us: number
-    measurement_id: number
-    modalities: Record<string, BackendIncident[]>
-}
-
-interface BackendIncident {
-    start_time_us: number
-    end_time_us: number
-    modality: string
-    severity: Severity
-    identity: any
-    warnings: BackendWarning[]
-}
-
-interface BackendWarning {
-    signal: string
-    severity: Severity
-    occurrences: {
-        start_time_us: number
-        end_time_us: number
-    }[]
-}
 
 export function adaptReport(api: BackendReport) {
     const result: Record<Modality, Incident[]> = {
