@@ -8,6 +8,7 @@ import IncidentDetailsPanel from "../components/IncidentDetailsPanel/IncidentDet
 import { useEffect } from "react"
 import { loadMockReport } from "../features/report/mockReport"
 import { useAppStore } from "../store/useAppStore"
+import { fetchActiveReport } from "../services/reportApi"
 
 
 export default function AppLayout() {
@@ -22,6 +23,20 @@ export default function AppLayout() {
             report.startTimeUs ?? 0,
             report.endTimeUs
         )
+    }, [])
+
+    useEffect(() => {
+
+        async function test() {
+            const data = await fetchActiveReport({
+                measurementId: 1
+            })
+
+            console.log(data)
+        }
+
+        test()
+
     }, [])
 
     return (
