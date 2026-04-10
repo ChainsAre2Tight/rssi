@@ -318,7 +318,7 @@ class LogicalIncident(Incident):
                     "signal": w.signal,
                     "severity": w.severity.value,
                     "occurrences": [asdict(o) for o in w.occurrences],
-                    "metadada": w.metadata,
+                    "metadata": w.metadata,
                 }
                 for w in self.warnings
             ],
