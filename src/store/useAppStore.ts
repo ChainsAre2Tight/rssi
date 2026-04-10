@@ -16,6 +16,12 @@ export const useAppStore = create<AppState>((set) => ({
         mode: "report"
     },
 
+    measurements: {
+        items: [],
+        loading: false,
+        loaded: false
+    },
+
     report: {
         startTimeUs: null,
         endTimeUs: null,
@@ -59,6 +65,22 @@ export const useAppStore = create<AppState>((set) => ({
     },
 
     // ACTIONS
+    setMeasurementsLoading: (loading) =>
+        set((state) => ({
+            measurements: {
+                ...state.measurements,
+                loading
+            }
+        })),
+
+    setMeasurements: (items) =>
+        set({
+            measurements: {
+                items,
+                loading: false,
+                loaded: true
+            }
+        }),
 
     setMeasurement: (id) =>
         set((state) => ({

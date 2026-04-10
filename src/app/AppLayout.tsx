@@ -9,6 +9,7 @@ import { useEffect } from "react"
 import { loadMockReport } from "../features/report/mockReport"
 import { useAppStore } from "../store/useAppStore"
 import { fetchActiveReport } from "../services/reportApi"
+import { loadMockMeasurements } from "../features/measurements/mockMeasurements"
 
 
 export default function AppLayout() {
@@ -26,17 +27,20 @@ export default function AppLayout() {
     }, [])
 
     useEffect(() => {
-
         async function test() {
             const data = await fetchActiveReport({
                 measurementId: 1
             })
-
             console.log(data)
         }
-
         test()
+    }, [])
 
+    const setMeasurements = useAppStore((s) => s.setMeasurements)
+
+    useEffect(() => {
+        const data = loadMockMeasurements()
+        setMeasurements(data)
     }, [])
 
     return (

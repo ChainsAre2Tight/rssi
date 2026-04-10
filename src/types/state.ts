@@ -1,10 +1,16 @@
-import type { Incident, Modality } from "./general"
+import type { Incident, Modality, Measurement } from "./general"
 
 
 export interface AppState {
     context: {
         measurementId: number | null
         mode: "active" | "report"
+    }
+
+    measurements: {
+        items: Measurement[]
+        loading: boolean
+        loaded: boolean
     }
 
    report: {
@@ -50,6 +56,9 @@ export interface AppState {
     }
 
     // actions
+    setMeasurements: (items: Measurement[]) => void
+    setMeasurementsLoading: (loading: boolean) => void
+
     setMeasurement: (id: number | null) => void
     setMode: (mode: "active" | "report") => void
 

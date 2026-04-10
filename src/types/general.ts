@@ -1,3 +1,9 @@
+export interface Measurement {
+    id: number
+    name: string
+    description: string
+}
+
 export type Modality = "logical" | "physical"
 
 export type Severity =
