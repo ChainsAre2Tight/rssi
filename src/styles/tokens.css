@@ -1,0 +1,33 @@
+:root {
+
+    /* typography */
+
+    --font-ui: system-ui, -apple-system, sans-serif;
+
+
+    /* spacing */
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 20px;
+
+
+    /* radius */
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+
+
+    /* panel sizing */
+
+    --panel-border-width: 1px;
+
+
+    /* interaction */
+
+    --transition-fast: 120ms ease;
+
+
+}
