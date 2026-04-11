@@ -18,67 +18,81 @@ export default function TimelineCanvas() {
         width,
     })
 
-    // sync canvas resolution
     useEffect(() => {
-        const canvas = canvasRef.current
-        if (!canvas || width === 0 || height === 0) return
+        let frameId: number
 
-        const dpr = window.devicePixelRatio || 1
+        function render() {
+            const canvas = canvasRef.current
+            if (!canvas || width === 0 || height === 0) {
+                frameId = requestAnimationFrame(render)
+                return
+            }
 
-        canvas.width = width * dpr
-        canvas.height = height * dpr
+            const ctx = canvas.getContext("2d")
+            if (!ctx) {
+                frameId = requestAnimationFrame(render)
+                return
+            }
 
-        canvas.style.width = `${width}px`
-        canvas.style.height = `${height}px`
+            const dpr = window.devicePixelRatio || 1
 
-        const ctx = canvas.getContext("2d")
-        if (!ctx) return
+            canvas.width = width * dpr
+            canvas.height = height * dpr
 
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+            canvas.style.width = `${width}px`
+            canvas.style.height = `${height}px`
 
-        // use theme token
-        ctx.fillStyle = getComputedStyle(document.documentElement)
-            .getPropertyValue("--color-bg")
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-        ctx.fillRect(0, 0, width, height)
+            // --- CLEAR ---
+            ctx.fillStyle = getComputedStyle(document.documentElement)
+                .getPropertyValue("--color-bg")
+            ctx.fillRect(0, 0, width, height)
 
-        const duration = viewport.end - viewport.start
-        const scale = width / duration
-        const start = viewport.start
-        const end = viewport.end
+            // --- GRID ---
+            const duration = viewport.end - viewport.start
+            const scale = width / duration
+            const start = viewport.start
+            const end = viewport.end
 
-        const targetPxPerTick = 100
-        const rawStep = targetPxPerTick / scale
-        const step = getNiceStep(rawStep)
+            const targetPxPerTick = 100
+            const rawStep = targetPxPerTick / scale
+            const step = getNiceStep(rawStep)
 
-        const firstTick = Math.floor(start / step) * step
-
-        ctx.strokeStyle = getComputedStyle(document.documentElement)
-            .getPropertyValue("--color-border")
-
-        ctx.lineWidth = 1
-
-        for (let t = firstTick; t < end; t += step) {
-            const x = Math.round((t - start) * scale) + 0.5
-
-            ctx.beginPath()
-            ctx.moveTo(x, 0)
-            ctx.lineTo(x, height)
-            ctx.stroke()
-        }
-
-        if (cursorX.current !== null) {
-            const x = Math.round(cursorX.current) + 0.5
+            const firstTick = Math.floor(start / step) * step
 
             ctx.strokeStyle = getComputedStyle(document.documentElement)
-                .getPropertyValue("--color-accent")
+                .getPropertyValue("--color-border")
 
-            ctx.beginPath()
-            ctx.moveTo(x, 0)
-            ctx.lineTo(x, height)
-            ctx.stroke()
+            for (let t = firstTick; t < end; t += step) {
+                const x = Math.round((t - start) * scale) + 0.5
+
+                ctx.beginPath()
+                ctx.moveTo(x, 0)
+                ctx.lineTo(x, height)
+                ctx.stroke()
+            }
+
+            // --- CURSOR ---
+            if (cursorX.current !== null) {
+                const x = Math.round(cursorX.current) + 0.5
+
+                ctx.strokeStyle = getComputedStyle(document.documentElement)
+                    .getPropertyValue("--color-accent")
+
+                ctx.beginPath()
+                ctx.moveTo(x, 0)
+                ctx.lineTo(x, height)
+                ctx.stroke()
+            }
+
+            frameId = requestAnimationFrame(render)
         }
-    }, [width, height, viewport.start, viewport.end])
+
+        frameId = requestAnimationFrame(render)
+
+        return () => cancelAnimationFrame(frameId)
+    }, [width, height, viewport])
 
     // sync theme change
     // TODO: pass by tokens to render from outside
