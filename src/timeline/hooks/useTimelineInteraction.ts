@@ -24,6 +24,9 @@ export function useTimelineInteraction({
     const dragStartX = useRef(0)
     const dragStartViewport = useRef<Viewport | null>(null)
 
+    const zoomStartDuration = useRef(0)
+    const zoomAnchorTime = useRef(0)
+
     const cursorX = useRef<number | null>(null)
 
     const getDuration = () => viewport.end - viewport.start
@@ -40,22 +43,25 @@ export function useTimelineInteraction({
         })
     }
 
-    function zoomByPixels(deltaPx: number, mouseX: number) {
-        const duration = getDuration()
+    function zoomFromDrag(deltaPx: number) {
+        if (!dragStartViewport.current) return
+
+        if (Math.abs(deltaPx) < 2) return
+
+        const startDuration = zoomStartDuration.current
 
         const zoomStrength = 0.005
         const zoomFactor = Math.exp(-deltaPx * zoomStrength)
 
-        let newDuration = duration * zoomFactor
+        let newDuration = startDuration * zoomFactor
         newDuration = Math.max(newDuration, MIN_DURATION)
 
-        const ratio = mouseX / width
-        const timeAtCursor =
-            viewport.start + ratio * duration
+        const anchor = zoomAnchorTime.current
 
-        const newStart =
-            timeAtCursor - ratio * newDuration
+        const ratio =
+            (anchor - dragStartViewport.current.start) / startDuration
 
+        const newStart = anchor - ratio * newDuration
         const newEnd = newStart + newDuration
 
         setViewport({
@@ -73,8 +79,17 @@ export function useTimelineInteraction({
 
         if (e.button === 0) {
             isPanning.current = true
-        } else if (e.button === 2) {
+        }
+
+        if (e.button === 2) {
             isZooming.current = true
+
+            const duration = getDuration()
+
+            zoomStartDuration.current = duration
+
+            zoomAnchorTime.current =
+                viewport.start + (x / width) * duration
         }
 
         cursorX.current = x
@@ -90,9 +105,11 @@ export function useTimelineInteraction({
         const deltaPx = e.clientX - dragStartX.current
 
         if (isPanning.current) {
-            const duration = dragStartViewport.current.end - dragStartViewport.current.start
-            const scale = width / duration
+            const duration =
+                dragStartViewport.current.end -
+                dragStartViewport.current.start
 
+            const scale = width / duration
             const deltaTime = deltaPx / scale
 
             setViewport({
@@ -102,7 +119,7 @@ export function useTimelineInteraction({
         }
 
         if (isZooming.current) {
-            zoomByPixels(deltaPx, x)
+            zoomFromDrag(deltaPx)
         }
     }
 
