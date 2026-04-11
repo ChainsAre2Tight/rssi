@@ -71,7 +71,7 @@ export function useTimelineInteraction({
 
     function onMouseDown(e: React.MouseEvent) {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-        const x = e.clientX - rect.left
+        const x = ((e.clientX - rect.left) / rect.width) * width
 
         dragStartX.current = e.clientX
         dragStartViewport.current = { ...viewport }
@@ -97,7 +97,7 @@ export function useTimelineInteraction({
 
     function onMouseMove(e: React.MouseEvent) {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-        const x = e.clientX - rect.left
+        const x = ((e.clientX - rect.left) / rect.width) * width
 
         if (!isZooming.current) {
             cursorX.current = x
