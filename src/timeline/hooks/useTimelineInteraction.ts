@@ -11,14 +11,16 @@ interface Params {
     width: number
 }
 
-const MIN_DURATION = 60 // 1 minute
+const MIN_DURATION = 60
 
 export function useTimelineInteraction({
     viewport,
     setViewport,
     width,
 }: Params) {
-    const dragging = useRef(false)
+    const isPanning = useRef(false)
+    const isZooming = useRef(false)
+
     const dragStartX = useRef(0)
     const dragStartViewport = useRef<Viewport | null>(null)
 
@@ -26,11 +28,23 @@ export function useTimelineInteraction({
 
     const getDuration = () => viewport.end - viewport.start
 
-    // --- ZOOM ---
-    function handleZoom(deltaY: number, mouseX: number) {
+    function panByPixels(deltaPx: number) {
+        const duration = getDuration()
+        const scale = width / duration
+
+        const deltaTime = deltaPx / scale
+
+        setViewport({
+            start: viewport.start - deltaTime,
+            end: viewport.end - deltaTime,
+        })
+    }
+
+    function zoomByPixels(deltaPx: number, mouseX: number) {
         const duration = getDuration()
 
-        const zoomFactor = Math.exp(deltaY * 0.001)
+        const zoomStrength = 0.005
+        const zoomFactor = Math.exp(-deltaPx * zoomStrength)
 
         let newDuration = duration * zoomFactor
         newDuration = Math.max(newDuration, MIN_DURATION)
@@ -50,65 +64,69 @@ export function useTimelineInteraction({
         })
     }
 
-    // --- PAN (wheel) ---
-    function handlePan(deltaY: number) {
-        const duration = getDuration()
-        const scale = width / duration
-
-        const deltaTime = deltaY / scale
-
-        setViewport({
-            start: viewport.start + deltaTime,
-            end: viewport.end + deltaTime,
-        })
-    }
-
-    // --- DRAG PAN ---
     function onMouseDown(e: React.MouseEvent) {
-        dragging.current = true
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+        const x = e.clientX - rect.left
+
         dragStartX.current = e.clientX
         dragStartViewport.current = { ...viewport }
+
+        if (e.button === 0) {
+            isPanning.current = true
+        } else if (e.button === 2) {
+            isZooming.current = true
+        }
+
+        cursorX.current = x
     }
 
     function onMouseMove(e: React.MouseEvent) {
-        const rect = (e.target as HTMLElement).getBoundingClientRect()
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
         const x = e.clientX - rect.left
         cursorX.current = x
 
-        if (!dragging.current || !dragStartViewport.current) return
+        if (!dragStartViewport.current) return
 
         const deltaPx = e.clientX - dragStartX.current
-        const duration = getDuration()
-        const scale = width / duration
 
-        const deltaTime = deltaPx / scale
+        if (isPanning.current) {
+            const duration = dragStartViewport.current.end - dragStartViewport.current.start
+            const scale = width / duration
 
-        setViewport({
-            start: dragStartViewport.current.start - deltaTime,
-            end: dragStartViewport.current.end - deltaTime,
-        })
+            const deltaTime = deltaPx / scale
+
+            setViewport({
+                start: dragStartViewport.current.start - deltaTime,
+                end: dragStartViewport.current.end - deltaTime,
+            })
+        }
+
+        if (isZooming.current) {
+            zoomByPixels(deltaPx, x)
+        }
     }
 
     function onMouseUp() {
-        dragging.current = false
+        isPanning.current = false
+        isZooming.current = false
     }
 
     function onMouseLeave() {
-        dragging.current = false
+        isPanning.current = false
+        isZooming.current = false
         cursorX.current = null
     }
 
-    // --- WHEEL ---
     function onWheel(e: React.WheelEvent) {
         if (width === 0) return
 
-        if (e.ctrlKey) {
-            e.preventDefault()
-            handleZoom(e.deltaY, e.nativeEvent.offsetX)
-        } else if (e.shiftKey) {
-            e.preventDefault()
-            handlePan(e.deltaY)
-        }
+        e.preventDefault()
+
+        panByPixels(e.deltaY)
+    }
+
+    function onContextMenu(e: React.MouseEvent) {
+        e.preventDefault()
     }
 
     return {
@@ -118,6 +136,7 @@ export function useTimelineInteraction({
             onMouseMove,
             onMouseUp,
             onMouseLeave,
+            onContextMenu,
         },
         cursorX,
     }
