@@ -3,6 +3,7 @@ import { useContainerSize } from "../hooks/useContainerSize"
 import { useViewport } from "../hooks/useViewport"
 import { useTimelineInteraction } from "../hooks/useTimelineInteraction"
 import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
+import { useTrackResizing } from "../hooks/useTrackResizing"
 import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
 import type { TimelineTrack } from "../types/types"
@@ -49,6 +50,12 @@ export default function TimelineCanvas() {
             )
         )
     }
+
+    const resizing = useTrackResizing({
+        layout,
+        tracks,
+        setTracks,
+    })
 
     useTimelineRenderer({
         canvasRef,
@@ -120,7 +127,11 @@ export default function TimelineCanvas() {
             </div>
 
             {/* RIGHT: CANVAS */}
-            <div className={styles.canvasColumn} ref={containerRef}>
+            <div
+                className={styles.canvasColumn}
+                ref={containerRef}
+                {...resizing.bind}
+            >
                 <canvas ref={canvasRef} {...bind} />
 
                 <div className={styles.debug}>
