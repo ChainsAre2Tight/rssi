@@ -3,7 +3,8 @@ export interface TimelineTrack {
     label?: string
     height: number
 
+    lastExpandedHeight?: number
+
     collapsible?: boolean
-    collapsed?: boolean
     resizable?: boolean
 }

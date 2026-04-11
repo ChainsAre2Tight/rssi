@@ -20,11 +20,9 @@ export function computeTrackLayout(
     let currentY = 0
 
     for (const track of tracks) {
-        const isCollapsed = track.collapsible && track.collapsed
+        const isCollapsed = track.height <= HEADER_HEIGHT
 
-        const baseHeight = isCollapsed
-            ? HEADER_HEIGHT
-            : track.height
+        const baseHeight = track.height
 
         const contentY = isCollapsed
             ? 0

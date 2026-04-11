@@ -2,13 +2,13 @@ import { useRef } from "react"
 import type { TrackLayoutItem } from "../utils/trackLayout"
 import type { TimelineTrack } from "../types/types"
 
-const MIN_HEIGHT = 60
-
 interface Params {
     layout: TrackLayoutItem[]
     tracks: TimelineTrack[]
     setTracks: React.Dispatch<React.SetStateAction<TimelineTrack[]>>
 }
+
+const HEADER_HEIGHT = 28
 
 export function useTrackResizing({
     layout,
@@ -46,7 +46,14 @@ export function useTrackResizing({
         isResizing.current = true
         activeTrackId.current = target.id
         startY.current = e.clientY
-        startHeight.current = target.height
+
+        const track = tracks.find(t => t.id === target.id)
+        if (!track) return
+
+        startHeight.current =
+            track.height <= HEADER_HEIGHT
+                ? track.lastExpandedHeight ?? 120
+                : track.height
     }
 
     function onMouseMove(e: React.MouseEvent) {
@@ -55,7 +62,6 @@ export function useTrackResizing({
 
         const target = findSeparator(y)
 
-        // cursor feedback
         if (target || isResizing.current) {
             ;(e.currentTarget as HTMLElement).style.cursor = "row-resize"
         } else {
@@ -70,14 +76,21 @@ export function useTrackResizing({
             prev.map(t => {
                 if (t.id !== activeTrackId.current) return t
 
-                const baseHeight = startHeight.current
+                let newHeight = startHeight.current + delta
 
-                let newHeight = baseHeight + delta
-                newHeight = Math.max(newHeight, MIN_HEIGHT)
+                if (newHeight <= HEADER_HEIGHT) {
+                    return {
+                        ...t,
+                        lastExpandedHeight:
+                            t.height > HEADER_HEIGHT
+                                ? t.height
+                                : t.lastExpandedHeight,
+                        height: HEADER_HEIGHT,
+                    }
+                }
 
                 return {
                     ...t,
-                    collapsed: false,
                     height: newHeight,
                 }
             })

@@ -29,25 +29,44 @@ export default function TimelineCanvas() {
             label: "Modality A",
             height: 120,
             collapsible: true,
-            collapsed: false,
+            resizable: true,
+            lastExpandedHeight: 120,
         },
         {
             id: "modality-2",
             label: "Modality B",
             height: 120,
             collapsible: true,
-            collapsed: false,
+            resizable: true,
+            lastExpandedHeight: 120,
         },
     ])
     const layout = computeTrackLayout(tracks)
 
+    const HEADER_HEIGHT = 28
+    const DEFAULT_EXPANDED_HEIGHT = 120
+    
+
     function toggleTrack(id: string) {
         setTracks(prev =>
-            prev.map(t =>
-                t.id === id && t.collapsible
-                    ? { ...t, collapsed: !t.collapsed }
-                    : t
-            )
+            prev.map(t => {
+                if (t.id !== id || !t.collapsible) return t
+
+                const isCollapsed = t.height <= HEADER_HEIGHT
+
+                if (isCollapsed) {
+                    return {
+                        ...t,
+                        height: t.lastExpandedHeight ?? DEFAULT_EXPANDED_HEIGHT,
+                    }
+                }
+
+                return {
+                    ...t,
+                    lastExpandedHeight: t.height,
+                    height: HEADER_HEIGHT,
+                }
+            })
         )
     }
 
@@ -116,7 +135,7 @@ export default function TimelineCanvas() {
                         >
                             <span className={styles.chevron}>
                                 {t.track.collapsible
-                                    ? t.track.collapsed ? "▶" : "▼"
+                                    ? t.track.height <= HEADER_HEIGHT ? "▶" : "▼"
                                     : null}
                             </span>
 
