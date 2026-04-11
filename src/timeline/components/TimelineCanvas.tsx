@@ -92,7 +92,8 @@ export default function TimelineCanvas() {
 
     return (
         <div ref={containerRef} className={styles.root}>
-            <div className={styles.tracksOverlay}>
+            {/* LEFT: HEADERS */}
+            <div className={styles.headersColumn}>
                 {layout.map((t) => {
                     if (!t.track.label) return null
 
@@ -118,12 +119,15 @@ export default function TimelineCanvas() {
                 })}
             </div>
 
-            <canvas ref={canvasRef} {...bind} />
+            {/* RIGHT: CANVAS */}
+            <div className={styles.canvasColumn} ref={containerRef}>
+                <canvas ref={canvasRef} {...bind} />
 
-            <div className={styles.debug}>
-                start: {viewport.start.toFixed(2)}<br />
-                end: {viewport.end.toFixed(2)}<br />
-                duration: {duration.toFixed(2)}s
+                <div className={styles.debug}>
+                    start: {viewport.start.toFixed(2)}<br />
+                    end: {viewport.end.toFixed(2)}<br />
+                    duration: {duration.toFixed(2)}s
+                </div>
             </div>
         </div>
     )

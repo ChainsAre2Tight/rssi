@@ -134,5 +134,5 @@ export function useTimelineRenderer({
         frameId = requestAnimationFrame(render)
 
         return () => cancelAnimationFrame(frameId)
-    }, [width, height, viewport, canvasRef])
+    }, [width, height, viewport, canvasRef, tracks])
 }

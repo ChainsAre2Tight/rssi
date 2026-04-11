@@ -26,11 +26,16 @@ export function computeTrackLayout(
             ? HEADER_HEIGHT
             : track.height
 
-        const contentY = currentY + HEADER_HEIGHT + RESIZE_HANDLE_GAP
-        const contentHeight = Math.max(
-            0,
-            baseHeight - HEADER_HEIGHT - RESIZE_HANDLE_GAP
-        )
+        const contentY = isCollapsed
+            ? 0
+            : currentY + HEADER_HEIGHT + RESIZE_HANDLE_GAP
+
+        const contentHeight = isCollapsed
+            ? 0
+            : Math.max(
+                0,
+                baseHeight - HEADER_HEIGHT - RESIZE_HANDLE_GAP
+            )
 
         result.push({
             id: track.id,

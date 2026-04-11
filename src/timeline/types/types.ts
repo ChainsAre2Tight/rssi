@@ -7,9 +7,3 @@ export interface TimelineTrack {
     collapsed?: boolean
     resizable?: boolean
 }
-
-export type TrackLayout = {
-    id: string
-    y: number
-    height: number
-}
