@@ -26,6 +26,7 @@ export function useTimelineInteraction({
 
     const zoomStartDuration = useRef(0)
     const zoomAnchorTime = useRef(0)
+    const zoomAnchorX = useRef<number | null>(null)
 
     const cursorX = useRef<number | null>(null)
 
@@ -34,7 +35,6 @@ export function useTimelineInteraction({
     function panByPixels(deltaPx: number) {
         const duration = getDuration()
         const scale = width / duration
-
         const deltaTime = deltaPx / scale
 
         setViewport({
@@ -45,7 +45,6 @@ export function useTimelineInteraction({
 
     function zoomFromDrag(deltaPx: number) {
         if (!dragStartViewport.current) return
-
         if (Math.abs(deltaPx) < 2) return
 
         const startDuration = zoomStartDuration.current
@@ -85,11 +84,12 @@ export function useTimelineInteraction({
             isZooming.current = true
 
             const duration = getDuration()
-
             zoomStartDuration.current = duration
 
             zoomAnchorTime.current =
                 viewport.start + (x / width) * duration
+
+            zoomAnchorX.current = x
         }
 
         cursorX.current = x
@@ -98,7 +98,10 @@ export function useTimelineInteraction({
     function onMouseMove(e: React.MouseEvent) {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
         const x = e.clientX - rect.left
-        cursorX.current = x
+
+        if (!isZooming.current) {
+            cursorX.current = x
+        }
 
         if (!dragStartViewport.current) return
 
@@ -126,19 +129,19 @@ export function useTimelineInteraction({
     function onMouseUp() {
         isPanning.current = false
         isZooming.current = false
+        zoomAnchorX.current = null
     }
 
     function onMouseLeave() {
         isPanning.current = false
         isZooming.current = false
         cursorX.current = null
+        zoomAnchorX.current = null
     }
 
     function onWheel(e: React.WheelEvent) {
         if (width === 0) return
-
         e.preventDefault()
-
         panByPixels(e.deltaY)
     }
 
@@ -156,5 +159,7 @@ export function useTimelineInteraction({
             onContextMenu,
         },
         cursorX,
+        zoomAnchorX,
+        isZooming,
     }
 }

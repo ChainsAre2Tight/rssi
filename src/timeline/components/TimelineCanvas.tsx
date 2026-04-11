@@ -12,7 +12,7 @@ export default function TimelineCanvas() {
     const { width, height } = useContainerSize(containerRef as React.RefObject<HTMLDivElement>)
     const { viewport, setViewport, duration } = useViewport()
 
-    const { bind, cursorX } = useTimelineInteraction({
+    const { bind, cursorX, zoomAnchorX, isZooming } = useTimelineInteraction({
         viewport,
         setViewport,
         width,
@@ -71,11 +71,25 @@ export default function TimelineCanvas() {
             }
 
             // --- CURSOR ---
-            if (cursorX.current !== null) {
+            if (isZooming.current && zoomAnchorX.current !== null) {
+                const x = Math.round(zoomAnchorX.current) + 0.5
+
+                ctx.strokeStyle = getComputedStyle(document.documentElement)
+                    .getPropertyValue("--color-accent")
+
+                ctx.lineWidth = 2
+
+                ctx.beginPath()
+                ctx.moveTo(x, 0)
+                ctx.lineTo(x, height)
+                ctx.stroke()
+            } else if (cursorX.current !== null) {
                 const x = Math.round(cursorX.current) + 0.5
 
                 ctx.strokeStyle = getComputedStyle(document.documentElement)
                     .getPropertyValue("--color-accent")
+
+                ctx.lineWidth = 1
 
                 ctx.beginPath()
                 ctx.moveTo(x, 0)
