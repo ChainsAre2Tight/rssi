@@ -39,9 +39,6 @@ export default function TimelineCanvas() {
             canvas.width = width * dpr
             canvas.height = height * dpr
 
-            canvas.style.width = `${width}px`
-            canvas.style.height = `${height}px`
-
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
             // --- CLEAR ---
@@ -123,6 +120,37 @@ export default function TimelineCanvas() {
         })
 
         return () => observer.disconnect()
+    }, [])
+
+    useEffect(() => {
+        const canvas = canvasRef.current
+        if (!canvas || width === 0 || height === 0) return
+
+        const dpr = window.devicePixelRatio || 1
+
+        canvas.width = width * dpr
+        canvas.height = height * dpr
+
+        const ctx = canvas.getContext("2d")
+        if (!ctx) return
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }, [width, height])
+
+
+    // maybe not needed, assess later
+    useEffect(() => {
+        const handleResize = () => {
+            // force layout reflow read
+            const el = containerRef.current
+            if (!el) return
+
+            el.getBoundingClientRect() // forces recalculation
+        }
+
+        window.addEventListener("resize", handleResize)
+
+        return () => window.removeEventListener("resize", handleResize)
     }, [])
 
     return (

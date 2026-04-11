@@ -5,10 +5,14 @@
 
     /* TODO: use some token color, this is left for debugging reasons */
     background: red;
+    overflow: hidden;
+    min-width: 0;
 }
 
 canvas {
     display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .debug {
