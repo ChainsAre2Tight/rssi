@@ -4,6 +4,13 @@ import { useViewport } from "../hooks/useViewport"
 import { useTimelineInteraction } from "../hooks/useTimelineInteraction"
 import { getNiceStep } from "../utils/timeGrid"
 import styles from "./TimelineCanvas.module.css"
+import { useTrackLayout } from "../hooks/useTrackLayout"
+import type { TimelineTrack } from "../types"
+
+const tracks: TimelineTrack[] = [
+    { id: "track-1", height: 120, collapsible: true },
+    { id: "track-2", height: 160, collapsible: true },
+]
 
 export default function TimelineCanvas() {
     const containerRef = useRef<HTMLDivElement | null>(null)
