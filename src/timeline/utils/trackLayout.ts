@@ -4,9 +4,13 @@ export interface TrackLayoutItem {
     id: string
     y: number
     height: number
-    visible: boolean
+    contentY: number
+    contentHeight: number
     track: TimelineTrack
 }
+
+const HEADER_HEIGHT = 28
+const RESIZE_HANDLE_GAP = 6
 
 export function computeTrackLayout(
     tracks: TimelineTrack[]
@@ -18,17 +22,26 @@ export function computeTrackLayout(
     for (const track of tracks) {
         const isCollapsed = track.collapsible && track.collapsed
 
-        const height = isCollapsed ? 0 : track.height
+        const baseHeight = isCollapsed
+            ? HEADER_HEIGHT
+            : track.height
+
+        const contentY = currentY + HEADER_HEIGHT + RESIZE_HANDLE_GAP
+        const contentHeight = Math.max(
+            0,
+            baseHeight - HEADER_HEIGHT - RESIZE_HANDLE_GAP
+        )
 
         result.push({
             id: track.id,
             y: currentY,
-            height,
-            visible: height > 0,
+            height: baseHeight,
+            contentY,
+            contentHeight,
             track,
         })
 
-        currentY += height
+        currentY += baseHeight
     }
 
     return result

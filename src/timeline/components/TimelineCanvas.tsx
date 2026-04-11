@@ -1,4 +1,4 @@
-import { useRef, useEffect, type RefObject } from "react"
+import { useRef, useEffect, type RefObject, useState } from "react"
 import { useContainerSize } from "../hooks/useContainerSize"
 import { useViewport } from "../hooks/useViewport"
 import { useTimelineInteraction } from "../hooks/useTimelineInteraction"
@@ -22,7 +22,7 @@ export default function TimelineCanvas() {
             width,
         })
 
-    const tracks: TimelineTrack[] = [
+    const [tracks, setTracks] = useState<TimelineTrack[]>([
         {
             id: "modality-1",
             label: "Modality A",
@@ -37,9 +37,18 @@ export default function TimelineCanvas() {
             collapsible: true,
             collapsed: false,
         },
-    ]
-
+    ])
     const layout = computeTrackLayout(tracks)
+
+    function toggleTrack(id: string) {
+        setTracks(prev =>
+            prev.map(t =>
+                t.id === id && t.collapsible
+                    ? { ...t, collapsed: !t.collapsed }
+                    : t
+            )
+        )
+    }
 
     useTimelineRenderer({
         canvasRef,
@@ -85,7 +94,7 @@ export default function TimelineCanvas() {
         <div ref={containerRef} className={styles.root}>
             <div className={styles.tracksOverlay}>
                 {layout.map((t) => {
-                    if (!t.visible || !t.track.label) return null
+                    if (!t.track.label) return null
 
                     return (
                         <div
@@ -93,9 +102,16 @@ export default function TimelineCanvas() {
                             className={styles.trackHeader}
                             style={{
                                 top: t.y,
-                                height: t.height,
+                                height: 28,
                             }}
+                            onClick={() => toggleTrack(t.id)}
                         >
+                            <span className={styles.chevron}>
+                                {t.track.collapsible
+                                    ? t.track.collapsed ? "▶" : "▼"
+                                    : null}
+                            </span>
+
                             {t.track.label}
                         </div>
                     )

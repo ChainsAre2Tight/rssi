@@ -86,7 +86,6 @@ export function useTimelineRenderer({
             ctx.lineWidth = 1
 
             for (const t of tracks) {
-                if (!t.visible) continue
 
                 const y = Math.round(t.y) + 0.5
 
