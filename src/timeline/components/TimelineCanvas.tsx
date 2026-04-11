@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react"
 import { useContainerSize } from "../hooks/useContainerSize"
+import { useViewport } from "../hooks/useViewport"
+import { getNiceStep } from "../utils/timeGrid"
 import styles from "./TimelineCanvas.module.css"
 
 export default function TimelineCanvas() {
@@ -7,6 +9,7 @@ export default function TimelineCanvas() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
     const { width, height } = useContainerSize(containerRef as React.RefObject<HTMLDivElement>)
+    const { viewport, duration } = useViewport()
 
     // sync canvas resolution
     useEffect(() => {
@@ -26,15 +29,37 @@ export default function TimelineCanvas() {
 
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-        // TEMP: clear + background render
-        ctx.clearRect(0, 0, width, height)
-
         // use theme token
         ctx.fillStyle = getComputedStyle(document.documentElement)
             .getPropertyValue("--color-bg")
 
         ctx.fillRect(0, 0, width, height)
-    }, [width, height])
+
+        const duration = viewport.end - viewport.start
+        const scale = width / duration
+        const start = viewport.start
+        const end = viewport.end
+
+        const targetPxPerTick = 100
+        const rawStep = targetPxPerTick / scale
+        const step = getNiceStep(rawStep)
+
+        const firstTick = Math.floor(start / step) * step
+
+        ctx.strokeStyle = getComputedStyle(document.documentElement)
+            .getPropertyValue("--color-border")
+
+        ctx.lineWidth = 1
+
+        for (let t = firstTick; t < end; t += step) {
+            const x = Math.round((t - start) * scale) + 0.5
+
+            ctx.beginPath()
+            ctx.moveTo(x, 0)
+            ctx.lineTo(x, height)
+            ctx.stroke()
+        }
+    }, [width, height, viewport.start, viewport.end])
 
     // sync theme change
     // TODO: pass by tokens to render from outside
