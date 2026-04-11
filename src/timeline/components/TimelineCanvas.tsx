@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import { useContainerSize } from "../hooks/useContainerSize"
 import { useViewport } from "../hooks/useViewport"
+import { useTimelineInteraction } from "../hooks/useTimelineInteraction"
 import { getNiceStep } from "../utils/timeGrid"
 import styles from "./TimelineCanvas.module.css"
 
@@ -9,7 +10,13 @@ export default function TimelineCanvas() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
     const { width, height } = useContainerSize(containerRef as React.RefObject<HTMLDivElement>)
-    const { viewport, duration } = useViewport()
+    const { viewport, setViewport, duration } = useViewport()
+
+    const { bind, cursorX } = useTimelineInteraction({
+        viewport,
+        setViewport,
+        width,
+    })
 
     // sync canvas resolution
     useEffect(() => {
@@ -59,6 +66,18 @@ export default function TimelineCanvas() {
             ctx.lineTo(x, height)
             ctx.stroke()
         }
+
+        if (cursorX.current !== null) {
+            const x = Math.round(cursorX.current) + 0.5
+
+            ctx.strokeStyle = getComputedStyle(document.documentElement)
+                .getPropertyValue("--color-accent")
+
+            ctx.beginPath()
+            ctx.moveTo(x, 0)
+            ctx.lineTo(x, height)
+            ctx.stroke()
+        }
     }, [width, height, viewport.start, viewport.end])
 
     // sync theme change
@@ -94,7 +113,12 @@ export default function TimelineCanvas() {
 
     return (
         <div ref={containerRef} className={styles.root}>
-            <canvas ref={canvasRef} />
+            <canvas ref={canvasRef} {...bind}/>
+            <div className={styles.debug}>
+                start: {viewport.start.toFixed(2)}<br />
+                end: {viewport.end.toFixed(2)}<br />
+                duration: {duration.toFixed(2)}s
+            </div>
         </div>
     )
 }

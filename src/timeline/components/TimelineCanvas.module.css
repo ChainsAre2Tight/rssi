@@ -10,3 +10,18 @@
 canvas {
     display: block;
 }
+
+.debug {
+    position: absolute;
+    top: var(--space-sm);
+    left: var(--space-sm);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: var(--space-xs);
+
+    font-size: 12px;
+    color: var(--color-text);
+
+    pointer-events: none;
+}
