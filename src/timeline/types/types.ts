@@ -1,8 +1,11 @@
-export type TimelineTrack = {
+export interface TimelineTrack {
     id: string
+    label?: string
     height: number
-    collapsed?: boolean
+
     collapsible?: boolean
+    collapsed?: boolean
+    resizable?: boolean
 }
 
 export type TrackLayout = {

@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
+import type { TrackLayoutItem } from "../utils/trackLayout"
 
 interface Viewport {
     start: number
@@ -15,6 +16,7 @@ interface Params {
     zoomAnchorX: RefObject<number | null>
     isZooming: RefObject<boolean>
     getNiceStep: (raw: number) => number
+    tracks: TrackLayoutItem[]
 }
 
 export function useTimelineRenderer({
@@ -26,6 +28,7 @@ export function useTimelineRenderer({
     zoomAnchorX,
     isZooming,
     getNiceStep,
+    tracks,
 }: Params) {
     useEffect(() => {
         let frameId: number
@@ -75,6 +78,31 @@ export function useTimelineRenderer({
                 ctx.beginPath()
                 ctx.moveTo(x, 0)
                 ctx.lineTo(x, height)
+                ctx.stroke()
+            }
+
+            // --- TRACKS ---
+            ctx.strokeStyle = styles.getPropertyValue("--color-border")
+            ctx.lineWidth = 1
+
+            for (const t of tracks) {
+                if (!t.visible) continue
+
+                const y = Math.round(t.y) + 0.5
+
+                ctx.beginPath()
+                ctx.moveTo(0, y)
+                ctx.lineTo(width, y)
+                ctx.stroke()
+            }
+
+            if (tracks.length > 0) {
+                const last = tracks[tracks.length - 1]
+                const y = Math.round(last.y + last.height) + 0.5
+
+                ctx.beginPath()
+                ctx.moveTo(0, y)
+                ctx.lineTo(width, y)
                 ctx.stroke()
             }
 

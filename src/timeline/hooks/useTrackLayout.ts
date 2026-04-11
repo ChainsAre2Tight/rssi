@@ -1,4 +1,4 @@
-import type { TimelineTrack, TrackLayout } from "../types"
+import type { TimelineTrack, TrackLayout } from "../types/types"
 
 const COLLAPSED_HEIGHT = 28
 

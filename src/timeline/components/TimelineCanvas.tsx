@@ -4,6 +4,8 @@ import { useViewport } from "../hooks/useViewport"
 import { useTimelineInteraction } from "../hooks/useTimelineInteraction"
 import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { getNiceStep } from "../utils/timeGrid"
+import { computeTrackLayout } from "../utils/trackLayout"
+import type { TimelineTrack } from "../types/types"
 import styles from "./TimelineCanvas.module.css"
 
 export default function TimelineCanvas() {
@@ -20,6 +22,25 @@ export default function TimelineCanvas() {
             width,
         })
 
+    const tracks: TimelineTrack[] = [
+        {
+            id: "modality-1",
+            label: "Modality A",
+            height: 120,
+            collapsible: true,
+            collapsed: false,
+        },
+        {
+            id: "modality-2",
+            label: "Modality B",
+            height: 120,
+            collapsible: true,
+            collapsed: false,
+        },
+    ]
+
+    const layout = computeTrackLayout(tracks)
+
     useTimelineRenderer({
         canvasRef,
         width,
@@ -29,6 +50,7 @@ export default function TimelineCanvas() {
         zoomAnchorX,
         isZooming,
         getNiceStep,
+        tracks: layout,
     })
 
     useEffect(() => {
@@ -61,6 +83,25 @@ export default function TimelineCanvas() {
 
     return (
         <div ref={containerRef} className={styles.root}>
+            <div className={styles.tracksOverlay}>
+                {layout.map((t) => {
+                    if (!t.visible || !t.track.label) return null
+
+                    return (
+                        <div
+                            key={t.id}
+                            className={styles.trackHeader}
+                            style={{
+                                top: t.y,
+                                height: t.height,
+                            }}
+                        >
+                            {t.track.label}
+                        </div>
+                    )
+                })}
+            </div>
+
             <canvas ref={canvasRef} {...bind} />
 
             <div className={styles.debug}>
