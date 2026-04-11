@@ -46,7 +46,7 @@ export function useTrackResizing({
         isResizing.current = true
         activeTrackId.current = target.id
         startY.current = e.clientY
-        startHeight.current = target.track.height
+        startHeight.current = target.height
     }
 
     function onMouseMove(e: React.MouseEvent) {
@@ -70,7 +70,7 @@ export function useTrackResizing({
             prev.map(t => {
                 if (t.id !== activeTrackId.current) return t
 
-                const baseHeight = t.collapsed ? 28 : startHeight.current
+                const baseHeight = startHeight.current
 
                 let newHeight = baseHeight + delta
                 newHeight = Math.max(newHeight, MIN_HEIGHT)
