@@ -6,12 +6,14 @@ interface Params {
     viewport: Viewport
     setViewport: (v: Viewport) => void
     width: number
+    onClick?: (x: number, y: number) => void
 }
 
 export function useTimelineInteraction({
     viewport,
     setViewport,
     width,
+    onClick,
 }: Params) {
     const isPanning = useRef(false)
     const isZooming = useRef(false)
@@ -128,7 +130,12 @@ export function useTimelineInteraction({
         }
     }
 
-    function onMouseUp() {
+    function onMouseUp(e: React.MouseEvent) {
+        if (!isPanning.current && !isZooming.current) {
+            const { x, y } = getCanvasCoords(e)
+            onClick?.(x, y)
+        }
+
         isPanning.current = false
         isZooming.current = false
         zoomAnchorX.current = null

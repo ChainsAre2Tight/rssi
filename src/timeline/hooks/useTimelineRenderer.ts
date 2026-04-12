@@ -16,6 +16,7 @@ interface Params {
     getNiceStep: (raw: number) => number
     tracks: TrackLayoutItem[]
     adapter: TimelineAdapterResult
+    selectedItem: TimelineItem | null
 }
 
 export function useTimelineRenderer({
@@ -29,11 +30,13 @@ export function useTimelineRenderer({
     getNiceStep,
     tracks,
     adapter,
+    selectedItem,
 }: Params) {
     useEffect(() => {
         let frameId: number
 
         function render() {
+            let selected = selectedItem
             const canvas = canvasRef.current
             const mapper = createTimeMapper(viewport, width, adapter.bounds.start)
             if (!canvas || width === 0 || height === 0) {
@@ -144,10 +147,12 @@ export function useTimelineRenderer({
                         const x = mapper.toX(item.start)
                         const w = mapper.toX(item.end) - x
 
-                        if (item === hoveredItem) {
+                        if (item === selected) {
+                            ctx.globalAlpha = 1
+                        } else if (item === hoveredItem) {
                             ctx.globalAlpha = 0.7
                         } else {
-                            ctx.globalAlpha = 1
+                            ctx.globalAlpha = 0.4
                         }
 
                         ctx.fillStyle = getSeverityColor(item.severity, styles)
@@ -177,6 +182,29 @@ export function useTimelineRenderer({
 
                 ctx.setLineDash([])
                 ctx.globalAlpha = 1
+            }
+
+            if (selected) {
+                const x1 = mapper.toX(selected.start)
+                const x2 = mapper.toX(selected.end)
+
+                ctx.globalAlpha = 0.05
+                ctx.fillStyle = styles.getPropertyValue("--color-accent")
+                ctx.fillRect(x1, 0, x2 - x1, height)
+
+                ctx.globalAlpha = 1
+                ctx.setLineDash([]) // solid
+                ctx.strokeStyle = styles.getPropertyValue("--color-accent")
+                ctx.lineWidth = 2
+
+                ctx.beginPath()
+                ctx.moveTo(x1, 0)
+                ctx.lineTo(x1, height)
+
+                ctx.moveTo(x2, 0)
+                ctx.lineTo(x2, height)
+
+                ctx.stroke()
             }
 
             // --- CURSOR / ANCHOR ---

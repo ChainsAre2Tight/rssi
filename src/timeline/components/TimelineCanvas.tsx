@@ -6,8 +6,9 @@ import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { useTrackResizing } from "../hooks/useTrackResizing"
 import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
-import type { TimelineAdapterResult, TimelineTrack } from "../types"
+import type { TimelineAdapterResult, TimelineItem, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
+import { hitTest } from "../utils/mapping"
 
 
 export default function TimelineCanvas(params: { adapter: TimelineAdapterResult }) {
@@ -16,12 +17,25 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
 
     const { width, height } = useContainerSize(containerRef as React.RefObject<HTMLDivElement>)
     const { viewport, setViewport, duration } = useViewport()
+    const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null)
 
     const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
             viewport,
             setViewport,
             width,
+            onClick: (x, y) => {
+                const item = hitTest(
+                    x,
+                    y,
+                    width,
+                    viewport,
+                    layout,
+                    params.adapter.itemsByTrack
+                )
+                console.log(x, y, item)
+                setSelectedItem(item)
+            }
         })
 
     const HEADER_HEIGHT = 28
@@ -98,6 +112,7 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
         getNiceStep,
         tracks: layout,
         adapter: params.adapter,
+        selectedItem,
     })
 
     useEffect(() => {
