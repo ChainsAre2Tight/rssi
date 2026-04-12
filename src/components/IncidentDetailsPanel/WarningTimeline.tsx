@@ -30,7 +30,7 @@ export default function WarningTimeline() {
             adapter={adapter}
 
             externalSelectedKey={warningKey}
-            onSelect={(key) => selectWarning(key!.key)}
+            onSelect={(key) => selectWarning(key ? key.key : null)}
 
             externalHoverKey={hoverKey}
             externalHoverTimeUs={hoverTimeUs}

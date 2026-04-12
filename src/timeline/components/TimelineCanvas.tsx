@@ -6,7 +6,7 @@ import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { useTrackResizing } from "../hooks/useTrackResizing"
 import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
-import type { TimelineAdapterResult, TimelineItem, TimelineTrack } from "../types"
+import type { TimelineAdapterResult, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
 import { createTimeMapper, hitTest } from "../utils/mapping"
 import { ensureVisible } from "../utils/ensureVisible"
@@ -71,8 +71,8 @@ export default function TimelineCanvas(params: {
                     params.adapter.itemsByTrack
                 )
                 
-                // TODO: implement double click = deselect
-                handleInternalSelect(item ? item.key : null)
+                if (!item) return
+                handleInternalSelect(item.key !== params.externalSelectedKey ? item.key : null)
             },
             onMove: (x, y) => {
                 const item = hitTest(

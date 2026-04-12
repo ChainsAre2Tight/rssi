@@ -18,6 +18,7 @@ export default function IncidentRow({
 }: Props) {
 
     const selectIncident = useAppStore((s) => s.selectIncident)
+    const alreadySelected = useAppStore((s) => s.selection.incidentId)
     const hoverIncident = useAppStore((s) => s.hoverIncident)
 
     const selected = useAppStore(
@@ -44,7 +45,7 @@ export default function IncidentRow({
             }
 
             onClick={() =>
-                selectIncident(incident.id)
+                selectIncident(incident.id === alreadySelected ? null : incident.id)
             }
         >
 
