@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
-import type { TrackLayoutItem } from "../utils/trackLayout"
+import type { TimelineItem, TrackLayoutItem } from "../types/types"
 
 interface Viewport {
     start: number
@@ -17,6 +17,7 @@ interface Params {
     isZooming: RefObject<boolean>
     getNiceStep: (raw: number) => number
     tracks: TrackLayoutItem[]
+    items: TimelineItem[]
 }
 
 export function useTimelineRenderer({
@@ -29,6 +30,7 @@ export function useTimelineRenderer({
     isZooming,
     getNiceStep,
     tracks,
+    items,
 }: Params) {
     useEffect(() => {
         let frameId: number
@@ -103,6 +105,39 @@ export function useTimelineRenderer({
                 ctx.moveTo(0, y)
                 ctx.lineTo(width, y)
                 ctx.stroke()
+            }
+
+            for (const t of tracks) {
+                if (t.contentHeight <= 0) continue
+
+                const laneHeight = t.laneHeight
+
+                const trackItems = items.filter(i => i.trackId === t.id)
+
+                for (let i = 0; i < trackItems.length; i++) {
+                    const item = trackItems[i]
+
+                    const laneIndex = i % t.laneCount
+
+                    const y =
+                        t.contentY +
+                        laneIndex * laneHeight +
+                        2
+
+                    const x =
+                        (item.start - viewport.start) * scale
+
+                    const w =
+                        (item.end - item.start) * scale
+
+                    const h = laneHeight - 4
+
+                    ctx.fillStyle = "#4da3ff"
+
+                    ctx.beginPath()
+                    ctx.roundRect(x, y, Math.max(w, 4), h, 4)
+                    ctx.fill()
+                }
             }
 
             // --- CURSOR / ANCHOR ---

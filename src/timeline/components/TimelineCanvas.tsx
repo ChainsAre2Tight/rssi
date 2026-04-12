@@ -6,7 +6,7 @@ import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { useTrackResizing } from "../hooks/useTrackResizing"
 import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
-import type { TimelineTrack } from "../types/types"
+import type { TimelineItem, TimelineTrack } from "../types/types"
 import styles from "./TimelineCanvas.module.css"
 
 export default function TimelineCanvas() {
@@ -46,6 +46,20 @@ export default function TimelineCanvas() {
     const HEADER_HEIGHT = 28
     const DEFAULT_EXPANDED_HEIGHT = 120
     
+    const items: TimelineItem[] = [
+        {
+            id: "1",
+            trackId: "modality-1",
+            start: viewport.start + 10,
+            end: viewport.start + 40,
+        },
+        {
+            id: "2",
+            trackId: "modality-1",
+            start: viewport.start + 50,
+            end: viewport.start + 90,
+        },
+    ]
 
     function toggleTrack(id: string) {
         setTracks(prev =>
@@ -86,6 +100,7 @@ export default function TimelineCanvas() {
         isZooming,
         getNiceStep,
         tracks: layout,
+        items,
     })
 
     useEffect(() => {

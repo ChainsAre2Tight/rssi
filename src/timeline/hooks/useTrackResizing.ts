@@ -1,6 +1,5 @@
 import { useRef } from "react"
-import type { TrackLayoutItem } from "../utils/trackLayout"
-import type { TimelineTrack } from "../types/types"
+import type { TimelineTrack, TrackLayoutItem } from "../types/types"
 
 interface Params {
     layout: TrackLayoutItem[]
