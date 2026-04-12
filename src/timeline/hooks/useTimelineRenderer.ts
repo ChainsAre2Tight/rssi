@@ -86,11 +86,13 @@ export function useTimelineRenderer({
 
             // --- TRACKS ---
             ctx.strokeStyle = styles.getPropertyValue("--color-border")
-            ctx.lineWidth = 1
+            ctx.lineWidth = 3
+            ctx.setLineDash([20, 20])
 
-            for (const t of tracks) {
+            for (let i = 0; i < tracks.length; i++) {
+                if (i == 0) continue
 
-                const y = Math.round(t.y) + 0.5
+                const y = Math.round(tracks[i].y) + 0.5
 
                 ctx.beginPath()
                 ctx.moveTo(0, y)
@@ -107,6 +109,7 @@ export function useTimelineRenderer({
                 ctx.lineTo(width, y)
                 ctx.stroke()
             }
+            ctx.setLineDash([])
 
             let hoveredItem: TimelineItem | null = null
 
@@ -127,36 +130,45 @@ export function useTimelineRenderer({
                 const lanes = itemsByTrack[t.id]
                 if (!lanes) continue
 
+                ctx.save()
+                ctx.beginPath()
+                ctx.rect(0, t.contentY - 2, width, t.contentHeight)
+                ctx.clip()
+
                 for (let laneIndex = 0; laneIndex < lanes.length; laneIndex++) {
                     const lane = lanes[laneIndex]
 
                     const y =
-                            t.contentY +
-                            laneIndex * t.laneHeight +
-                            2
+                        t.contentY +
+                        laneIndex * t.laneHeight +
+                        2
+
                     const h = t.laneHeight - 4
 
                     for (let i = 0; i < lane.length; i++) {
                         const item = lane[i]
+                        if (item.end < viewport.start || item.start > viewport.end) {
+                            continue
+                        }
 
                         const x = (item.start - viewport.start) * scale
                         const w = (item.end - item.start) * scale
 
-                        // TODO: add proper styling to hovered items
-                        // TODO: get severity from item itself
                         if (item === hoveredItem) {
                             ctx.fillStyle = styles.getPropertyValue("--severity-critical")
                             ctx.beginPath()
-                            ctx.roundRect(x-2, y-2, Math.max(w+4, 4), h+4, 4)
+                            ctx.roundRect(x - 2, y - 2, Math.max(w + 4, 4), h + 4, 4)
                             ctx.fill()
                         }
-                        ctx.fillStyle = styles.getPropertyValue("--severity-info")
 
+                        ctx.fillStyle = styles.getPropertyValue("--severity-info")
                         ctx.beginPath()
                         ctx.roundRect(x, y, Math.max(w, 4), h, 4)
                         ctx.fill()
                     }
                 }
+
+                ctx.restore()
             }
 
             if (hoveredItem !== null) {
