@@ -84,7 +84,7 @@ export function hitTest(
     width: number,
     viewport: Viewport,
     tracks: TrackLayoutItem[],
-    items: TimelineItem[]
+    itemsByTrack: Record<string, TimelineItem[][]>
 ): TimelineItem | null {
     const track = findTrackAtY(y, tracks)
     if (!track) return null
@@ -94,14 +94,13 @@ export function hitTest(
 
     const time = xToTime(x, viewport, width)
 
-    const trackItems = items.filter(i => i.trackId === track.id)
-    const laneItems = trackItems
-        .filter(i => i.laneIndex === laneIndex)
-        .filter(i => i.end >= viewport.start && i.start <= viewport.end)
-    const item = findItemInLane(
-        time,
-        laneItems,
-    )
+    const lanes = itemsByTrack[track.id]
+    if (!lanes) return null
+
+    const laneItems = lanes[laneIndex]
+    if (!laneItems) return null
+
+    const item = findItemInLane(time, laneItems)
 
     if (!item) return null
 

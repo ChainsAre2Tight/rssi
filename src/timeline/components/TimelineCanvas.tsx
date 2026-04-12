@@ -46,22 +46,28 @@ export default function TimelineCanvas() {
     const HEADER_HEIGHT = 28
     const DEFAULT_EXPANDED_HEIGHT = 120
     
-    const items: TimelineItem[] = [
-        {
-            id: "1",
-            trackId: "modality-1",
-            start: 20,
-            end: 50,
-            laneIndex: 0,
-        },
-        {
-            id: "2",
-            trackId: "modality-1",
-            start: 60,
-            end: 120,
-            laneIndex: 1,
-        },
-    ]
+    const itemsByTrack: Record<string, TimelineItem[][]> = {
+        "modality-1": [
+            [
+                {
+                    id: "1",
+                    start: 20,
+                    end: 50,
+                },
+                {
+                    id: "2",
+                    start: 60,
+                    end: 120,
+                },
+            ], [
+                {
+                    id: "3",
+                    start: 30,
+                    end: 90,
+                },
+            ]
+        ]
+    }
 
     function toggleTrack(id: string) {
         setTracks(prev =>
@@ -102,7 +108,7 @@ export default function TimelineCanvas() {
         isZooming,
         getNiceStep,
         tracks: layout,
-        items,
+        itemsByTrack,
     })
 
     useEffect(() => {

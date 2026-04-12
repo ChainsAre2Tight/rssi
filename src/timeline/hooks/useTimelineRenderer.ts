@@ -18,7 +18,7 @@ interface Params {
     isZooming: RefObject<boolean>
     getNiceStep: (raw: number) => number
     tracks: TrackLayoutItem[]
-    items: TimelineItem[]
+    itemsByTrack: Record<string, TimelineItem[][]>
 }
 
 export function useTimelineRenderer({
@@ -31,7 +31,7 @@ export function useTimelineRenderer({
     isZooming,
     getNiceStep,
     tracks,
-    items,
+    itemsByTrack,
 }: Params) {
     useEffect(() => {
         let frameId: number
@@ -111,35 +111,31 @@ export function useTimelineRenderer({
             for (const t of tracks) {
                 if (t.contentHeight <= 0) continue
 
-                const laneHeight = t.laneHeight
+                const lanes = itemsByTrack[t.id]
+                if (!lanes) continue
 
-                const trackItems = items.filter(i => i.trackId === t.id)
+                for (let laneIndex = 0; laneIndex < lanes.length; laneIndex++) {
+                    const lane = lanes[laneIndex]
 
-                for (let i = 0; i < trackItems.length; i++) {
-                    const item = trackItems[i]
+                    for (let i = 0; i < lane.length; i++) {
+                        const item = lane[i]
 
-                    const laneIndex = item.laneIndex
+                        const y =
+                            t.contentY +
+                            laneIndex * t.laneHeight +
+                            2
 
-                    const y =
-                        t.contentY +
-                        laneIndex * laneHeight +
-                        2
+                        const x = (item.start - viewport.start) * scale
+                        const w = (item.end - item.start) * scale
+                        const h = t.laneHeight - 4
 
-                    const x =
-                        (item.start - viewport.start) * scale
+                        ctx.fillStyle = "#4da3ff"
 
-                    const w =
-                        (item.end - item.start) * scale
-
-                    const h = laneHeight - 4
-
-                    ctx.fillStyle = "#4da3ff"
-
-                    ctx.beginPath()
-                    ctx.roundRect(x, y, Math.max(w, 4), h, 4)
-                    ctx.fill()
+                        ctx.beginPath()
+                        ctx.roundRect(x, y, Math.max(w, 4), h, 4)
+                        ctx.fill()
+                    }
                 }
-            }
 
             let hoveredItem: TimelineItem | null = null
 
@@ -150,7 +146,7 @@ export function useTimelineRenderer({
                     width,
                     viewport,
                     tracks,
-                    items
+                    itemsByTrack,
                 )
             }
 
@@ -199,7 +195,7 @@ export function useTimelineRenderer({
 
             frameId = requestAnimationFrame(render)
         }
-
+    }
         frameId = requestAnimationFrame(render)
 
         return () => cancelAnimationFrame(frameId)

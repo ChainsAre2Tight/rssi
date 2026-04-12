@@ -11,11 +11,8 @@ export interface TimelineTrack {
 
 export interface TimelineItem {
     id: string
-    trackId: string
     start: number
     end: number
-
-    laneIndex: number
 }
 
 export interface TrackLayoutItem {
