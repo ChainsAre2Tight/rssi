@@ -38,8 +38,8 @@ export function buildIncidentAdapter({
                 key: inc.id,
                 type: "incident",
 
-                start: inc.startTimeUs,
-                end: inc.endTimeUs,
+                start: inc.startTimeUs / 1_000_000,
+                end: inc.endTimeUs / 1_000_000,
 
                 severity: inc.severity,
             }

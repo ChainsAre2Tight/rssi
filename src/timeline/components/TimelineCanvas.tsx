@@ -6,13 +6,11 @@ import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { useTrackResizing } from "../hooks/useTrackResizing"
 import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
-import type { TimelineTrack } from "../types"
+import type { TimelineAdapterResult, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
-import { buildIncidentAdapter } from "../adapters/incidents"
-import { useAppStore } from "../../store/useAppStore"
 
 
-export default function TimelineCanvas() {
+export default function TimelineCanvas(params: { adapter: TimelineAdapterResult }) {
     const containerRef = useRef<HTMLDivElement | null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null) as RefObject<HTMLCanvasElement>
 
@@ -29,34 +27,10 @@ export default function TimelineCanvas() {
     const HEADER_HEIGHT = 28
     const DEFAULT_EXPANDED_HEIGHT = 120
 
-    const incidentsByModality = useAppStore(s => s.report.incidentsByModality)
-    const startTimeUs = useAppStore(s => s.report.startTimeUs)
-    const endTimeUs = useAppStore(s => s.report.endTimeUs)
-
-    const adapter = buildIncidentAdapter({
-        incidentsByModality: incidentsByModality,
-        reportStartUs: startTimeUs!,
-        reportEndUs: endTimeUs!,
-    })
-
-    const initializedRef = useRef(false)
-
-    useEffect(() => {
-        if (initializedRef.current) return
-        if (!adapter.bounds.start || !adapter.bounds.end) return
-
-        setViewport({
-            start: adapter.bounds.start,
-            end: adapter.bounds.end,
-        })
-
-        initializedRef.current = true
-    }, [adapter.bounds.start, adapter.bounds.end])
-
     const [tracks, setTracks] = useState<TimelineTrack[]>([])
 
     useEffect(() => {
-        const nextTracks: TimelineTrack[] = Object.keys(adapter.itemsByTrack).map(id => ({
+        const nextTracks: TimelineTrack[] = Object.keys(params.adapter.itemsByTrack).map(id => ({
             id,
             label: id,
             height: 100,
@@ -66,7 +40,21 @@ export default function TimelineCanvas() {
         }))
 
         setTracks(nextTracks)
-    }, [adapter.itemsByTrack])
+    }, [params.adapter.itemsByTrack])
+
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (initializedRef.current) return
+        if (!params.adapter.bounds.start || !params.adapter.bounds.end) return
+
+        setViewport({
+            start: params.adapter.bounds.start / 1_000_000,
+            end: params.adapter.bounds.end / 1_000_000,
+        })
+
+        initializedRef.current = true
+    }, [params.adapter.bounds.start, params.adapter.bounds.end])
 
     const layout = computeTrackLayout(tracks)
 
@@ -109,7 +97,7 @@ export default function TimelineCanvas() {
         isZooming,
         getNiceStep,
         tracks: layout,
-        adapter: adapter,
+        adapter: params.adapter,
     })
 
     useEffect(() => {
