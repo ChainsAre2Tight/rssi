@@ -1,7 +1,6 @@
 import type {
     Incident,
     Modality,
-    Severity
 } from "../../types/general"
 
 import type {
@@ -15,22 +14,24 @@ interface Params {
     incidentsByModality: Record<Modality, Incident[]>
     reportStartUs: number
     reportEndUs: number
-    minGapUs?: number
+    minGapS?: number
 }
 
 export function buildIncidentAdapter({
     incidentsByModality,
     reportStartUs,
     reportEndUs,
-    minGapUs = 0,
+    minGapS = 0,
 }: Params): TimelineAdapterResult {
     const itemsByTrack: Record<string, TimelineItem[][]> = {}
 
     const byKey = new Map<string, TimelineItem>()
     const byId = new Map<string, TimelineItem>()
+    const trackIds: string[] = []
 
     for (const modality of Object.keys(incidentsByModality) as Modality[]) {
         const incidents = incidentsByModality[modality]
+        trackIds.push(modality)
 
         const events: TimelineItem[] = incidents.map((inc) => {
             const event: TimelineItem = {
@@ -51,7 +52,7 @@ export function buildIncidentAdapter({
         })
 
         const lanes = packIntoLanes(events, {
-            minGap: minGapUs,
+            minGap: minGapS,
         })
 
         itemsByTrack[modality] = lanes
@@ -69,5 +70,6 @@ export function buildIncidentAdapter({
             start: reportStartUs,
             end: reportEndUs,
         },
+        trackIds,
     }
 }

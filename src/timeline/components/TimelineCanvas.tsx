@@ -30,7 +30,7 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
     const [tracks, setTracks] = useState<TimelineTrack[]>([])
 
     useEffect(() => {
-        const nextTracks: TimelineTrack[] = Object.keys(params.adapter.itemsByTrack).map(id => ({
+        const nextTracks: TimelineTrack[] = params.adapter.trackIds.map(id => ({
             id,
             label: id,
             height: 100,

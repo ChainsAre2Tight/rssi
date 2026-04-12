@@ -58,4 +58,6 @@ export interface TimelineAdapterResult {
         start: number
         end: number
     }
+
+    trackIds: string[]
 }

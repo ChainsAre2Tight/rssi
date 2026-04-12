@@ -35,6 +35,7 @@ export function useTimelineRenderer({
 
         function render() {
             const canvas = canvasRef.current
+            const mapper = createTimeMapper(viewport, width, adapter.bounds.start)
             if (!canvas || width === 0 || height === 0) {
                 frameId = requestAnimationFrame(render)
                 return
@@ -140,8 +141,8 @@ export function useTimelineRenderer({
                         if (item.end < viewport.start) continue
                         if (item.start > viewport.end) break
 
-                        const x = (item.start - viewport.start) * scale
-                        const w = (item.end - item.start) * scale
+                        const x = mapper.toX(item.start)
+                        const w = mapper.toX(item.end) - x
 
                         if (item === hoveredItem) {
                             ctx.globalAlpha = 0.7
@@ -160,8 +161,6 @@ export function useTimelineRenderer({
             }
 
             if (hoveredItem !== null) {
-                
-                const mapper = createTimeMapper(viewport, width, adapter.bounds.start)
                 const x1 = mapper.toX(hoveredItem.start)
                 const x2 = mapper.toX(hoveredItem.end)
 

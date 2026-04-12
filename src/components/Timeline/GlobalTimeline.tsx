@@ -11,6 +11,7 @@ export default function GlobalTimeline() {
         incidentsByModality: incidentsByModality,
         reportStartUs: startTimeUs!,
         reportEndUs: endTimeUs!,
+        minGapS: 10,
     })
 
     return (
