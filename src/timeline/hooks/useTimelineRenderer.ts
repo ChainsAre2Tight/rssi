@@ -120,18 +120,24 @@ export function useTimelineRenderer({
                 for (let laneIndex = 0; laneIndex < lanes.length; laneIndex++) {
                     const lane = lanes[laneIndex]
 
-                    const y =
-                        t.contentY +
-                        laneIndex * t.laneHeight +
-                        2
+                    const laneTop = t.contentY + laneIndex * t.laneHeight
+                    const laneBottom = laneTop + t.laneHeight
 
+                    if (laneTop >= t.contentY + t.contentHeight) {
+                        break
+                    }
+                    if (laneBottom <= t.contentY) {
+                        continue
+                    }
+
+                    const y = laneTop + 2
                     const h = t.laneHeight - 4
 
                     for (let i = 0; i < lane.length; i++) {
                         const item = lane[i]
-                        if (item.end < viewport.start || item.start > viewport.end) {
-                            continue
-                        }
+
+                        if (item.end < viewport.start) continue
+                        if (item.start > viewport.end) break
 
                         const x = (item.start - viewport.start) * scale
                         const w = (item.end - item.start) * scale
