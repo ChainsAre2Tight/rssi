@@ -54,17 +54,20 @@ export default function TimelineCanvas() {
                     id: "1",
                     start: 20,
                     end: 50,
+                    severity: "high",
                 },
                 {
                     id: "2",
                     start: 60,
                     end: 120,
+                    severity: "low",
                 },
             ], [
                 {
                     id: "3",
                     start: 30,
                     end: 90,
+                    severity: "info",
                 },
             ],
         ],
@@ -74,17 +77,20 @@ export default function TimelineCanvas() {
                     id: "4",
                     start: 60,
                     end: 70,
+                    severity: "critical",
                 },
             ], [
                 {
                     id: "5",
                     start: 30,
                     end: 50,
+                    severity: "medium",
                 },
                 {
                     id: "6",
                     start: 60,
                     end: 110,
+                    severity: "info",
                 },
             ]
         ]

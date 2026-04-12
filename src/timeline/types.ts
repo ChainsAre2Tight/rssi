@@ -1,3 +1,5 @@
+import type { Severity } from "../types/general"
+
 export interface TimelineTrack {
     id: string
     label?: string
@@ -13,6 +15,7 @@ export interface TimelineItem {
     id: string
     start: number
     end: number
+    severity: Severity
 }
 
 export interface TrackLayoutItem {

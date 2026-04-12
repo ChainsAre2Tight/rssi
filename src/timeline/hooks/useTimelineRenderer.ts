@@ -3,6 +3,7 @@ import type { RefObject } from "react"
 import type { TimelineItem, TrackLayoutItem, Viewport } from "../types"
 import { hitTest, timeToX } from "../utils/mapping"
 import { RESIZE_HANDLE_GAP } from "../config"
+import { getSeverityColor } from "../../utils/severity"
 
 interface Params {
     canvasRef: RefObject<HTMLCanvasElement>
@@ -143,16 +144,15 @@ export function useTimelineRenderer({
                         const w = (item.end - item.start) * scale
 
                         if (item === hoveredItem) {
-                            ctx.fillStyle = styles.getPropertyValue("--severity-critical")
-                            ctx.beginPath()
-                            ctx.roundRect(x - 2, y - 2, Math.max(w + 4, 4), h + 4, 4)
-                            ctx.fill()
+                            ctx.globalAlpha = 0.7
+                        } else {
+                            ctx.globalAlpha = 1
                         }
 
-                        ctx.fillStyle = styles.getPropertyValue("--severity-info")
+                        ctx.fillStyle = getSeverityColor(item.severity, styles)
                         ctx.beginPath()
                         ctx.roundRect(x, y, Math.max(w, 4), h, 4)
-                        ctx.fill()
+                        ctx.fill()                     
                     }
                 }
 
