@@ -1,13 +1,12 @@
 import { useRef } from "react"
-import type { TimelineTrack, TrackLayoutItem } from "../types/types"
+import type { TimelineTrack, TrackLayoutItem } from "../types"
+import { HEADER_HEIGHT } from "../config"
 
 interface Params {
     layout: TrackLayoutItem[]
     tracks: TimelineTrack[]
     setTracks: React.Dispatch<React.SetStateAction<TimelineTrack[]>>
 }
-
-const HEADER_HEIGHT = 28
 
 export function useTrackResizing({
     layout,

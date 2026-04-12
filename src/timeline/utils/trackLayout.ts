@@ -1,7 +1,5 @@
-import type { TimelineTrack, TrackLayoutItem } from "../types/types"
-
-const HEADER_HEIGHT = 28
-const RESIZE_HANDLE_GAP = 6
+import { RESIZE_HANDLE_GAP } from "../config"
+import type { TimelineTrack, TrackLayoutItem } from "../types"
 
 export function computeTrackLayout(
     tracks: TimelineTrack[]
@@ -11,25 +9,14 @@ export function computeTrackLayout(
     let currentY = 0
 
     for (const track of tracks) {
-        const isCollapsed = track.height <= HEADER_HEIGHT
-
         const baseHeight = track.height
 
-        const contentY = isCollapsed
-            ? 0
-            : currentY + HEADER_HEIGHT + RESIZE_HANDLE_GAP
+        const contentY = currentY
 
-        const contentHeight = isCollapsed
-            ? 0
-            : Math.max(
-                0,
-                baseHeight - HEADER_HEIGHT - RESIZE_HANDLE_GAP
-            )
+        const contentHeight = Math.max(0, baseHeight)
         
-        const laneHeight = 24
-        const laneCount = isCollapsed
-            ? 0
-            : Math.max(1, Math.floor(contentHeight / laneHeight))
+        const laneHeight = 12
+        const laneCount = Math.max(1, Math.floor(contentHeight / laneHeight))
 
         result.push({
             id: track.id,
@@ -42,7 +29,7 @@ export function computeTrackLayout(
             laneCount,
         })
 
-        currentY += baseHeight
+        currentY += baseHeight + RESIZE_HANDLE_GAP
     }
 
     return result

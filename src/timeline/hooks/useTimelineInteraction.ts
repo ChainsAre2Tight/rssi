@@ -1,13 +1,12 @@
 import { useRef } from "react"
-import type { Viewport } from "../types/types"
+import type { Viewport } from "../types"
+import { MIN_DURATION } from "../config"
 
 interface Params {
     viewport: Viewport
     setViewport: (v: Viewport) => void
     width: number
 }
-
-const MIN_DURATION = 60
 
 export function useTimelineInteraction({
     viewport,

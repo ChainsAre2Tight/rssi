@@ -6,7 +6,7 @@ import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { useTrackResizing } from "../hooks/useTrackResizing"
 import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
-import type { TimelineItem, TimelineTrack } from "../types/types"
+import type { TimelineItem, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
 
 

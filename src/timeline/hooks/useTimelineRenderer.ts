@@ -1,12 +1,8 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
-import type { TimelineItem, TrackLayoutItem } from "../types/types"
+import type { TimelineItem, TrackLayoutItem, Viewport } from "../types"
 import { hitTest, timeToX } from "../utils/mapping"
-
-interface Viewport {
-    start: number
-    end: number
-}
+import { RESIZE_HANDLE_GAP } from "../config"
 
 interface Params {
     canvasRef: RefObject<HTMLCanvasElement>
@@ -89,27 +85,13 @@ export function useTimelineRenderer({
             ctx.lineWidth = 3
             ctx.setLineDash([20, 20])
 
-            for (let i = 0; i < tracks.length; i++) {
-                if (i == 0) continue
-
-                const y = Math.round(tracks[i].y) + 0.5
-
+            for (let i = 0; tracks.length > 0 && i < tracks.length; i++) {
+                const y = Math.round(tracks[i].y+tracks[i].height) + 0.5
                 ctx.beginPath()
                 ctx.moveTo(0, y)
                 ctx.lineTo(width, y)
                 ctx.stroke()
             }
-
-            if (tracks.length > 0) {
-                const last = tracks[tracks.length - 1]
-                const y = Math.round(last.y + last.height) + 0.5
-
-                ctx.beginPath()
-                ctx.moveTo(0, y)
-                ctx.lineTo(width, y)
-                ctx.stroke()
-            }
-            ctx.setLineDash([])
 
             let hoveredItem: TimelineItem | null = null
 
@@ -132,7 +114,7 @@ export function useTimelineRenderer({
 
                 ctx.save()
                 ctx.beginPath()
-                ctx.rect(0, t.contentY - 2, width, t.contentHeight)
+                ctx.rect(0, t.contentY-RESIZE_HANDLE_GAP, width, t.contentHeight)
                 ctx.clip()
 
                 for (let laneIndex = 0; laneIndex < lanes.length; laneIndex++) {

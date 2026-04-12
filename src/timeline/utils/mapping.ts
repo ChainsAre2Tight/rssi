@@ -1,4 +1,4 @@
-import type { TimelineItem, TrackLayoutItem, Viewport } from "../types/types"
+import type { TimelineItem, TrackLayoutItem, Viewport } from "../types"
 
 export function timeToX(
     time: number,
