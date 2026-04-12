@@ -11,13 +11,11 @@ export interface TimelineTrack {
 
 export interface TimelineItem {
     id: string
+    trackId: string
     start: number
     end: number
 
-    trackId: string
-
-    severity?: string
-    data?: Record<string, unknown>
+    laneIndex: number
 }
 
 export interface TrackLayoutItem {
@@ -32,12 +30,6 @@ export interface TrackLayoutItem {
     laneCount: number
 
     track: TimelineTrack
-}
-
-export interface HitTestResult {
-    item: TimelineItem
-    trackId: string
-    laneIndex: number
 }
 
 export interface Viewport {

@@ -50,14 +50,16 @@ export default function TimelineCanvas() {
         {
             id: "1",
             trackId: "modality-1",
-            start: viewport.start + 10,
-            end: viewport.start + 40,
+            start: 20,
+            end: 50,
+            laneIndex: 0,
         },
         {
             id: "2",
             trackId: "modality-1",
-            start: viewport.start + 50,
-            end: viewport.start + 90,
+            start: 60,
+            end: 120,
+            laneIndex: 1,
         },
     ]
 

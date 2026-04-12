@@ -1,9 +1,18 @@
-import type { HitTestResult, TimelineItem, TrackLayoutItem, Viewport } from "../types/types"
+import type { TimelineItem, TrackLayoutItem, Viewport } from "../types/types"
 
-function timeFromX(
+export function timeToX(
+    time: number,
+    viewport: Viewport,
+    width: number
+) {
+    const duration = viewport.end - viewport.start
+    return ((time - viewport.start) / duration) * width
+}
+
+export function xToTime(
     x: number,
-    width: number,
-    viewport: Viewport
+    viewport: Viewport,
+    width: number
 ) {
     const duration = viewport.end - viewport.start
     return viewport.start + (x / width) * duration
@@ -39,25 +48,31 @@ function findLaneIndex(
 
 function findItemInLane(
     time: number,
-    laneIndex: number,
-    trackId: string,
-    items: TimelineItem[],
-    laneCount: number
+    laneItems: TimelineItem[]
 ): TimelineItem | null {
-    const trackItems = items.filter(i => i.trackId === trackId)
+    if (laneItems.length === 0) return null
+    if (time < laneItems[0].start) return null
+    if (time > laneItems[laneItems.length - 1].end) return null
 
+    // binary search by start time
+    let left = 0
+    let right = laneItems.length - 1
 
-    //TODO: use binary search and skip out of viewport bounds
-    for (let i = 0; i < trackItems.length; i++) {
-        const item = trackItems[i]
+    while (left <= right) {
+        const mid = (left + right) >> 1
+        const item = laneItems[mid]
 
-        const itemLane = i % laneCount
-
-        if (itemLane !== laneIndex) continue
-
-        if (time >= item.start && time <= item.end) {
-            return item
+        if (item.start > time) {
+            right = mid - 1
+            continue
         }
+
+        if (item.end < time) {
+            left = mid + 1
+            continue
+        }
+
+        return item
     }
 
     return null
@@ -70,61 +85,25 @@ export function hitTest(
     viewport: Viewport,
     tracks: TrackLayoutItem[],
     items: TimelineItem[]
-): HitTestResult | null {
+): TimelineItem | null {
     const track = findTrackAtY(y, tracks)
     if (!track) return null
 
     const laneIndex = findLaneIndex(y, track)
     if (laneIndex === null) return null
 
-    const time = timeFromX(x, width, viewport)
+    const time = xToTime(x, viewport, width)
 
+    const trackItems = items.filter(i => i.trackId === track.id)
+    const laneItems = trackItems
+        .filter(i => i.laneIndex === laneIndex)
+        .filter(i => i.end >= viewport.start && i.start <= viewport.end)
     const item = findItemInLane(
         time,
-        laneIndex,
-        track.id,
-        items,
-        track.laneCount
+        laneItems,
     )
 
     if (!item) return null
 
-    return {
-        item,
-        trackId: track.id,
-        laneIndex,
-    }
-}
-
-export function findItemAtCursor(
-    cursor: { x: number; y: number },
-    items: TimelineItem[],
-    tracks: TrackLayoutItem[],
-    viewport: Viewport,
-    width: number
-): TimelineItem | null {
-    const duration = viewport.end - viewport.start
-    const scale = width / duration
-
-    for (const item of items) {
-        const track = tracks.find(t => t.id === item.trackId)
-        if (!track || track.contentHeight <= 0) continue
-
-        const x1 = (item.start - viewport.start) * scale
-        const x2 = (item.end - viewport.start) * scale
-
-        const y1 = track.contentY
-        const y2 = track.contentY + track.contentHeight
-
-        if (
-            cursor.x >= x1 &&
-            cursor.x <= x2 &&
-            cursor.y >= y1 &&
-            cursor.y <= y2
-        ) {
-            return item
-        }
-    }
-
-    return null
+    return item
 }

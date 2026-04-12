@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
 import type { TimelineItem, TrackLayoutItem } from "../types/types"
-import { findItemAtCursor } from "../utils/mapping"
+import { hitTest, timeToX } from "../utils/mapping"
 
 interface Viewport {
     start: number
@@ -118,7 +118,7 @@ export function useTimelineRenderer({
                 for (let i = 0; i < trackItems.length; i++) {
                     const item = trackItems[i]
 
-                    const laneIndex = i % t.laneCount
+                    const laneIndex = item.laneIndex
 
                     const y =
                         t.contentY +
@@ -144,22 +144,24 @@ export function useTimelineRenderer({
             let hoveredItem: TimelineItem | null = null
 
             if (cursor.current) {
-                hoveredItem = findItemAtCursor(
-                    cursor.current,
-                    items,
-                    tracks,
+                hoveredItem = hitTest(
+                    cursor.current.x,
+                    cursor.current.y,
+                    width,
                     viewport,
-                    width
+                    tracks,
+                    items
                 )
             }
 
-            if (hoveredItem) {
-                const x1 = Math.round((hoveredItem.start - viewport.start) * scale) + 0.5
-                const x2 = Math.round((hoveredItem.end - viewport.start) * scale) + 0.5
+            if (hoveredItem !== null) {
 
+                const x1 = timeToX(hoveredItem.start, viewport, width)
+                const x2 = timeToX(hoveredItem.end, viewport, width)
+
+                ctx.globalAlpha = 0.5
+                ctx.setLineDash([8, 8])
                 ctx.strokeStyle = styles.getPropertyValue("--color-accent")
-                ctx.globalAlpha = 0.3
-                ctx.setLineDash([4, 4])
 
                 ctx.beginPath()
                 ctx.moveTo(x1, 0)
