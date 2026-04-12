@@ -16,6 +16,7 @@ import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
 
 export default function TimelineCanvas(params: {
     adapter: TimelineAdapterResult
+    viewportResetKey?: string | number
     externalSelectedKey: string | null
     onSelect: (item: { key: string; type: "incident" | "warning"; id: string } | null) => void
     externalHoverKey?: string | null
@@ -108,19 +109,14 @@ export default function TimelineCanvas(params: {
         setTracks(nextTracks)
     }, [params.adapter.itemsByTrack])
 
-    const initializedRef = useRef(false)
-
     useEffect(() => {
-        if (initializedRef.current) return
         if (!params.adapter.bounds.start || !params.adapter.bounds.end) return
 
         setViewport({
             start: params.adapter.bounds.start / 1_000_000,
             end: params.adapter.bounds.end / 1_000_000,
         })
-
-        initializedRef.current = true
-    }, [params.adapter.bounds.start, params.adapter.bounds.end])
+    }, [params.viewportResetKey])
 
     const layout = computeTrackLayout(tracks)
 

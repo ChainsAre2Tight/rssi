@@ -28,6 +28,7 @@ export default function WarningTimeline() {
     return (
         <TimelineCanvas
             adapter={adapter}
+            viewportResetKey={incident.id}
 
             externalSelectedKey={warningKey}
             onSelect={(key) => selectWarning(key ? key.key : null)}

@@ -26,6 +26,7 @@ export default function GlobalTimeline() {
     return (
         <TimelineCanvas
             adapter={adapter}
+            viewportResetKey={startTimeUs!}
 
             externalSelectedKey={selectedIncidentId}
             onSelect={(item) => {
