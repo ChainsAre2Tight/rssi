@@ -8,16 +8,22 @@ import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
 import type { TimelineAdapterResult, TimelineItem, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
-import { hitTest } from "../utils/mapping"
+import { createTimeMapper, hitTest } from "../utils/mapping"
 import { ensureVisible } from "../utils/ensureVisible"
 import { useTimelineSync } from "../hooks/useTimelineSync"
+import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
 
 
 export default function TimelineCanvas(params: {
     adapter: TimelineAdapterResult
     externalSelectedKey: string | null
     onSelect: (item: { key: string; type: "incident" | "warning"; id: string } | null) => void
+    externalHoverKey?: string | null
+    externalHoverTimeUs?: number | null
+    onHoverItem?: (item: any | null) => void
+    onHoverTime?: (timeUs: number | null) => void
 }) {
+
     const containerRef = useRef<HTMLDivElement | null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null) as RefObject<HTMLCanvasElement>
 
@@ -31,6 +37,24 @@ export default function TimelineCanvas(params: {
         onSelect: params.onSelect,
         setSelectedKey,
     })
+
+    const [hoveredKey, setHoveredKey] = useState<string | null>(null)
+    const [externalCursorTimeUs, setExternalCursorTimeUs] = useState<number | null>(null)
+
+    const { handleInternalHover } = useTimelineHoverSync({
+        adapter: params.adapter,
+
+        externalHoverKey: params.externalHoverKey ?? null,
+        externalHoverTimeUs: params.externalHoverTimeUs ?? null,
+
+        onHoverItem: params.onHoverItem ?? (() => {}),
+        onHoverTime: params.onHoverTime ?? (() => {}),
+
+        setHoveredKey,
+        setExternalCursorTimeUs,
+    })
+
+    const mapper = createTimeMapper(viewport, width, params.adapter.bounds.start)
 
     const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
@@ -48,7 +72,21 @@ export default function TimelineCanvas(params: {
                 )
 
                 handleInternalSelect(item ? item.key : null)
-            }
+            },
+            onMove: (x, y) => {
+                const item = hitTest(
+                    x,
+                    y,
+                    width,
+                    viewport,
+                    layout,
+                    params.adapter.itemsByTrack
+                )
+                const time = mapper.toTime(x)
+                const timeUs = mapper.toGlobalUs(time)
+
+                handleInternalHover(item ? item.key : null, timeUs)
+            },
         })
 
     const HEADER_HEIGHT = 28
@@ -133,6 +171,19 @@ export default function TimelineCanvas(params: {
         ? params.adapter.index.byKey.get(selectedKey)
         : null
 
+    const hoveredItem = hoveredKey
+        ? params.adapter.index.byKey.get(hoveredKey)
+        : cursor.current
+            ? hitTest(
+                cursor.current.x,
+                cursor.current.y,
+                width,
+                viewport,
+                layout,
+                params.adapter.itemsByTrack,
+            )
+            : null
+
     useTimelineRenderer({
         canvasRef,
         width,
@@ -145,6 +196,8 @@ export default function TimelineCanvas(params: {
         tracks: layout,
         adapter: params.adapter,
         selectedItem: selectedItem ? selectedItem : null,
+        hoveredItem,
+        externalCursorTimeUs: externalCursorTimeUs,
     })
 
     useEffect(() => {

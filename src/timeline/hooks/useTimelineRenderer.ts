@@ -16,7 +16,9 @@ interface Params {
     getNiceStep: (raw: number) => number
     tracks: TrackLayoutItem[]
     adapter: TimelineAdapterResult
-    selectedItem: TimelineItem | null
+    selectedItem?: TimelineItem | null
+    hoveredItem?: TimelineItem | null
+    externalCursorTimeUs?: number | null
 }
 
 export function useTimelineRenderer({
@@ -31,6 +33,8 @@ export function useTimelineRenderer({
     tracks,
     adapter,
     selectedItem,
+    hoveredItem,
+    externalCursorTimeUs
 }: Params) {
     useEffect(() => {
         let frameId: number
@@ -98,19 +102,6 @@ export function useTimelineRenderer({
                 ctx.stroke()
             }
 
-            let hoveredItem: TimelineItem | null = null
-
-            if (cursor.current) {
-                hoveredItem = hitTest(
-                    cursor.current.x,
-                    cursor.current.y,
-                    width,
-                    viewport,
-                    tracks,
-                    adapter.itemsByTrack,
-                )
-            }
-
             for (const t of tracks) {
                 if (t.contentHeight <= 0) continue
 
@@ -147,12 +138,12 @@ export function useTimelineRenderer({
                         const x = mapper.toX(item.start)
                         const w = mapper.toX(item.end) - x
 
-                        if (item === selected) {
+                        if (item === hoveredItem) {
+                            ctx.globalAlpha = 0.85
+                        } else if (item === selectedItem) {
                             ctx.globalAlpha = 1
-                        } else if (item === hoveredItem) {
-                            ctx.globalAlpha = 0.7
                         } else {
-                            ctx.globalAlpha = 0.4
+                            ctx.globalAlpha = 0.6
                         }
 
                         ctx.fillStyle = getSeverityColor(item.severity, styles)
@@ -165,7 +156,7 @@ export function useTimelineRenderer({
                 ctx.restore()
             }
 
-            if (hoveredItem !== null) {
+            if (hoveredItem) {
                 const x1 = mapper.toX(hoveredItem.start)
                 const x2 = mapper.toX(hoveredItem.end)
 
@@ -205,6 +196,25 @@ export function useTimelineRenderer({
                 ctx.lineTo(x2, height)
 
                 ctx.stroke()
+            }
+
+            if (externalCursorTimeUs !== null) {
+
+                const x = mapper.toX(
+                    mapper.fromGlobalUs(externalCursorTimeUs!)
+                )
+
+                ctx.globalAlpha = 0.4
+                ctx.setLineDash([4, 4])
+                ctx.strokeStyle = styles.getPropertyValue("--color-accent")
+
+                ctx.beginPath()
+                ctx.moveTo(x, 0)
+                ctx.lineTo(x, height)
+                ctx.stroke()
+
+                ctx.setLineDash([])
+                ctx.globalAlpha = 1
             }
 
             // --- CURSOR / ANCHOR ---

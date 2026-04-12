@@ -7,6 +7,7 @@ interface Params {
     setViewport: (v: Viewport) => void
     width: number
     onClick?: (x: number, y: number) => void
+    onMove?: (x: number, y: number) => void
 }
 
 export function useTimelineInteraction({
@@ -14,6 +15,7 @@ export function useTimelineInteraction({
     setViewport,
     width,
     onClick,
+    onMove,
 }: Params) {
     const isPanning = useRef(false)
     const isZooming = useRef(false)
@@ -107,6 +109,7 @@ export function useTimelineInteraction({
 
         if (!isZooming.current) {
             cursor.current = { x, y }
+            onMove?.(x, y)
         }
 
         if (!dragStartViewport.current) return

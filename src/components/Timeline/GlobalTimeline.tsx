@@ -10,6 +10,12 @@ export default function GlobalTimeline() {
     const selectedIncidentId = useAppStore(s => s.selection.incidentId)
     const selectIncident = useAppStore(s => s.selectIncident)
 
+    const hoverIncident = useAppStore(s => s.hoverIncident)
+    const setTimelineCursor = useAppStore(s => s.setTimelineCursor)
+
+    const hoveredIncidentId = useAppStore(s => s.hover.incidentId)
+    const hoverTimeUs = useAppStore(s => s.hover.timelineTimeUs)
+
     const adapter = buildIncidentAdapter({
         incidentsByModality,
         reportStartUs: startTimeUs!,
@@ -20,16 +26,22 @@ export default function GlobalTimeline() {
     return (
         <TimelineCanvas
             adapter={adapter}
+
             externalSelectedKey={selectedIncidentId}
             onSelect={(item) => {
-                if (!item) {
-                    selectIncident(null)
-                    return
-                }
+                if (!item) return selectIncident(null)
+                if (item.type === "incident") selectIncident(item.id)
+            }}
 
-                if (item.type === "incident") {
-                    selectIncident(item.id)
-                }
+            externalHoverKey={hoveredIncidentId}
+            externalHoverTimeUs={hoverTimeUs}
+
+            onHoverItem={(item) => {
+                hoverIncident(item?.id ?? null)
+            }}
+
+            onHoverTime={(timeUs) => {
+                setTimelineCursor(timeUs)
             }}
         />
     )
