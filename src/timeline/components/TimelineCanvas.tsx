@@ -9,6 +9,7 @@ import { computeTrackLayout } from "../utils/trackLayout"
 import type { TimelineItem, TimelineTrack } from "../types/types"
 import styles from "./TimelineCanvas.module.css"
 
+
 export default function TimelineCanvas() {
     const containerRef = useRef<HTMLDivElement | null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null) as RefObject<HTMLCanvasElement>
@@ -27,10 +28,10 @@ export default function TimelineCanvas() {
         {
             id: "modality-1",
             label: "Modality A",
-            height: 120,
+            height: 50,
             collapsible: true,
             resizable: true,
-            lastExpandedHeight: 120,
+            lastExpandedHeight: 50,
         },
         {
             id: "modality-2",
@@ -64,6 +65,26 @@ export default function TimelineCanvas() {
                     id: "3",
                     start: 30,
                     end: 90,
+                },
+            ],
+        ],
+        "modality-2": [
+            [
+                {
+                    id: "4",
+                    start: 60,
+                    end: 70,
+                },
+            ], [
+                {
+                    id: "5",
+                    start: 30,
+                    end: 50,
+                },
+                {
+                    id: "6",
+                    start: 60,
+                    end: 110,
                 },
             ]
         ]

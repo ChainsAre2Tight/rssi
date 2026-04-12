@@ -108,35 +108,6 @@ export function useTimelineRenderer({
                 ctx.stroke()
             }
 
-            for (const t of tracks) {
-                if (t.contentHeight <= 0) continue
-
-                const lanes = itemsByTrack[t.id]
-                if (!lanes) continue
-
-                for (let laneIndex = 0; laneIndex < lanes.length; laneIndex++) {
-                    const lane = lanes[laneIndex]
-
-                    for (let i = 0; i < lane.length; i++) {
-                        const item = lane[i]
-
-                        const y =
-                            t.contentY +
-                            laneIndex * t.laneHeight +
-                            2
-
-                        const x = (item.start - viewport.start) * scale
-                        const w = (item.end - item.start) * scale
-                        const h = t.laneHeight - 4
-
-                        ctx.fillStyle = "#4da3ff"
-
-                        ctx.beginPath()
-                        ctx.roundRect(x, y, Math.max(w, 4), h, 4)
-                        ctx.fill()
-                    }
-                }
-
             let hoveredItem: TimelineItem | null = null
 
             if (cursor.current) {
@@ -148,6 +119,44 @@ export function useTimelineRenderer({
                     tracks,
                     itemsByTrack,
                 )
+            }
+
+            for (const t of tracks) {
+                if (t.contentHeight <= 0) continue
+
+                const lanes = itemsByTrack[t.id]
+                if (!lanes) continue
+
+                for (let laneIndex = 0; laneIndex < lanes.length; laneIndex++) {
+                    const lane = lanes[laneIndex]
+
+                    const y =
+                            t.contentY +
+                            laneIndex * t.laneHeight +
+                            2
+                    const h = t.laneHeight - 4
+
+                    for (let i = 0; i < lane.length; i++) {
+                        const item = lane[i]
+
+                        const x = (item.start - viewport.start) * scale
+                        const w = (item.end - item.start) * scale
+
+                        // TODO: add proper styling to hovered items
+                        // TODO: get severity from item itself
+                        if (item === hoveredItem) {
+                            ctx.fillStyle = styles.getPropertyValue("--severity-critical")
+                            ctx.beginPath()
+                            ctx.roundRect(x-2, y-2, Math.max(w+4, 4), h+4, 4)
+                            ctx.fill()
+                        }
+                        ctx.fillStyle = styles.getPropertyValue("--severity-info")
+
+                        ctx.beginPath()
+                        ctx.roundRect(x, y, Math.max(w, 4), h, 4)
+                        ctx.fill()
+                    }
+                }
             }
 
             if (hoveredItem !== null) {
@@ -195,7 +204,6 @@ export function useTimelineRenderer({
 
             frameId = requestAnimationFrame(render)
         }
-    }
         frameId = requestAnimationFrame(render)
 
         return () => cancelAnimationFrame(frameId)
