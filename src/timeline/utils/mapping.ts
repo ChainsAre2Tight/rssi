@@ -95,3 +95,36 @@ export function hitTest(
         laneIndex,
     }
 }
+
+export function findItemAtCursor(
+    cursor: { x: number; y: number },
+    items: TimelineItem[],
+    tracks: TrackLayoutItem[],
+    viewport: Viewport,
+    width: number
+): TimelineItem | null {
+    const duration = viewport.end - viewport.start
+    const scale = width / duration
+
+    for (const item of items) {
+        const track = tracks.find(t => t.id === item.trackId)
+        if (!track || track.contentHeight <= 0) continue
+
+        const x1 = (item.start - viewport.start) * scale
+        const x2 = (item.end - viewport.start) * scale
+
+        const y1 = track.contentY
+        const y2 = track.contentY + track.contentHeight
+
+        if (
+            cursor.x >= x1 &&
+            cursor.x <= x2 &&
+            cursor.y >= y1 &&
+            cursor.y <= y2
+        ) {
+            return item
+        }
+    }
+
+    return null
+}

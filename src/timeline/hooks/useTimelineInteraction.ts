@@ -24,9 +24,18 @@ export function useTimelineInteraction({
     const zoomAnchorTime = useRef(0)
     const zoomAnchorX = useRef<number | null>(null)
 
-    const cursorX = useRef<number | null>(null)
+    const cursor = useRef<{ x: number; y: number } | null>(null)
 
     const getDuration = () => viewport.end - viewport.start
+
+    function getCanvasCoords(e: React.MouseEvent) {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+
+        const x = ((e.clientX - rect.left) / rect.width) * width
+        const y = ((e.clientY - rect.top) / rect.height) * rect.height
+
+        return { x, y }
+    }
 
     function panByPixels(deltaPx: number) {
         const duration = getDuration()
@@ -66,8 +75,7 @@ export function useTimelineInteraction({
     }
 
     function onMouseDown(e: React.MouseEvent) {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-        const x = ((e.clientX - rect.left) / rect.width) * width
+        const { x, y } = getCanvasCoords(e)
 
         dragStartX.current = e.clientX
         dragStartViewport.current = { ...viewport }
@@ -88,15 +96,14 @@ export function useTimelineInteraction({
             zoomAnchorX.current = x
         }
 
-        cursorX.current = x
+        cursor.current = { x, y }
     }
 
     function onMouseMove(e: React.MouseEvent) {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-        const x = ((e.clientX - rect.left) / rect.width) * width
+        const { x, y } = getCanvasCoords(e)
 
         if (!isZooming.current) {
-            cursorX.current = x
+            cursor.current = { x, y }
         }
 
         if (!dragStartViewport.current) return
@@ -131,7 +138,7 @@ export function useTimelineInteraction({
     function onMouseLeave() {
         isPanning.current = false
         isZooming.current = false
-        cursorX.current = null
+        cursor.current = null
         zoomAnchorX.current = null
     }
 
@@ -154,7 +161,7 @@ export function useTimelineInteraction({
             onMouseLeave,
             onContextMenu,
         },
-        cursorX,
+        cursor,
         zoomAnchorX,
         isZooming,
     }

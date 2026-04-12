@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
 import type { TimelineItem, TrackLayoutItem } from "../types/types"
+import { findItemAtCursor } from "../utils/mapping"
 
 interface Viewport {
     start: number
@@ -12,7 +13,7 @@ interface Params {
     width: number
     height: number
     viewport: Viewport
-    cursorX: RefObject<number | null>
+    cursor: RefObject<{ x: number; y: number } | null>
     zoomAnchorX: RefObject<number | null>
     isZooming: RefObject<boolean>
     getNiceStep: (raw: number) => number
@@ -25,7 +26,7 @@ export function useTimelineRenderer({
     width,
     height,
     viewport,
-    cursorX,
+    cursor,
     zoomAnchorX,
     isZooming,
     getNiceStep,
@@ -140,6 +141,37 @@ export function useTimelineRenderer({
                 }
             }
 
+            let hoveredItem: TimelineItem | null = null
+
+            if (cursor.current) {
+                hoveredItem = findItemAtCursor(
+                    cursor.current,
+                    items,
+                    tracks,
+                    viewport,
+                    width
+                )
+            }
+
+            if (hoveredItem) {
+                const x1 = Math.round((hoveredItem.start - viewport.start) * scale) + 0.5
+                const x2 = Math.round((hoveredItem.end - viewport.start) * scale) + 0.5
+
+                ctx.strokeStyle = styles.getPropertyValue("--color-accent")
+                ctx.globalAlpha = 0.3
+                ctx.setLineDash([4, 4])
+
+                ctx.beginPath()
+                ctx.moveTo(x1, 0)
+                ctx.lineTo(x1, height)
+                ctx.moveTo(x2, 0)
+                ctx.lineTo(x2, height)
+                ctx.stroke()
+
+                ctx.setLineDash([])
+                ctx.globalAlpha = 1
+            }
+
             // --- CURSOR / ANCHOR ---
             if (isZooming.current && zoomAnchorX.current !== null) {
                 const x = Math.round(zoomAnchorX.current) + 0.5
@@ -151,8 +183,8 @@ export function useTimelineRenderer({
                 ctx.moveTo(x, 0)
                 ctx.lineTo(x, height)
                 ctx.stroke()
-            } else if (cursorX.current !== null) {
-                const x = Math.round(cursorX.current) + 0.5
+            } else if (cursor.current !== null && cursor.current.x !== null) {
+                const x = Math.round(cursor.current.x) + 0.5
 
                 ctx.strokeStyle = styles.getPropertyValue("--color-accent")
                 ctx.lineWidth = 1

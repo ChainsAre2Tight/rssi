@@ -16,7 +16,7 @@ export default function TimelineCanvas() {
     const { width, height } = useContainerSize(containerRef as React.RefObject<HTMLDivElement>)
     const { viewport, setViewport, duration } = useViewport()
 
-    const { bind, cursorX, zoomAnchorX, isZooming } =
+    const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
             viewport,
             setViewport,
@@ -95,7 +95,7 @@ export default function TimelineCanvas() {
         width,
         height,
         viewport,
-        cursorX,
+        cursor,
         zoomAnchorX,
         isZooming,
         getNiceStep,
