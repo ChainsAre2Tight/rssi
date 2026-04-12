@@ -9,6 +9,7 @@ import { computeTrackLayout } from "../utils/trackLayout"
 import type { TimelineAdapterResult, TimelineItem, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
 import { hitTest } from "../utils/mapping"
+import { ensureVisible } from "../utils/ensureVisible"
 
 
 export default function TimelineCanvas(params: { adapter: TimelineAdapterResult }) {
@@ -17,7 +18,7 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
 
     const { width, height } = useContainerSize(containerRef as React.RefObject<HTMLDivElement>)
     const { viewport, setViewport, duration } = useViewport()
-    const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null)
+    const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
     const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
@@ -33,8 +34,8 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
                     layout,
                     params.adapter.itemsByTrack
                 )
-                console.log(x, y, item)
-                setSelectedItem(item)
+
+                setSelectedKey(item ? item.key : null)
             }
         })
 
@@ -95,11 +96,30 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
         )
     }
 
+    useEffect(() => {
+        if (!selectedKey) return
+
+        const item = params.adapter.index.byKey.get(selectedKey)
+        if (!item) return
+
+        setViewport(prev =>
+            ensureVisible({
+                viewport: prev,
+                itemStart: item.start,
+                itemEnd: item.end,
+            })
+        )
+    }, [selectedKey])
+
     const resizing = useTrackResizing({
         layout,
         tracks,
         setTracks,
     })
+
+    const selectedItem = selectedKey
+        ? params.adapter.index.byKey.get(selectedKey)
+        : null
 
     useTimelineRenderer({
         canvasRef,
@@ -112,7 +132,7 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
         getNiceStep,
         tracks: layout,
         adapter: params.adapter,
-        selectedItem,
+        selectedItem: selectedItem ? selectedItem : null,
     })
 
     useEffect(() => {
