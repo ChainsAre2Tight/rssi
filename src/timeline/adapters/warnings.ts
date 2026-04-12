@@ -6,6 +6,7 @@ import type {
 } from "../types"
 
 import { SEVERITY_ORDER } from "../../types/general"
+import { getWarningKey } from "../../utils/warningKey"
 
 interface Params {
     incident: Incident
@@ -32,7 +33,7 @@ export function buildWarningAdapter({
     for (const warning of sortedWarnings) {
         const lane: TimelineItem[] = []
 
-        const key = `${incident.id}:${warning.signal}`
+        const key = getWarningKey(warning)
 
         // 🔹 occurrences → items in SAME lane
         for (const occ of warning.occurrences) {

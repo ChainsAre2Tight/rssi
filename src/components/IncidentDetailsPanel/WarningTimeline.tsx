@@ -3,12 +3,13 @@ import { buildWarningAdapter } from "../../timeline/adapters/warnings"
 import TimelineCanvas from "../../timeline/components/TimelineCanvas"
 
 export default function WarningTimeline() {
-    const incidentId = useAppStore(s => s.selection.incidentId)
-    const incidentsByModality = useAppStore(s => s.report.incidentsByModality)
 
+    const incidentId = useAppStore(s => s.selection.incidentId)
     const warningKey = useAppStore(s => s.selection.warningKey)
-    const hoveredWarningKey = useAppStore(s => s.hover.warningKey)
+    const hoverKey = useAppStore(s => s.hover.warningKey)
     const hoverTimeUs = useAppStore(s => s.hover.timelineTimeUs)
+
+    const incidentsByModality = useAppStore(s => s.report.incidentsByModality)
 
     const selectWarning = useAppStore(s => s.selectWarning)
     const hoverWarning = useAppStore(s => s.hoverWarning)
@@ -29,27 +30,13 @@ export default function WarningTimeline() {
             adapter={adapter}
 
             externalSelectedKey={warningKey}
-            onSelect={(item) => {
-                if (!item) {
-                    selectWarning(null)
-                    return
-                }
+            onSelect={(key) => selectWarning(key!.key)}
 
-                if (item.type === "warning") {
-                    selectWarning(item.key)
-                }
-            }}
-
-            externalHoverKey={hoveredWarningKey}
+            externalHoverKey={hoverKey}
             externalHoverTimeUs={hoverTimeUs}
 
-            onHoverItem={(item) => {
-                hoverWarning(item?.key ?? null)
-            }}
-
-            onHoverTime={(timeUs) => {
-                setTimelineCursor(timeUs)
-            }}
+            onHoverItem={(key) => hoverWarning(key)}
+            onHoverTime={(timeUs) => setTimelineCursor(timeUs)}
         />
     )
 }

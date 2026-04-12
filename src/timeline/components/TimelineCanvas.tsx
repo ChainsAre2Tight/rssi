@@ -70,7 +70,8 @@ export default function TimelineCanvas(params: {
                     layout,
                     params.adapter.itemsByTrack
                 )
-
+                
+                // TODO: implement double click = deselect
                 handleInternalSelect(item ? item.key : null)
             },
             onMove: (x, y) => {

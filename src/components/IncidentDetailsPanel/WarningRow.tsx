@@ -1,55 +1,50 @@
-import { useState } from "react"
 import type { Warning } from "../../types/general"
-import { getSignalLabel } from "../../features/warnings/singalLabels"
-import { useAppStore } from "../../store/useAppStore"
-
 import WarningExpandedDetails from "./WarningExpandedDetails"
-
 import styles from "./WarningRow.module.css"
 
 interface Props {
     warning: Warning
-    incidentId: string
+    expanded: boolean
+    onClick: () => void
 }
 
-export default function WarningRow({ warning, incidentId }: Props) {
-
-    const [expanded, setExpanded] = useState(false)
-
-    const selectWarning = useAppStore(s => s.selectWarning)
-
-    const key = `${incidentId}:${warning.signal}`
+export default function WarningRow({
+    warning,
+    expanded,
+    onClick,
+}: Props) {
 
     return (
-
         <div className={`${styles.row} ${styles[warning.severity]}`}>
 
             <div
                 className={styles.summary}
-                onClick={() => {
-                    setExpanded(v => !v)
-                    selectWarning(key)
-                }}
+                onClick={onClick}
             >
-
                 <span className={styles.arrow}>
                     {expanded ? "▼" : "▶"}
                 </span>
 
                 <span className={styles.label}>
-                    {getSignalLabel(warning.signal)}
+                    {warning.signal}
                 </span>
 
                 <span className={styles.count}>
-                    ({warning.occurrences.length})
+                    {warning.occurrences.length}
                 </span>
 
+                <span
+                    className={`${styles.severity} ${styles[warning.severity]}`}
+                >
+                    {warning.severity.toUpperCase()}
+                </span>
             </div>
 
             {expanded && (
-                <WarningExpandedDetails warning={warning} />
+                <div className={styles.details}>
+                    <WarningExpandedDetails warning={warning} />
+                </div>
             )}
-
         </div>
     )
 }

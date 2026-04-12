@@ -1,5 +1,6 @@
 import { useAppStore } from "../../store/useAppStore"
 import WarningRow from "./WarningRow"
+import { getWarningKey } from "../../utils/warningKey"
 
 const sevOrder = {
     critical: 5,
@@ -12,7 +13,10 @@ const sevOrder = {
 export default function WarningDetailsList() {
 
     const incidentId = useAppStore(s => s.selection.incidentId)
+    const selectedKey = useAppStore(s => s.selection.warningKey)
+
     const incidentsByModality = useAppStore(s => s.report.incidentsByModality)
+    const selectWarning = useAppStore(s => s.selectWarning)
 
     const incident = Object.values(incidentsByModality)
         .flat()
@@ -35,13 +39,25 @@ export default function WarningDetailsList() {
 
             <div className="panelBody">
 
-                {warnings.map(w => (
-                    <WarningRow
-                        key={`${w.signal}:${JSON.stringify(w.metadata)}`}
-                        warning={w}
-                        incidentId={incident.id}
-                    />
-                ))}
+                {warnings.map(w => {
+                    const key = getWarningKey(w)
+                    const isExpanded = key === selectedKey
+
+                    return (
+                        <WarningRow
+                            key={key}
+                            warning={w}
+                            expanded={isExpanded}
+                            onClick={() => {
+                                if (isExpanded) {
+                                    selectWarning(null)
+                                } else {
+                                    selectWarning(key)
+                                }
+                            }}
+                        />
+                    )
+                })}
 
             </div>
 
