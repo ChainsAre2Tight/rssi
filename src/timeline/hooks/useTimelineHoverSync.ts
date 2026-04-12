@@ -43,6 +43,8 @@ export function useTimelineHoverSync({
     }, [externalHoverKey])
 
     useEffect(() => {
+
+        // TODO: investigate mapping discrepanies
         setExternalCursorTimeUs(externalHoverTimeUs)
     }, [externalHoverTimeUs])
 

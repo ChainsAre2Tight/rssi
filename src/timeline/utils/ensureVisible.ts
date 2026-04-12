@@ -51,3 +51,17 @@ export function ensureVisible({
 
     return { start: newStart, end: newEnd }
 }
+
+export function getSafeBoundsViewport(
+    start: number,
+    end: number,
+    paddingRatio = 0.1
+): Viewport {
+    const duration = end - start
+    const padding = duration * paddingRatio
+
+    return {
+        start: start - padding,
+        end: end + padding,
+    }
+}

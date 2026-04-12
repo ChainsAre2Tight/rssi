@@ -9,7 +9,7 @@ import { computeTrackLayout } from "../utils/trackLayout"
 import type { TimelineAdapterResult, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
 import { createTimeMapper, hitTest } from "../utils/mapping"
-import { ensureVisible } from "../utils/ensureVisible"
+import { ensureVisible, getSafeBoundsViewport } from "../utils/ensureVisible"
 import { useTimelineSync } from "../hooks/useTimelineSync"
 import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
 
@@ -72,7 +72,10 @@ export default function TimelineCanvas(params: {
                     params.adapter.itemsByTrack
                 )
                 
-                if (!item) return
+                if (!item) {
+                    handleInternalSelect(null)
+                    return
+                }
                 handleInternalSelect(item.key !== params.externalSelectedKey ? item.key : null)
             },
             onMove: (x, y) => {
@@ -112,10 +115,10 @@ export default function TimelineCanvas(params: {
     useEffect(() => {
         if (!params.adapter.bounds.start || !params.adapter.bounds.end) return
 
-        setViewport({
-            start: params.adapter.bounds.start / 1_000_000,
-            end: params.adapter.bounds.end / 1_000_000,
-        })
+        const start = params.adapter.bounds.start / 1_000_000
+        const end = params.adapter.bounds.end / 1_000_000
+
+        setViewport(getSafeBoundsViewport(start, end, 0.15))
     }, [params.viewportResetKey])
 
     const layout = computeTrackLayout(tracks)
