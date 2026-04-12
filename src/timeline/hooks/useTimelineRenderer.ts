@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
 import type { TimelineItem, TrackLayoutItem, Viewport } from "../types"
-import { hitTest, timeToX } from "../utils/mapping"
+import { createTimeMapper, hitTest } from "../utils/mapping"
 import { RESIZE_HANDLE_GAP } from "../config"
 import { getSeverityColor } from "../../utils/severity"
 
@@ -160,9 +160,10 @@ export function useTimelineRenderer({
             }
 
             if (hoveredItem !== null) {
-
-                const x1 = timeToX(hoveredItem.start, viewport, width)
-                const x2 = timeToX(hoveredItem.end, viewport, width)
+                
+                const mapper = createTimeMapper(viewport, width, 0) // TODO: use external time
+                const x1 = mapper.toX(hoveredItem.start)
+                const x2 = mapper.toX(hoveredItem.end)
 
                 ctx.globalAlpha = 0.5
                 ctx.setLineDash([8, 8])

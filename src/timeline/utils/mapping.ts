@@ -1,21 +1,30 @@
+import type { TimeMapper } from "../../types/general"
 import type { TimelineItem, TrackLayoutItem, Viewport } from "../types"
 
-export function timeToX(
-    time: number,
+export function createTimeMapper(
     viewport: Viewport,
-    width: number
-) {
+    width: number,
+    globalStartUs: number
+): TimeMapper {
     const duration = viewport.end - viewport.start
-    return ((time - viewport.start) / duration) * width
-}
 
-export function xToTime(
-    x: number,
-    viewport: Viewport,
-    width: number
-) {
-    const duration = viewport.end - viewport.start
-    return viewport.start + (x / width) * duration
+    return {
+        toX(time: number) {
+            return ((time - viewport.start) / duration) * width
+        },
+
+        toTime(x: number) {
+            return viewport.start + (x / width) * duration
+        },
+
+        toGlobalUs(time: number) {
+            return globalStartUs + time * 1_000_000
+        },
+
+        fromGlobalUs(timeUs: number) {
+            return (timeUs - globalStartUs) / 1_000_000
+        },
+    }
 }
 
 function findTrackAtY(
@@ -92,7 +101,8 @@ export function hitTest(
     const laneIndex = findLaneIndex(y, track)
     if (laneIndex === null) return null
 
-    const time = xToTime(x, viewport, width)
+    const mapper = createTimeMapper(viewport, width, 0) // TODO: use external time
+    const time = mapper.toTime(x)
 
     const lanes = itemsByTrack[track.id]
     if (!lanes) return null

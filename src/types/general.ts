@@ -39,3 +39,11 @@ export interface Incident {
 export interface IncidentIdentity {
     [key: string]: any
 }
+
+export type TimeMapper = {
+    toX(time: number): number
+    toTime(x: number): number
+
+    toGlobalUs(time: number): number
+    fromGlobalUs(timeUs: number): number
+}
