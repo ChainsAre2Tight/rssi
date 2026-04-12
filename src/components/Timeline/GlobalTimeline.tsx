@@ -7,16 +7,30 @@ export default function GlobalTimeline() {
     const startTimeUs = useAppStore(s => s.report.startTimeUs)
     const endTimeUs = useAppStore(s => s.report.endTimeUs)
 
+    const selectedIncidentId = useAppStore(s => s.selection.incidentId)
+    const selectIncident = useAppStore(s => s.selectIncident)
+
     const adapter = buildIncidentAdapter({
-        incidentsByModality: incidentsByModality,
+        incidentsByModality,
         reportStartUs: startTimeUs!,
         reportEndUs: endTimeUs!,
         minGapS: 10,
     })
 
     return (
-        <div style={{ width: "100%", height: "100%" }}>
-            <TimelineCanvas adapter={adapter} />
-        </div>
+        <TimelineCanvas
+            adapter={adapter}
+            externalSelectedKey={selectedIncidentId}
+            onSelect={(item) => {
+                if (!item) {
+                    selectIncident(null)
+                    return
+                }
+
+                if (item.type === "incident") {
+                    selectIncident(item.id)
+                }
+            }}
+        />
     )
 }

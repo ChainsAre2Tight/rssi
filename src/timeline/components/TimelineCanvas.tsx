@@ -10,15 +10,27 @@ import type { TimelineAdapterResult, TimelineItem, TimelineTrack } from "../type
 import styles from "./TimelineCanvas.module.css"
 import { hitTest } from "../utils/mapping"
 import { ensureVisible } from "../utils/ensureVisible"
+import { useTimelineSync } from "../hooks/useTimelineSync"
 
 
-export default function TimelineCanvas(params: { adapter: TimelineAdapterResult }) {
+export default function TimelineCanvas(params: {
+    adapter: TimelineAdapterResult
+    externalSelectedKey: string | null
+    onSelect: (item: { key: string; type: "incident" | "warning"; id: string } | null) => void
+}) {
     const containerRef = useRef<HTMLDivElement | null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null) as RefObject<HTMLCanvasElement>
 
     const { width, height } = useContainerSize(containerRef as React.RefObject<HTMLDivElement>)
     const { viewport, setViewport, duration } = useViewport()
+    
     const [selectedKey, setSelectedKey] = useState<string | null>(null)
+    const { handleInternalSelect } = useTimelineSync({
+        adapter: params.adapter,
+        externalSelectedKey: params.externalSelectedKey,
+        onSelect: params.onSelect,
+        setSelectedKey,
+    })
 
     const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
@@ -35,7 +47,7 @@ export default function TimelineCanvas(params: { adapter: TimelineAdapterResult 
                     params.adapter.itemsByTrack
                 )
 
-                setSelectedKey(item ? item.key : null)
+                handleInternalSelect(item ? item.key : null)
             }
         })
 
