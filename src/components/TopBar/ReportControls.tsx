@@ -51,8 +51,8 @@ export default function ReportControls() {
             // commit immediately for now
             setReport(
                 adapted.incidentsByModality,
-                adapted.startTimeUs as unknown as number,
-                adapted.endTimeUs
+                adapted.startTimeUs,
+                adapted.endTimeUs,
             )
 
         } catch (err) {

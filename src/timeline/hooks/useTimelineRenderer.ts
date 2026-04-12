@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
-import type { TimelineItem, TrackLayoutItem, Viewport } from "../types"
+import type { TimelineAdapterResult, TimelineItem, TrackLayoutItem, Viewport } from "../types"
 import { createTimeMapper, hitTest } from "../utils/mapping"
 import { RESIZE_HANDLE_GAP } from "../config"
 import { getSeverityColor } from "../../utils/severity"
@@ -15,7 +15,7 @@ interface Params {
     isZooming: RefObject<boolean>
     getNiceStep: (raw: number) => number
     tracks: TrackLayoutItem[]
-    itemsByTrack: Record<string, TimelineItem[][]>
+    adapter: TimelineAdapterResult
 }
 
 export function useTimelineRenderer({
@@ -28,7 +28,7 @@ export function useTimelineRenderer({
     isZooming,
     getNiceStep,
     tracks,
-    itemsByTrack,
+    adapter,
 }: Params) {
     useEffect(() => {
         let frameId: number
@@ -103,14 +103,14 @@ export function useTimelineRenderer({
                     width,
                     viewport,
                     tracks,
-                    itemsByTrack,
+                    adapter.itemsByTrack,
                 )
             }
 
             for (const t of tracks) {
                 if (t.contentHeight <= 0) continue
 
-                const lanes = itemsByTrack[t.id]
+                const lanes = adapter.itemsByTrack[t.id]
                 if (!lanes) continue
 
                 ctx.save()
@@ -161,7 +161,7 @@ export function useTimelineRenderer({
 
             if (hoveredItem !== null) {
                 
-                const mapper = createTimeMapper(viewport, width, 0) // TODO: use external time
+                const mapper = createTimeMapper(viewport, width, adapter.bounds.start)
                 const x1 = mapper.toX(hoveredItem.start)
                 const x2 = mapper.toX(hoveredItem.end)
 

@@ -1,10 +1,10 @@
-import { useState } from "react"
+import { useState } from "react";
 
-export function useViewport() {
-    const [viewport, setViewport] = useState({
-        start: 0,
-        end: 300, // 5 minutes
-    })
+export function useViewport(initial?: { start: number; end: number }) {
+    const [viewport, setViewport] = useState(() => ({
+        start: initial?.start ?? 0,
+        end: initial?.end ?? 1,
+    }))
 
     const duration = viewport.end - viewport.start
 

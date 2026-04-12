@@ -11,8 +11,14 @@ export interface TimelineTrack {
     resizable?: boolean
 }
 
+export type TimelineEventType = "incident" | "warning"
+
 export interface TimelineItem {
     id: string
+
+    type: TimelineEventType
+    key: string // for external sync
+
     start: number
     end: number
     severity: Severity
@@ -35,4 +41,21 @@ export interface TrackLayoutItem {
 export interface Viewport {
     start: number
     end: number
+}
+
+export type TimelineLanes = TimelineItem[][]
+
+export interface TimelineAdapterResult {
+    itemsByTrack: Record<string, TimelineLanes>
+
+    // IMPORTANT for future sync
+    index: {
+        byKey: Map<string, TimelineItem>
+        byId: Map<string, TimelineItem>
+    }
+
+    bounds: {
+        start: number
+        end: number
+    }
 }

@@ -1,6 +1,7 @@
 import type { Severity } from "./general"
 
 export interface BackendReport {
+    start_time_us: number
     end_time_us: number
     measurement_id: number
     modalities: Record<string, BackendIncident[]>

@@ -6,8 +6,10 @@ import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { useTrackResizing } from "../hooks/useTrackResizing"
 import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
-import type { TimelineItem, TimelineTrack } from "../types"
+import type { TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
+import { buildIncidentAdapter } from "../adapters/incidents"
+import { useAppStore } from "../../store/useAppStore"
 
 
 export default function TimelineCanvas() {
@@ -24,77 +26,49 @@ export default function TimelineCanvas() {
             width,
         })
 
-    const [tracks, setTracks] = useState<TimelineTrack[]>([
-        {
-            id: "modality-1",
-            label: "Modality A",
-            height: 50,
-            collapsible: true,
-            resizable: true,
-            lastExpandedHeight: 50,
-        },
-        {
-            id: "modality-2",
-            label: "Modality B",
-            height: 120,
-            collapsible: true,
-            resizable: true,
-            lastExpandedHeight: 120,
-        },
-    ])
-    const layout = computeTrackLayout(tracks)
-
     const HEADER_HEIGHT = 28
     const DEFAULT_EXPANDED_HEIGHT = 120
-    
-    const itemsByTrack: Record<string, TimelineItem[][]> = {
-        "modality-1": [
-            [
-                {
-                    id: "1",
-                    start: 20,
-                    end: 50,
-                    severity: "high",
-                },
-                {
-                    id: "2",
-                    start: 60,
-                    end: 120,
-                    severity: "low",
-                },
-            ], [
-                {
-                    id: "3",
-                    start: 30,
-                    end: 90,
-                    severity: "info",
-                },
-            ],
-        ],
-        "modality-2": [
-            [
-                {
-                    id: "4",
-                    start: 60,
-                    end: 70,
-                    severity: "critical",
-                },
-            ], [
-                {
-                    id: "5",
-                    start: 30,
-                    end: 50,
-                    severity: "medium",
-                },
-                {
-                    id: "6",
-                    start: 60,
-                    end: 110,
-                    severity: "info",
-                },
-            ]
-        ]
-    }
+
+    const incidentsByModality = useAppStore(s => s.report.incidentsByModality)
+    const startTimeUs = useAppStore(s => s.report.startTimeUs)
+    const endTimeUs = useAppStore(s => s.report.endTimeUs)
+
+    const adapter = buildIncidentAdapter({
+        incidentsByModality: incidentsByModality,
+        reportStartUs: startTimeUs!,
+        reportEndUs: endTimeUs!,
+    })
+
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (initializedRef.current) return
+        if (!adapter.bounds.start || !adapter.bounds.end) return
+
+        setViewport({
+            start: adapter.bounds.start,
+            end: adapter.bounds.end,
+        })
+
+        initializedRef.current = true
+    }, [adapter.bounds.start, adapter.bounds.end])
+
+    const [tracks, setTracks] = useState<TimelineTrack[]>([])
+
+    useEffect(() => {
+        const nextTracks: TimelineTrack[] = Object.keys(adapter.itemsByTrack).map(id => ({
+            id,
+            label: id,
+            height: 100,
+            collapsible: true,
+            resizable: true,
+            lastExpandedHeight: 100,
+        }))
+
+        setTracks(nextTracks)
+    }, [adapter.itemsByTrack])
+
+    const layout = computeTrackLayout(tracks)
 
     function toggleTrack(id: string) {
         setTracks(prev =>
@@ -135,7 +109,7 @@ export default function TimelineCanvas() {
         isZooming,
         getNiceStep,
         tracks: layout,
-        itemsByTrack,
+        adapter: adapter,
     })
 
     useEffect(() => {

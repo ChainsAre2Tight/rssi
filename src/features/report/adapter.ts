@@ -46,7 +46,7 @@ export function adaptReport(api: BackendReport) {
     }
 
     return {
-        startTimeUs: null,
+        startTimeUs: api.start_time_us,
         endTimeUs: api.end_time_us,
         incidentsByModality: result
     }
