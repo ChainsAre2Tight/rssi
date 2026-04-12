@@ -1,9 +1,5 @@
 import { useRef } from "react"
-
-interface Viewport {
-    start: number
-    end: number
-}
+import type { Viewport } from "../types/types"
 
 interface Params {
     viewport: Viewport

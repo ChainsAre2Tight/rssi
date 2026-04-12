@@ -33,3 +33,14 @@ export interface TrackLayoutItem {
 
     track: TimelineTrack
 }
+
+export interface HitTestResult {
+    item: TimelineItem
+    trackId: string
+    laneIndex: number
+}
+
+export interface Viewport {
+    start: number
+    end: number
+}
