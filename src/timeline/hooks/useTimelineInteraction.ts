@@ -20,6 +20,7 @@ export function useTimelineInteraction({
 
     const dragStartX = useRef(0)
     const dragStartViewport = useRef<Viewport | null>(null)
+    const didDrag = useRef(false)
 
     const zoomStartDuration = useRef(0)
     const zoomAnchorTime = useRef(0)
@@ -80,6 +81,7 @@ export function useTimelineInteraction({
 
         dragStartX.current = e.clientX
         dragStartViewport.current = { ...viewport }
+        didDrag.current = false
 
         if (e.button === 0) {
             isPanning.current = true
@@ -111,7 +113,11 @@ export function useTimelineInteraction({
 
         const deltaPx = e.clientX - dragStartX.current
 
-        if (isPanning.current) {
+        if (!didDrag.current && Math.abs(deltaPx) > 5) {
+            didDrag.current = true
+        }
+
+        if (isPanning.current && didDrag.current) {
             const duration =
                 dragStartViewport.current.end -
                 dragStartViewport.current.start
@@ -131,7 +137,7 @@ export function useTimelineInteraction({
     }
 
     function onMouseUp(e: React.MouseEvent) {
-        if (!isPanning.current && !isZooming.current) {
+        if (!didDrag.current && !isZooming.current) {
             const { x, y } = getCanvasCoords(e)
             onClick?.(x, y)
         }
