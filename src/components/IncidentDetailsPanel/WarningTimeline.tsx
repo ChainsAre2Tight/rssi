@@ -1,17 +1,11 @@
+import TimelineCanvas from "../../timeline/components/TimelineCanvas";
+
 export default function WarningTimeline() {
 
     return (
 
-        <div className="panel">
-
-            <div className="panelHeader">
-                Warning Timeline
-            </div>
-
-            <div className="panelBody">
-                Warning timeline placeholder
-            </div>
-
+        <div style={{ width: "100%", height: "100%" }}>
+            <TimelineCanvas />
         </div>
 
     )

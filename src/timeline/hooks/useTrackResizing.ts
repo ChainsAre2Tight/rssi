@@ -50,10 +50,7 @@ export function useTrackResizing({
         const track = tracks.find(t => t.id === target.id)
         if (!track) return
 
-        startHeight.current =
-            track.height <= HEADER_HEIGHT
-                ? track.lastExpandedHeight ?? 120
-                : track.height
+        startHeight.current = track.height
     }
 
     function onMouseMove(e: React.MouseEvent) {
