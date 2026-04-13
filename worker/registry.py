@@ -26,4 +26,13 @@ WORKERS: List[WorkerSpec] = [
         name="dataset_builder",
         module="cmd.workers.dataset",
     ),
+    WorkerSpec(
+        name="localization trigger",
+        module="cmd.workers.localization_trigger",
+    ),
+    WorkerSpec(
+        name="localization computation",
+        module="cmd.workers.localization_compute",
+        instances=2,
+    ),
 ]

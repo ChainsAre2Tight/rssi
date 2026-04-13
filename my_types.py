@@ -57,6 +57,7 @@ class STAGES:
     EVENTS: int = 1
     AP_OBSERVATIONS: int = 2
     DETECTION: int = 3
+    LOCALIZATION_TRIGGER: int = 4
 
 class AGGREGATION_STAGES:
     NONE = None
