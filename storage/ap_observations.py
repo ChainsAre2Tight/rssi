@@ -132,11 +132,22 @@ def load_observations_in_timerange(
 
     return result
 
+
 def resolve_observation_id(
     conn: sqlite3.Connection,
     window_id: int,
     bssid: str,
 ) -> int | None:
-    
-    #TODO: implement
-    return None
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id
+        FROM ap_observations
+        WHERE window_id = ?
+          AND bssid = ?
+    """, (window_id, bssid))
+
+    row = cur.fetchone()
+    if row is None:
+        return None
+
+    return int(row[0])

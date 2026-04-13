@@ -178,3 +178,21 @@ def insert_window(
     )
 
     return cur.rowcount == 1
+
+
+def resolve_window_bounds(
+    conn: sqlite3.Connection,
+    window_id: int,
+) -> tuple[int, int] | None:
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT start_time_us, end_time_us
+        FROM windows
+        WHERE id = ?
+    """, (window_id,))
+    row = cur.fetchone()
+
+    if row is None:
+        return None
+
+    return int(row[0]), int(row[1])

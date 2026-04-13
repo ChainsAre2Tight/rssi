@@ -6,7 +6,7 @@ from compute.localization.localization_input_builder import build_localization_i
 from config import logger
 import my_types
 from storage.ap_observations import resolve_observation_id
-
+from storage.windows import resolve_window_bounds
 
 
 def localization_orchestrator(
@@ -19,6 +19,13 @@ def localization_orchestrator(
     logger.info(f"[localization] start window={window_id} bssid={bssid}")
 
     try:
+        bounds = resolve_window_bounds(conn, window_id)
+        if bounds is None:
+            logger.warning(f"[localization] window not found")
+            return
+
+        start_time_us, end_time_us = bounds
+
         observation_id = resolve_observation_id(conn, window_id, bssid)
 
         if observation_id is None:
@@ -53,6 +60,8 @@ def localization_orchestrator(
             window_id=window_id,
             bssid=bssid,
             observation_id=observation_id,
+            start_time_us=start_time_us,
+            end_time_us=end_time_us,
             estimated_position=result_raw["estimated_position"],
             estimated_p0=result_raw["estimated_P0"],
             device_count=len(loc_input.devices),
@@ -65,6 +74,7 @@ def localization_orchestrator(
 
     except Exception as e:
         logger.exception(f"[localization] failed: {e}")
+
 
 if __name__ == "__main__":
     import storage

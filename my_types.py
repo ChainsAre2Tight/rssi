@@ -346,11 +346,13 @@ class LocalizationResult:
     bssid: str
     observation_id: int
 
+    start_time_us: int
+    end_time_us: int
+
     estimated_position: tuple[float, float, float]
     estimated_p0: float
 
     device_count: int
     converged: bool
 
-    # optional for future
     metadata: dict[str, t.Any] | None = None
