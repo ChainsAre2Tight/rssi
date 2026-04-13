@@ -44,7 +44,14 @@ export function useTimelineHoverSync({
 
     useEffect(() => {
 
-        // TODO: investigate mapping discrepanies
+        // this is preventing internal updates
+        // with this disabled both cursors are always drawn
+        // TODO: implement properly
+        // if (isInternalUpdate.current) {
+        //     isInternalUpdate.current = false
+        //     return
+        // }
+
         setExternalCursorTimeUs(externalHoverTimeUs)
     }, [externalHoverTimeUs])
 

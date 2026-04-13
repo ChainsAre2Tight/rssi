@@ -199,7 +199,9 @@ export function useTimelineRenderer({
             }
 
             if (externalCursorTimeUs !== null) {
-
+                
+                // idk why that works...
+                const mapper = createTimeMapper(viewport, width, 0)
                 const x = mapper.toX(
                     mapper.fromGlobalUs(externalCursorTimeUs!)
                 )

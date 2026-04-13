@@ -12,6 +12,7 @@ import { createTimeMapper, hitTest } from "../utils/mapping"
 import { ensureVisible, getSafeBoundsViewport } from "../utils/ensureVisible"
 import { useTimelineSync } from "../hooks/useTimelineSync"
 import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
+import { formatDateTime, formatTime } from "../../utils/time"
 
 
 export default function TimelineCanvas(params: {
@@ -55,8 +56,6 @@ export default function TimelineCanvas(params: {
         setExternalCursorTimeUs,
     })
 
-    const mapper = createTimeMapper(viewport, width, params.adapter.bounds.start)
-
     const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
             viewport,
@@ -87,6 +86,9 @@ export default function TimelineCanvas(params: {
                     layout,
                     params.adapter.itemsByTrack
                 )
+
+                // idk why that works...
+                const mapper = createTimeMapper(viewport, width, 0)
                 const time = mapper.toTime(x)
                 const timeUs = mapper.toGlobalUs(time)
 
@@ -103,7 +105,7 @@ export default function TimelineCanvas(params: {
         const nextTracks: TimelineTrack[] = params.adapter.trackIds.map(id => ({
             id,
             label: id,
-            height: 100,
+            height: 200,
             collapsible: true,
             resizable: true,
             lastExpandedHeight: 100,
@@ -266,9 +268,10 @@ export default function TimelineCanvas(params: {
                 <canvas ref={canvasRef} {...bind} />
 
                 <div className={styles.debug}>
-                    start: {viewport.start.toFixed(2)}<br />
-                    end: {viewport.end.toFixed(2)}<br />
-                    duration: {duration.toFixed(2)}s
+                    start: {formatDateTime(viewport.start*1_000_000)}<br />
+                    end: {formatDateTime(viewport.end*1_000_000)}<br />
+                    duration: {duration.toFixed(2)}s<br />
+                    cursorTime: {formatDateTime(externalCursorTimeUs!)}
                 </div>
             </div>
         </div>
