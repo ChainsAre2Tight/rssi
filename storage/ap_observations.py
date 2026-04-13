@@ -131,3 +131,12 @@ def load_observations_in_timerange(
         )
 
     return result
+
+def resolve_observation_id(
+    conn: sqlite3.Connection,
+    window_id: int,
+    bssid: str,
+) -> int | None:
+    
+    #TODO: implement
+    return None

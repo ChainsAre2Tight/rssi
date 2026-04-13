@@ -323,3 +323,34 @@ class LogicalIncident(Incident):
                 for w in self.warnings
             ],
         }
+
+@dataclass(slots=True)
+class CalibrationModel:
+    devices: list[str]
+    positions: dict[str, tuple[float, float, float]]
+    gain_models: dict[str, t.Any]   # GainModelInterface
+    pt: dict[str, float]            # keep even if unused
+
+
+@dataclass(slots=True)
+class LocalizationInput:
+    devices: list[str]
+    positions: dict[str, tuple[float, float, float]]
+    gain_models: dict[str, t.Any]
+    rssi_values: dict[str, list[int]]
+
+
+@dataclass(slots=True)
+class LocalizationResult:
+    window_id: int
+    bssid: str
+    observation_id: int
+
+    estimated_position: tuple[float, float, float]
+    estimated_p0: float
+
+    device_count: int
+    converged: bool
+
+    # optional for future
+    metadata: dict[str, t.Any] | None = None
