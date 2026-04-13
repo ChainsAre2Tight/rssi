@@ -1,7 +1,7 @@
 import sqlite3
 
 from compute.localization import run_localizer
-from compute.localization.calibration import calibration_orchestrator
+from compute.localization.calibration import run_calibration
 from compute.localization.localization_input_builder import build_localization_input
 from config import logger
 import my_types
@@ -32,10 +32,11 @@ def localization_orchestrator(
             logger.warning(f"[localization] no observation found")
             return
 
-        calibration_model = calibration_orchestrator(
+        calibration_model = run_calibration(
             conn=conn,
             measurement_id=measurement_id,
-            window_id=window_id,
+            start_time_us=start_time_us,
+            end_time_us=end_time_us,
         )
 
         if calibration_model is None:

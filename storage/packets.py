@@ -367,3 +367,56 @@ def get_last_packet_time(
         return None
 
     return row["t"]
+
+
+def get_sensor_packets_in_window(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    start_time_us: int,
+    end_time_us: int,
+) -> list[my_types.ID_PACKET]:
+
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            p.id,
+            p.device,
+            p.unix_time_us,
+            p.rssi,
+            p.noise_floor,
+            p.channel,
+            p.type,
+            p.subtype,
+            p.seq,
+            p.src_mac,
+            p.dst_mac,
+            p.bssid,
+            p.ssid
+        FROM packets p
+        WHERE
+            p.measurement_id = ?
+            AND p.unix_time_us BETWEEN ? AND ?
+            AND p.src_mac IN (SELECT mac FROM devices)
+    """, (measurement_id, start_time_us, end_time_us))
+
+    rows = cur.fetchall()
+
+    return [
+        {
+            "id": row[0],
+            "device": row[1],
+            "unix_time_us": row[2],
+            "rssi": row[3],
+            "noise_floor": row[4],
+            "ch": row[5],
+            "type": row[6],
+            "sub": row[7],
+            "seq": row[8],
+            "src": row[9],
+            "dst": row[10],
+            "bssid": row[11],
+            "ssid": row[12],
+        }
+        for row in rows
+    ]
