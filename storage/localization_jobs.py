@@ -57,23 +57,59 @@ def insert_localization_jobs(
     conn: sqlite3.Connection,
     measurement_id: int,
     jobs: list[tuple[int, str]],  # (window_id, bssid)
-) -> int:
+) -> tuple[int, int]:
+
+    if not jobs:
+        return 0, 0
 
     cur = conn.cursor()
 
     cur.executemany(
         """
-        INSERT INTO localization_jobs (
+        INSERT OR IGNORE INTO localization_jobs (
             measurement_id,
             window_id,
-            bssid
+            bssid,
+            status
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, 'pending')
         """,
-        [
-            (measurement_id, w, b)
-            for (w, b) in jobs
-        ],
+        [(measurement_id, w, b) for (w, b) in jobs],
     )
 
-    return cur.rowcount
+    inserted = cur.rowcount
+    ignored = len(jobs) - inserted
+
+    return inserted, ignored
+
+def count_localization_jobs(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    window_ids: list[int],
+) -> dict[str, int]:
+
+    if not window_ids:
+        return {"pending": 0, "processing": 0, "done": 0, "error": 0}
+
+    placeholders = ",".join("?" for _ in window_ids)
+
+    cur = conn.cursor()
+
+    rows = cur.execute(
+        f"""
+        SELECT status, COUNT(*)
+        FROM localization_jobs
+        WHERE
+            measurement_id = ?
+            AND window_id IN ({placeholders})
+        GROUP BY status
+        """,
+        [measurement_id] + window_ids,
+    ).fetchall()
+
+    result = {"pending": 0, "processing": 0, "done": 0, "error": 0}
+
+    for status, count in rows:
+        result[status] = count
+
+    return result

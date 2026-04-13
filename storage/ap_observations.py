@@ -174,3 +174,25 @@ def resolve_observation(
         bssid=row[1],
     )
 
+def get_observed_bssids_for_windows(
+    conn: sqlite3.Connection,
+    window_ids: list[int],
+) -> list[tuple[int, str]]:
+
+    if not window_ids:
+        return []
+
+    placeholders = ",".join("?" for _ in window_ids)
+
+    cur = conn.cursor()
+
+    rows = cur.execute(
+        f"""
+        SELECT window_id, bssid
+        FROM ap_observations
+        WHERE window_id IN ({placeholders})
+        """,
+        window_ids,
+    ).fetchall()
+
+    return [(row[0], row[1]) for row in rows]

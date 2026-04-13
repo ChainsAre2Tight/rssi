@@ -54,3 +54,55 @@ def upsert_localization_result(
             json.dumps(result.metadata) if result.metadata else None,
         ),
     )
+
+def load_localization_results(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    window_ids: list[int],
+) -> list[my_types.LocalizationResult]:
+
+    if not window_ids:
+        return []
+
+    placeholders = ",".join("?" for _ in window_ids)
+
+    cur = conn.cursor()
+
+    rows = cur.execute(
+        f"""
+        SELECT
+            window_id,
+            bssid,
+            start_time_us,
+            end_time_us,
+            x, y, z,
+            estimated_p0,
+            device_count,
+            converged,
+            metadata_json
+        FROM localization_results
+        WHERE
+            measurement_id = ?
+            AND window_id IN ({placeholders})
+        """,
+        [measurement_id] + window_ids,
+    ).fetchall()
+
+    results = []
+
+    for row in rows:
+        results.append(
+            my_types.LocalizationResult(
+                window_id=row[0],
+                bssid=row[1],
+                start_time_us=row[2],
+                end_time_us=row[3],
+                estimated_position=(row[4], row[5], row[6]),
+                estimated_p0=row[7],
+                device_count=row[8],
+                converged=bool(row[9]),
+                metadata=None if row[10] is None else json.loads(row[10]),
+            )
+        )
+
+    return results

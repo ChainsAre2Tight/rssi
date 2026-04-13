@@ -196,3 +196,27 @@ def resolve_window_bounds(
         return None
 
     return int(row[0]), int(row[1])
+
+def get_windows_in_range(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    start_time_us: int,
+    end_time_us: int,
+) -> list[int]:
+
+    cur = conn.cursor()
+
+    rows = cur.execute(
+        """
+        SELECT id
+        FROM windows
+        WHERE
+            measurement_id = ?
+            AND start_time_us >= ?
+            AND end_time_us <= ?
+        ORDER BY start_time_us
+        """,
+        (measurement_id, start_time_us, end_time_us),
+    ).fetchall()
+
+    return [row[0] for row in rows]

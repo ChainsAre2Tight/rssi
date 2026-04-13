@@ -345,7 +345,6 @@ class LocalizationInput:
 class LocalizationResult:
     window_id: int
     bssid: str
-    observation_id: int
 
     start_time_us: int
     end_time_us: int
