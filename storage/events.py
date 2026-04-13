@@ -184,3 +184,71 @@ def load_events_for_observations(
         rows.append((obs_id, event))
 
     return rows
+
+def get_ap_event_ids(
+    conn: sqlite3.Connection,
+    observation_id: int,
+) -> list[int]:
+
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id
+        FROM events
+        WHERE observation_id = ?
+          AND role = 'ap'
+    """, (observation_id,))
+
+    return [row[0] for row in cur.fetchall()]
+
+def get_packets_for_events(
+    conn: sqlite3.Connection,
+    event_ids: list[int],
+) -> list[my_types.ID_PACKET]:
+
+    if not event_ids:
+        return []
+
+    cur = conn.cursor()
+
+    query = f"""
+        SELECT
+            p.id,
+            p.device,
+            p.unix_time_us,
+            p.rssi,
+            p.noise_floor,
+            p.channel,
+            p.type,
+            p.subtype,
+            p.seq,
+            p.src_mac,
+            p.dst_mac,
+            p.bssid,
+            p.ssid
+        FROM event_packets ep
+        JOIN packets p ON p.id = ep.packet_id
+        WHERE ep.event_id IN ({",".join("?" for _ in event_ids)})
+    """
+
+    cur.execute(query, event_ids)
+
+    rows = cur.fetchall()
+
+    return [
+        {
+            "id": row[0],
+            "device": row[1],
+            "unix_time_us": row[2],
+            "rssi": row[3],
+            "noise_floor": row[4],
+            "ch": row[5],
+            "type": row[6],
+            "sub": row[7],
+            "seq": row[8],
+            "src": row[9],
+            "dst": row[10],
+            "bssid": row[11],
+            "ssid": row[12],
+        }
+        for row in rows
+    ]

@@ -1,6 +1,6 @@
 import sqlite3
 
-from compute.localization import run_localizer
+from compute.localization.run_localizer import run_localizer
 from compute.localization.calibration import run_calibration
 from compute.localization.localization_input_builder import build_localization_input
 from config import logger
@@ -45,17 +45,16 @@ def localization_orchestrator(
 
         loc_input = build_localization_input(
             conn=conn,
-            measurement_id=measurement_id,
             window_id=window_id,
-            observation_id=observation_id,
+            bssid=bssid,
             calibration_model=calibration_model,
         )
 
-        if loc_input is None or len(loc_input.devices) < 3:
+        if loc_input[0] is None or len(loc_input[0].devices) < 3:
             logger.warning(f"[localization] insufficient data")
             return
 
-        result_raw = run_localizer(loc_input)
+        result_raw = run_localizer(loc_input[0])
 
         result = my_types.LocalizationResult(
             window_id=window_id,

@@ -151,3 +151,26 @@ def resolve_observation_id(
         return None
 
     return int(row[0])
+
+def resolve_observation(
+    conn: sqlite3.Connection,
+    window_id: int,
+    bssid: str,
+) -> my_types.ObservationRow | None:
+
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, bssid
+        FROM ap_observations
+        WHERE window_id = ? AND bssid = ?
+    """, (window_id, bssid))
+
+    row = cur.fetchone()
+    if not row:
+        return None
+
+    return my_types.ObservationRow(
+        observation_id=row[0],
+        bssid=row[1],
+    )
+
