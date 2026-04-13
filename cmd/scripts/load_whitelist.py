@@ -74,11 +74,12 @@ def ensure_measurement(conn, measurement_id: int) -> None:
 
     conn.execute(
         """
-        INSERT INTO measurements (id, room_id, description)
-        VALUES (?, ?, ?)
+        INSERT INTO measurements (id, name, room_id, description)
+        VALUES (?, ?, ?, ?)
         """,
         (
             measurement_id,
+            "Genaral",
             0, #TODO: maybe add to config idk
             "auto-created by whitelist loader",
         ),

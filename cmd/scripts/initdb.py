@@ -32,6 +32,7 @@ def init_db():
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS measurements (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
                     room_id INTEGER NOT NULL,
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     description TEXT,

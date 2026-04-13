@@ -52,4 +52,25 @@ def load_measurement_whitelist(
         return {}
 
     return json.loads(whitelist_json)
-        
+
+def list_measurements(
+    conn: sqlite3.Connection,
+) -> list[dict]:
+
+    cur = conn.cursor()
+
+    rows = cur.execute("""
+        SELECT id, name, description, room_id
+        FROM measurements
+        ORDER BY created DESC
+    """).fetchall()
+
+    return [
+        {
+            "measurement_id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "room_id": row[3],
+        }
+        for row in rows
+    ]

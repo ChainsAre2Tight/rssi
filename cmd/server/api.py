@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify
 
 import storage
 from compute.modalities import LogicalModality
-from storage.measurements import load_measurement_whitelist
+from storage.measurements import list_measurements, load_measurement_whitelist
 
 import my_types
 
@@ -237,6 +237,20 @@ def sensors():
 @app.route("/api/v1/system/status", methods=["GET"])
 def system_status():
     return jsonify({"error": "not_implemented"}), 501
+
+
+@app.route("/api/v1/measurements", methods=["GET"])
+def measurements():
+    try:
+        with storage.Session() as conn:
+            result = list_measurements(conn)
+
+        return jsonify({
+            "measurements": result
+        })
+
+    except Exception as e:
+        return api_error(str(e), 500)
 
 
 if __name__ == "__main__":
