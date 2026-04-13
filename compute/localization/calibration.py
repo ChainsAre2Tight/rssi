@@ -98,6 +98,7 @@ def run_calibration(
         },
         gain_models=model_raw["GainModels"],
         pt=model_raw["Pt"],
+        is_calibrated=model_raw["is_calibrated"]
     )
 
     logger.info(f"[calibration] done, devices={len(model.devices)}")

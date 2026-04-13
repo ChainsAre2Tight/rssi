@@ -330,6 +330,7 @@ class CalibrationModel:
     positions: dict[str, tuple[float, float, float]]
     gain_models: dict[str, t.Any]   # GainModelInterface
     pt: dict[str, float]            # keep even if unused
+    is_calibrated: bool
 
 
 @dataclass(slots=True)

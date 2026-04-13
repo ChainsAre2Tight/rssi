@@ -21,6 +21,10 @@ def path_loss(d, n=2.0, PL0=-40, d0=1.0):
 # ============================================================
 # 2️⃣   RBF-модель диаграммы направленности
 # ============================================================
+class GainZero:
+    def gain(self, direction_vec):
+        return 0.0
+
 class GainRBF:
     def __init__(self, sigma=np.deg2rad(40), G0=0.0):
         self.sigma = sigma
@@ -223,17 +227,28 @@ def calibrate_devices(data_dict, n_pathloss=2.0, K=0.0):
         # gain_data[m["j"]]["vals"].append(base + (mid - Pt[m["j"]]))
         # gain_data[m["j"]]["vals"].append(base / 2)
     
+    valid_count = 0
+
     for i in range(N):
-            dirs = np.array(gain_data[i]["dirs"])
-            vals = np.array(gain_data[i]["vals"])
-            if len(dirs) > 0:
-                gains[i].fit(dirs, vals, lambda_reg=0.5)
+        dirs = np.array(gain_data[i]["dirs"])
+        vals = np.array(gain_data[i]["vals"])
+
+        if len(dirs) > 0:
+            gains[i].fit(dirs, vals, lambda_reg=0.5)
+            valid_count += 1
+
+    if valid_count != N:
+        gains = [GainZero() for _ in range(N)]
+        is_calibrated = False
+    else:
+        is_calibrated = True
 
     # Собираем результат
     model = {
         "devices": devices,
         "Pt": {devices[i]: Pt[i] for i in range(N)},
         "GainModels": {devices[i]: gains[i] for i in range(N)},
+        "is_calibrated": is_calibrated,
     }
 
     return model

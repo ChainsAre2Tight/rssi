@@ -67,7 +67,9 @@ def localization_orchestrator(
             estimated_p0=result_raw["estimated_P0"],
             device_count=len(loc_input.devices),
             converged=result_raw["converged"],
-            metadata=None,
+            metadata = {
+                "calibrated": calibration_model.is_calibrated
+            },
         )
 
         logger.info(f"[localization] done: {result}")
