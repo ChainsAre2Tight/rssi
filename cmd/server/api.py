@@ -50,6 +50,17 @@ def resolve_modalities(param: str | None):
 
     return result
 
+def resolve_single_modality(param: str | None) -> my_types.Modality:
+    if not param:
+        raise ValueError("missing parameter: modality")
+
+    name = param.strip()
+
+    modality = MODALITIES.get(name)
+    if modality is None:
+        raise ValueError(f"unknown modality: {name}")
+
+    return modality
 
 def generate_report(
     measurement_id: int,
@@ -154,12 +165,56 @@ def whitelist():
 
 @app.route("/api/v1/localize", methods=["POST"])
 def localize():
-    return jsonify({"error": "not_implemented"}), 501
+    try:
+        measurement_id = parse_int_param("measurement_id")
+        start_time_us = parse_int_param("start_time_us")
+        end_time_us = parse_int_param("end_time_us")
+
+        if start_time_us >= end_time_us:
+            return api_error("start_time_us must be less than end_time_us")
+
+        modality_param = request.args.get("modality")
+        modality = resolve_single_modality(modality_param)
+
+        with storage.Session() as conn:
+            stats = modality.enqueue_localization_jobs(
+                conn=conn,
+                measurement_id=measurement_id,
+                start_time_us=start_time_us,
+                end_time_us=end_time_us,
+            )
+
+        return jsonify(stats)
+
+    except ValueError as e:
+        return api_error(str(e))
 
 
 @app.route("/api/v1/localizations", methods=["GET"])
 def localizations():
-    return jsonify({"error": "not_implemented"}), 501
+    try:
+        measurement_id = parse_int_param("measurement_id")
+        start_time_us = parse_int_param("start_time_us")
+        end_time_us = parse_int_param("end_time_us")
+
+        if start_time_us >= end_time_us:
+            return api_error("start_time_us must be less than end_time_us")
+
+        modality_param = request.args.get("modality")
+        modality = resolve_single_modality(modality_param)
+
+        with storage.Session() as conn:
+            report = modality.get_localization_report(
+                conn=conn,
+                measurement_id=measurement_id,
+                start_time_us=start_time_us,
+                end_time_us=end_time_us,
+            )
+
+        return jsonify(report)
+
+    except ValueError as e:
+        return api_error(str(e))
 
 
 @app.route("/api/v1/sensors", methods=["GET"])

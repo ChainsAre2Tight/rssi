@@ -1,9 +1,14 @@
+from dataclasses import asdict
 import sqlite3
 import json
 
 import my_types
 
+from storage.ap_observations import get_observed_bssids_for_windows
+from storage.localization_jobs import count_localization_jobs, insert_localization_jobs
+from storage.localization_results import load_localization_results
 from storage.logical_incidents import load_logical_incident_groups, load_signals_for_identity
+from storage.windows import get_windows_in_range
 
 
 def aggregate_severity(signals: list[my_types.LogicalSignal]) -> my_types.Severity:
@@ -178,6 +183,77 @@ class LogicalModality(my_types.Modality):
             warnings=warnings,
         )
 
+    def enqueue_localization_jobs(
+        self,
+        conn: sqlite3.Connection,
+        measurement_id: int,
+        start_time_us: int,
+        end_time_us: int,
+    ) -> dict:
+
+        window_ids = get_windows_in_range(
+            conn,
+            measurement_id,
+            start_time_us,
+            end_time_us,
+        )
+
+        observed = get_observed_bssids_for_windows(conn, window_ids)
+
+        inserted, ignored = insert_localization_jobs(
+            conn,
+            measurement_id,
+            observed,
+        )
+
+        observed_windows = set(w for w, _ in observed)
+        skipped_windows = len(window_ids) - len(observed_windows)
+
+        return {
+            "measurement_id": measurement_id,
+            "modality": self.name,
+            "windows": len(window_ids),
+            "jobs_created": inserted,
+            "jobs_ignored": ignored,
+            "windows_without_observations": skipped_windows,
+        }
+
+    def get_localization_report(
+        self,
+        conn: sqlite3.Connection,
+        measurement_id: int,
+        start_time_us: int,
+        end_time_us: int,
+    ) -> dict:
+
+        window_ids = get_windows_in_range(
+            conn,
+            measurement_id,
+            start_time_us,
+            end_time_us,
+        )
+
+        counts = count_localization_jobs(
+            conn,
+            measurement_id,
+            window_ids,
+        )
+
+        results = load_localization_results(
+            conn,
+            measurement_id,
+            window_ids,
+        )
+
+        return {
+            "measurement_id": measurement_id,
+            "modality": self.name,
+            "completed": counts.get("done", 0),
+            "pending": counts.get("pending", 0),
+            "processing": counts.get("processing", 0),
+            "failed": counts.get("error", 0),
+            "locations": [asdict(r) for r in results],
+        }
 
 if __name__ == "__main__":
 

@@ -256,9 +256,30 @@ class Modality(ABC):
     def build_incidents(
         self,
         conn: sqlite3.Connection,
+        measurement_id: int,
         start_time: int,
         end_time: int,
     ) -> t.List[Incident]:
+        pass
+
+    @abstractmethod
+    def enqueue_localization_jobs(
+        self,
+        conn: sqlite3.Connection,
+        measurement_id: int,
+        start_time_us: int,
+        end_time_us: int,
+    ) -> dict:
+        pass
+
+    @abstractmethod
+    def get_localization_report(
+        self,
+        conn: sqlite3.Connection,
+        measurement_id: int,
+        start_time_us: int,
+        end_time_us: int,
+    ) -> dict:
         pass
 
 @dataclass(slots=True)
