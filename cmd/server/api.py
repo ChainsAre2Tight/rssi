@@ -34,6 +34,14 @@ def parse_int_param(name: str, required: bool = True):
     except ValueError:
         raise ValueError(f"invalid integer parameter: {name}")
 
+def parse_str_param(name: str, required: bool = True) -> str | None:
+    value = request.args.get(name)
+    if value is None or value.strip() == "":
+        if required:
+            raise ValueError(f"missing parameter: {name}")
+        return None
+    return value.strip()
+
 
 def resolve_modalities(param: str | None):
     if not param:
@@ -169,6 +177,7 @@ def localize():
         measurement_id = parse_int_param("measurement_id")
         start_time_us = parse_int_param("start_time_us")
         end_time_us = parse_int_param("end_time_us")
+        bssid = parse_str_param("bssid")
 
         if start_time_us >= end_time_us:
             return api_error("start_time_us must be less than end_time_us")
@@ -182,6 +191,7 @@ def localize():
                 measurement_id=measurement_id,
                 start_time_us=start_time_us,
                 end_time_us=end_time_us,
+                bssid=bssid,
             )
 
         return jsonify(stats)
@@ -196,6 +206,7 @@ def localizations():
         measurement_id = parse_int_param("measurement_id")
         start_time_us = parse_int_param("start_time_us")
         end_time_us = parse_int_param("end_time_us")
+        bssid = parse_str_param("bssid")
 
         if start_time_us >= end_time_us:
             return api_error("start_time_us must be less than end_time_us")
@@ -209,6 +220,7 @@ def localizations():
                 measurement_id=measurement_id,
                 start_time_us=start_time_us,
                 end_time_us=end_time_us,
+                bssid=bssid,
             )
 
         return jsonify(report)

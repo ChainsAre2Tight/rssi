@@ -63,7 +63,6 @@ def localization_orchestrator(
         result = my_types.LocalizationResult(
             window_id=window_id,
             bssid=bssid,
-            observation_id=observation_id,
             start_time_us=start_time_us,
             end_time_us=end_time_us,
             estimated_position=result_raw["estimated_position"],

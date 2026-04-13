@@ -1,13 +1,12 @@
 import time
-import sqlite3
 
 import storage
 from storage.localization_jobs import (
     claim_next_localization_job,
     complete_localization_job,
+    fail_localization_job,
 )
 
-import config
 from config import logger
 
 from compute.localization.processor import localization_orchestrator
@@ -45,18 +44,18 @@ def run_localization_worker(
                     with storage.Transaction(conn, immediate=True) as t:
                         complete_localization_job(t, job["id"])
                         logger.info("Localization job completed")
+                        continue
 
             except Exception as e:
                 logger.exception("Localization job failed")
 
                 with storage.Session() as conn:
                     with storage.Transaction(conn, immediate=True) as t:
-                        complete_localization_job(
+                        fail_localization_job(
                             t,
                             job["id"],
                         )
-
-                continue
+                        continue
 
         logger.debug("No localization jobs, sleeping %s sec", sleep_seconds)
         time.sleep(sleep_seconds)

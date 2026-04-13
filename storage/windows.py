@@ -202,6 +202,7 @@ def get_windows_in_range(
     measurement_id: int,
     start_time_us: int,
     end_time_us: int,
+    layer: int,
 ) -> list[int]:
 
     cur = conn.cursor()
@@ -214,9 +215,37 @@ def get_windows_in_range(
             measurement_id = ?
             AND start_time_us >= ?
             AND end_time_us <= ?
+            AND layer = ?
         ORDER BY start_time_us
         """,
-        (measurement_id, start_time_us, end_time_us),
+        (measurement_id, start_time_us, end_time_us, layer),
+    ).fetchall()
+
+    return [row[0] for row in rows]
+
+def get_windows_with_observation_for_bssid(
+    conn: sqlite3.Connection,
+    window_ids: list[int],
+    bssid: str,
+) -> list[int]:
+    if not window_ids:
+        return []
+
+    placeholders = ",".join("?" for _ in window_ids)
+
+    cur = conn.cursor()
+
+    # TODO: expose layer as param when needed
+    rows = cur.execute(
+        f"""
+        SELECT DISTINCT window_id
+        FROM ap_observations
+        WHERE
+            window_id IN ({placeholders})
+            AND bssid = ?
+            AND layer = 0
+        """,
+        window_ids + [bssid],
     ).fetchall()
 
     return [row[0] for row in rows]

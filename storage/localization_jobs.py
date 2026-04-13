@@ -53,6 +53,22 @@ def complete_localization_job(
         (job_id,),
     )
 
+def fail_localization_job(
+    conn: sqlite3.Connection,
+    job_id: int,
+) -> None:
+
+    conn.execute(
+        """
+        UPDATE localization_jobs
+        SET
+            status = 'failed',
+            processing_started_at = NULL
+        WHERE id = ?
+        """,
+        (job_id,),
+    )
+
 def insert_localization_jobs(
     conn: sqlite3.Connection,
     measurement_id: int,
@@ -86,6 +102,7 @@ def count_localization_jobs(
     conn: sqlite3.Connection,
     measurement_id: int,
     window_ids: list[int],
+    bssid: str,
 ) -> dict[str, int]:
 
     if not window_ids:
@@ -102,9 +119,10 @@ def count_localization_jobs(
         WHERE
             measurement_id = ?
             AND window_id IN ({placeholders})
+            AND bssid = ?
         GROUP BY status
         """,
-        [measurement_id] + window_ids,
+        [measurement_id] + window_ids + [bssid,],
     ).fetchall()
 
     result = {"pending": 0, "processing": 0, "done": 0, "error": 0}

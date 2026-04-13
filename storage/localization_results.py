@@ -59,6 +59,7 @@ def load_localization_results(
     conn: sqlite3.Connection,
     measurement_id: int,
     window_ids: list[int],
+    bssid: str,
 ) -> list[my_types.LocalizationResult]:
 
     if not window_ids:
@@ -84,8 +85,9 @@ def load_localization_results(
         WHERE
             measurement_id = ?
             AND window_id IN ({placeholders})
+            AND bssid = ?
         """,
-        [measurement_id] + window_ids,
+        [measurement_id] + window_ids + [bssid,],
     ).fetchall()
 
     results = []
