@@ -54,6 +54,7 @@ def localization_orchestrator(
             logger.warning(f"[localization] insufficient data")
             return
 
+        # print(loc_input)
         result_raw = run_localizer(loc_input[0])
 
         result = my_types.LocalizationResult(
@@ -64,7 +65,7 @@ def localization_orchestrator(
             end_time_us=end_time_us,
             estimated_position=result_raw["estimated_position"],
             estimated_p0=result_raw["estimated_P0"],
-            device_count=len(loc_input.devices),
+            device_count=len(loc_input[0].devices),
             converged=result_raw["converged"],
             metadata = {
                 "calibrated": calibration_model.is_calibrated
@@ -86,6 +87,6 @@ if __name__ == "__main__":
         localization_orchestrator(
             conn, 
             config.MEASUREMENT_ID, 
-            15,
+            2,
             "A8:E2:91:40:8E:C3",
         )

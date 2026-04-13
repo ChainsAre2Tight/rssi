@@ -25,8 +25,12 @@ def build_localization_input(
         packets,
     )
 
+    # print(rssi_values)
+
+    devices = [d for d in calibration_model.devices if len(rssi_values[d]) > 0]
+
     loc_input = my_types.LocalizationInput(
-        devices=calibration_model.devices,
+        devices=devices,
         positions=calibration_model.positions,
         gain_models=calibration_model.gain_models,
         rssi_values=rssi_values,
