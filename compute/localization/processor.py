@@ -7,6 +7,9 @@ from config import logger
 import my_types
 from storage.ap_observations import resolve_observation_id
 from storage.windows import resolve_window_bounds
+from storage.localization_results import upsert_localization_result
+import storage
+import config
 
 
 def localization_orchestrator(
@@ -73,7 +76,9 @@ def localization_orchestrator(
         )
 
         logger.info(f"[localization] done: {result}")
-        print(result)
+
+        with storage.Transaction(conn) as t:
+            upsert_localization_result(t, result, config.MEASUREMENT_ID, calibration_model.is_calibrated)
 
     except Exception as e:
         logger.exception(f"[localization] failed: {e}")

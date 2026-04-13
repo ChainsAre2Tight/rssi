@@ -238,6 +238,59 @@ def init_db():
                 ON detection_signals(bssid);
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS localization_jobs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    measurement_id INTEGER NOT NULL,
+                    window_id INTEGER NOT NULL,
+                    bssid TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending', -- pending | processing | done
+                    processing_started_at INTEGER,
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(window_id, bssid)
+                    FOREIGN KEY (measurement_id) REFERENCES measurements(id),
+                    FOREIGN KEY (window_id) REFERENCES windows(id)
+                )
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS localization_results (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    measurement_id INTEGER NOT NULL,
+                    window_id INTEGER NOT NULL,
+                    bssid TEXT NOT NULL,
+                    start_time_us INTEGER NOT NULL,
+                    end_time_us INTEGER NOT NULL,
+                    x REAL NOT NULL,
+                    y REAL NOT NULL,
+                    z REAL NOT NULL,
+                    estimated_p0 REAL,
+                    device_count INTEGER,
+                    converged BOOLEAN,
+                    is_calibrated BOOLEAN NOT NULL,
+                    metadata_json TEXT,
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(window_id, bssid),
+                    FOREIGN KEY (measurement_id) REFERENCES measurements(id),
+                    FOREIGN KEY (window_id) REFERENCES windows(id)
+                )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_localization_jobs_status
+                ON localization_jobs(status)
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_localization_jobs_window
+                ON localization_jobs(window_id)
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_localization_results_bssid_time
+                ON localization_results(bssid, start_time_us)
+            """)
+
 
 
 if __name__ == "__main__":
