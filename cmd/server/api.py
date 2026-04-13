@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify
 
 import storage
 from compute.modalities import LogicalModality
+from storage.devices import load_sensors_for_measurement
 from storage.measurements import list_measurements, load_measurement_whitelist
 
 import my_types
@@ -231,7 +232,24 @@ def localizations():
 
 @app.route("/api/v1/sensors", methods=["GET"])
 def sensors():
-    return jsonify({"error": "not_implemented"}), 501
+    try:
+        measurement_id = parse_int_param("measurement_id")
+
+        with storage.Session() as conn:
+            sensors = load_sensors_for_measurement(
+                conn,
+                measurement_id,
+            )
+
+        return jsonify({
+            "measurement_id": measurement_id,
+            "sensors": sensors,
+        })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
 
 
 @app.route("/api/v1/system/status", methods=["GET"])

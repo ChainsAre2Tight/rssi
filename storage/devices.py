@@ -36,3 +36,36 @@ def get_device_positions(
         row[0]: (row[1], row[2], row[3])
         for row in rows
     }
+
+def load_sensors_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> list[dict]:
+
+    cur = conn.cursor()
+
+    rows = cur.execute("""
+        SELECT
+            d.name,
+            d.mac,
+            d.description,
+            p.x,
+            p.y,
+            p.z
+        FROM positions p
+        JOIN devices d ON d.name = p.device
+        WHERE p.measurement_id = ?
+        ORDER BY d.name
+    """, (measurement_id,)).fetchall()
+
+    return [
+        {
+            "name": row[0],
+            "mac": row[1],
+            "description": row[2],
+            "x": row[3],
+            "y": row[4],
+            "z": row[5],
+        }
+        for row in rows
+    ]
