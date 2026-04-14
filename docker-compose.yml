@@ -1,0 +1,143 @@
+version: "3.9"
+
+services:
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.server.api
+    ports:
+      - "5001:5001"
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=api
+    volumes:
+      - ./database:/database
+  ingestion:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.server.ingestion
+    ports:
+      - "5000:5000"
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=ingestion
+    volumes:
+      - ./database:/database
+
+  events_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.workers.events
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=events
+    volumes:
+      - ./database:/database
+    deploy:
+      replicas: 1
+
+  ap_observations_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.workers.aps
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=ap_observations
+    volumes:
+      - ./database:/database
+    deploy:
+      replicas: 1
+
+  detection_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.workers.detection
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=detection
+    volumes:
+      - ./database:/database
+    deploy:
+      replicas: 1
+  
+  localization_trigger_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.workers.localization_trigger
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=localization_trigger
+    volumes:
+      - ./database:/database
+    deploy:
+      replicas: 1
+  
+  localization_compute_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.workers.localization_compute
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=localization_compute
+    volumes:
+      - ./database:/database
+    deploy:
+      replicas: 2
+  
+  dataset_builder_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: python -m cmd.workers.dataset
+    env_file:
+      - server/.env
+    environment:
+      - WORKER_NAME=dataset_builder
+    volumes:
+      - ./database:/database
+      - ./datasets:/datasets
+    deploy:
+      replicas: 1
+  
+  ntp:
+    image: cturra/ntp:latest
+    container_name: ntp-server
+    restart: unless-stopped
+    ports:
+      - "123:123/udp"
+    environment:
+      - NTP_SERVERS=0.pool.ntp.org,1.pool.ntp.org
