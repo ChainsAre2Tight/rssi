@@ -41,7 +41,15 @@ dc-all:
 	up $(ARGS)
 
 dc-down:
-	$(DC) down
+	$(DC) \
+	$(PROFILES_FRONTEND) \
+	$(PROFILES_API) \
+	$(PROFILES_INGEST) \
+	$(PROFILES_NTP) \
+	$(PROFILES_CORE) \
+	$(PROFILES_LOCALIZATION) \
+	$(PROFILES_DATASET) \
+	down --remove-orphans
 
 dc-build:
 	$(DC) build
