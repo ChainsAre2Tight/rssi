@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: client/Dockerfile.dev
     restart: unless-stopped
+    command: npm run dev
     profiles:
       - frontend
     ports:
@@ -29,6 +30,8 @@ services:
       - WORKER_NAME=api
     volumes:
       - ./database:/database
+      - ./server:/app
+
   ingestion:
     build:
       context: .
@@ -45,6 +48,7 @@ services:
       - WORKER_NAME=ingestion
     volumes:
       - ./database:/database
+      - ./server:/app
 
   events_worker:
     build:
@@ -60,6 +64,7 @@ services:
       - WORKER_NAME=events
     volumes:
       - ./database:/database
+      - ./server:/app
     deploy:
       replicas: 1
 
@@ -77,6 +82,7 @@ services:
       - WORKER_NAME=ap_observations
     volumes:
       - ./database:/database
+      - ./server:/app
     deploy:
       replicas: 1
 
@@ -94,6 +100,7 @@ services:
       - WORKER_NAME=detection
     volumes:
       - ./database:/database
+      - ./server:/app
     deploy:
       replicas: 1
   
@@ -111,6 +118,7 @@ services:
       - WORKER_NAME=localization_trigger
     volumes:
       - ./database:/database
+      - ./server:/app
     deploy:
       replicas: 1
   
@@ -128,6 +136,7 @@ services:
       - WORKER_NAME=localization_compute
     volumes:
       - ./database:/database
+      - ./server:/app
     deploy:
       replicas: 2
   
@@ -146,6 +155,7 @@ services:
     volumes:
       - ./database:/database
       - ./datasets:/datasets
+      - ./server:/app
     deploy:
       replicas: 1
   

@@ -13,7 +13,6 @@ dc-api:
 	$(DC) \
 	$(PROFILES_FRONTEND) \
 	$(PROFILES_API) \
-	$(PROFILES_LOCALIZATION) \
 	up $(ARGS)
 
 dc-ingest:
@@ -52,7 +51,15 @@ dc-down:
 	down --remove-orphans
 
 dc-build:
-	$(DC) build
+	$(DC) \
+	$(PROFILES_FRONTEND) \
+	$(PROFILES_API) \
+	$(PROFILES_INGEST) \
+	$(PROFILES_NTP) \
+	$(PROFILES_CORE) \
+	$(PROFILES_LOCALIZATION) \
+	$(PROFILES_DATASET) \
+	build
 
 dc-logs:
 	$(DC) logs -f

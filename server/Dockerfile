@@ -8,7 +8,3 @@ RUN apt-get update && apt-get install -y \
 
 COPY server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-COPY server/ .
-
-CMD ["python", "-m", "cmd.server.api"]
