@@ -12,6 +12,7 @@ import { ensureVisible, getSafeBoundsViewport } from "../utils/ensureVisible"
 import { useTimelineSync } from "../hooks/useTimelineSync"
 import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
 import { formatDateTime } from "../../utils/time"
+import { computeItemsBounds } from "../utils/zoomToFit"
 
 
 export default function TimelineCanvas(params: {
@@ -184,6 +185,24 @@ export default function TimelineCanvas(params: {
                 params.adapter.itemsByTrack,
             )
             : null
+    
+    function handleResetView() {
+        const start = params.adapter.bounds.start / 1_000_000
+        const end = params.adapter.bounds.end / 1_000_000
+
+        setViewport(getSafeBoundsViewport(start, end, 0.15))
+    }
+
+    function handleZoomToFit() {
+        const bounds = computeItemsBounds(params.adapter)
+
+        if (!bounds) {
+            handleResetView()
+            return
+        }
+
+        setViewport(getSafeBoundsViewport(bounds.start, bounds.end, 0.15))
+    }
 
     useTimelineRenderer({
         canvasRef,
@@ -270,6 +289,24 @@ export default function TimelineCanvas(params: {
                     end: {formatDateTime(viewport.end*1_000_000)}<br />
                     duration: {duration.toFixed(2)}s<br />
                     cursorTime: {formatDateTime(externalCursorTimeUs!)}
+                </div>
+
+                <div className={styles.controls}>
+                    <button
+                        className={styles.controlBtn}
+                        onClick={handleResetView}
+                        title="Reset view"
+                    >
+                        ⟲
+                    </button>
+
+                    <button
+                        className={styles.controlBtn}
+                        onClick={handleZoomToFit}
+                        title="Zoom to fit"
+                    >
+                        ⤢
+                    </button>
                 </div>
             </div>
         </div>
