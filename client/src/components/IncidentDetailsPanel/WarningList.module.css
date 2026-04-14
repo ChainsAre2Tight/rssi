@@ -1,0 +1,75 @@
+.root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.scroll {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.empty {
+    padding: var(--space-md);
+    color: var(--color-text-secondary);
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 12px 1fr 80px;
+
+    align-items: center;
+    padding: var(--space-xs) var(--space-sm);
+    cursor: pointer;
+}
+
+.row:hover {
+    background: var(--color-surface-hover);
+}
+
+.row[data-selected="true"] {
+    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.durationBarContainer {
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-border) 70%, transparent);
+
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.durationBar {
+    height: 100%;
+    border-radius: 2px;
+}
+
+.durationBar.info { background: var(--severity-info); }
+.durationBar.low { background: var(--severity-low); }
+.durationBar.medium { background: var(--severity-medium); }
+.durationBar.high { background: var(--severity-high); }
+.durationBar.critical { background: var(--severity-critical); }
+
+.row:hover .durationBar {
+    filter: brightness(1.2);
+}
+
+.row[data-selected="true"] .durationBar {
+    filter: brightness(1.35);
+}

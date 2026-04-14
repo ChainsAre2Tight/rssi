@@ -1,6 +1,5 @@
 import IncidentHeader from "./IncidentHeader"
 import WarningTimeline from "./WarningTimeline"
-import WarningDetailsList from "./WarningDetailsList"
 
 import HorizontalResizer from "../Layout/HorizontalResizer"
 
