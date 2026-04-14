@@ -5,8 +5,7 @@
     display: grid;
     grid-template-columns: 160px 1fr;
 
-    /* TODO: use some token color, this is left for debugging reasons */
-    background: red;
+    background: var(--color-bg);
     overflow: hidden;
     min-width: 0;
 }

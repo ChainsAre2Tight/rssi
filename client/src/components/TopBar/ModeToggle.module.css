@@ -31,10 +31,9 @@
 
 /* active state */
 .toggle button[data-active="true"] {
-    background: var(--color-bg);
+    background: var(--color-surface-active);
     color: var(--color-text);
-
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    border-bottom: 2px solid var(--color-accent);
 }
 
 /* optional: tighter feel */

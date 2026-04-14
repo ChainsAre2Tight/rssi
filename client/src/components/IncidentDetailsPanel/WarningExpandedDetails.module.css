@@ -31,33 +31,33 @@
 /* severity colors */
 
 .severity.low {
-    background: var(--sev-low-bg);
-    border-color: var(--sev-low);
-    color: var(--sev-low);
+    background: var(--severity-low-bg);
+    border-color: var(--severity-low);
+    color: var(--severity-low);
 }
 
 .severity.medium {
-    background: var(--sev-medium-bg);
-    border-color: var(--sev-medium);
-    color: var(--sev-medium);
+    background: var(--severity-medium-bg);
+    border-color: var(--severity-medium);
+    color: var(--severity-medium);
 }
 
 .severity.high {
-    background: var(--sev-high-bg);
-    border-color: var(--sev-high);
-    color: var(--sev-high);
+    background: var(--severity-high-bg);
+    border-color: var(--severity-high);
+    color: var(--severity-high);
 }
 
 .severity.critical {
-    background: var(--sev-critical-bg);
-    border-color: var(--sev-critical);
-    color: var(--sev-critical);
+    background: var(--severity-critical-bg);
+    border-color: var(--severity-critical);
+    color: var(--severity-critical);
 }
 
 .severity.info {
-    background: var(--sev-info-bg);
-    border-color: var(--sev-info);
-    color: var(--sev-info);
+    background: var(--severity-info-bg);
+    border-color: var(--severity-info);
+    color: var(--severity-info);
 }
 
 /* metadata */

@@ -29,8 +29,8 @@
     border-radius: 50%;
 }
 
-.low { background: var(--sev-low); }
-.medium { background: var(--sev-medium); }
-.high { background: var(--sev-high); }
-.critical { background: var(--sev-critical); }
-.info { background: var(--sev-info); }
+.low { background: var(--severity-low); }
+.medium { background: var(--severity-medium); }
+.high { background: var(--severity-high); }
+.critical { background: var(--severity-critical); }
+.info { background: var(--severity-info); }

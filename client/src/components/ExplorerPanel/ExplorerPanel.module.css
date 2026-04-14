@@ -38,7 +38,7 @@
 }
 
 .row[data-selected="true"] {
-    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+    background: var(--color-accent-soft);
 }
 
 .durationPlaceholder {

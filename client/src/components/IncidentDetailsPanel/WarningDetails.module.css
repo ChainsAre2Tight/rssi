@@ -38,10 +38,31 @@
     border-radius: 999px;
     font-size: 11px;
     font-weight: 600;
+    border: var(--panel-border-width) solid transparent;
 }
 
-.severity.low { color: var(--severity-low); }
-.severity.medium { color: var(--severity-medium); }
-.severity.high { color: var(--severity-high); }
-.severity.critical { color: var(--severity-critical); }
-.severity.info { color: var(--severity-info); }
+.severity.low { 
+    background: var(--severity-low-bg);
+    border-color: var(--severity-low);
+    color: var(--severity-low); 
+}
+.severity.medium { 
+    background: var(--severity-medium-bg);
+    border-color: var(--severity-medium);
+    color: var(--severity-medium); 
+}
+.severity.high { 
+    background: var(--severity-high-bg);
+    border-color: var(--severity-high);
+    color: var(--severity-high); 
+}
+.severity.critical { 
+    background: var(--severity-critical-bg);
+    border-color: var(--severity-critical);
+    color: var(--severity-critical); 
+}
+.severity.info { 
+    background: var(--severity-info-bg);
+    border-color: var(--severity-info);
+    color: var(--severity-info); 
+}
