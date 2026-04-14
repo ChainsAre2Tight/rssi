@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
 import type { TimelineAdapterResult, TimelineItem, TrackLayoutItem, Viewport } from "../types"
-import { createTimeMapper, hitTest } from "../utils/mapping"
+import { createTimeMapper } from "../utils/mapping"
 import { RESIZE_HANDLE_GAP } from "../config"
 import { getSeverityColor } from "../../utils/severity"
 import { formatDateTime } from "../../utils/time"
@@ -172,7 +172,7 @@ export function useTimelineRenderer({
                 // label (collision safe)
                 if (x - lastLabelX > 60) {
                     const label = formatTime(t)
-                    ctx.fillText(label, x + 4, height - 4)
+                    ctx.fillText(label, x + 4, GRID_LABEL_Y)
                     lastLabelX = x
                 }
 

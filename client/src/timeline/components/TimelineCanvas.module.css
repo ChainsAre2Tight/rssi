@@ -118,3 +118,9 @@ canvas {
 .controlBtn:hover {
     background: var(--color-surface-hover);
 }
+
+.separator {
+    width: 1px;
+    background: var(--color-border);
+    margin: 0 2px;
+}

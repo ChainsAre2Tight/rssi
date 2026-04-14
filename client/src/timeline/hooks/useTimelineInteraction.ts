@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import type { Viewport } from "../types"
-import { MIN_DURATION } from "../config"
+import { zoomViewport } from "../utils/zoomViewport"
 
 interface Params {
     viewport: Viewport
@@ -56,26 +56,16 @@ export function useTimelineInteraction({
         if (!dragStartViewport.current) return
         if (Math.abs(deltaPx) < 2) return
 
-        const startDuration = zoomStartDuration.current
-
         const zoomStrength = 0.005
         const zoomFactor = Math.exp(-deltaPx * zoomStrength)
 
-        let newDuration = startDuration * zoomFactor
-        newDuration = Math.max(newDuration, MIN_DURATION)
-
-        const anchor = zoomAnchorTime.current
-
-        const ratio =
-            (anchor - dragStartViewport.current.start) / startDuration
-
-        const newStart = anchor - ratio * newDuration
-        const newEnd = newStart + newDuration
-
-        setViewport({
-            start: newStart,
-            end: newEnd,
+        const next = zoomViewport({
+            viewport: dragStartViewport.current,
+            zoomFactor,
+            anchorTime: zoomAnchorTime.current,
         })
+
+        setViewport(next)
     }
 
     function onMouseDown(e: React.MouseEvent) {

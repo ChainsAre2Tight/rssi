@@ -13,6 +13,7 @@ import { useTimelineSync } from "../hooks/useTimelineSync"
 import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
 import { formatDateTime } from "../../utils/time"
 import { computeItemsBounds } from "../utils/zoomToFit"
+import { zoomViewport } from "../utils/zoomViewport"
 
 
 export default function TimelineCanvas(params: {
@@ -204,6 +205,24 @@ export default function TimelineCanvas(params: {
         setViewport(getSafeBoundsViewport(bounds.start, bounds.end, 0.15))
     }
 
+    function handleZoomIn() {
+        setViewport(prev =>
+            zoomViewport({
+                viewport: prev,
+                zoomFactor: 0.5,
+            })
+        )
+    }
+
+    function handleZoomOut() {
+        setViewport(prev =>
+            zoomViewport({
+                viewport: prev,
+                zoomFactor: 2,
+            })
+        )
+    }
+
     useTimelineRenderer({
         canvasRef,
         width,
@@ -292,6 +311,25 @@ export default function TimelineCanvas(params: {
                 </div>
 
                 <div className={styles.controls}>
+
+                    <button
+                        className={styles.controlBtn}
+                        onClick={handleZoomIn}
+                        title="Zoom in"
+                    >
+                        ＋
+                    </button>
+
+                    <button
+                        className={styles.controlBtn}
+                        onClick={handleZoomOut}
+                        title="Zoom out"
+                    >
+                        －
+                    </button>
+
+                    <div className={styles.separator} />
+
                     <button
                         className={styles.controlBtn}
                         onClick={handleResetView}
