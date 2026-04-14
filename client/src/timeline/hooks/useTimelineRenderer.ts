@@ -6,6 +6,35 @@ import { RESIZE_HANDLE_GAP } from "../config"
 import { getSeverityColor } from "../../utils/severity"
 import { formatDateTime } from "../../utils/time"
 
+function adjustBrightness(color: string, brightness: number): string {
+    let r: number, g: number, b: number
+
+    // Parse hex color
+    if (color.startsWith("#")) {
+        const hex = color.slice(1)
+        r = parseInt(hex.slice(0, 2), 16)
+        g = parseInt(hex.slice(2, 4), 16)
+        b = parseInt(hex.slice(4, 6), 16)
+    }
+    // Parse rgb color
+    else if (color.startsWith("rgb")) {
+        const match = color.match(/\d+/g)
+        if (!match || match.length < 3) return color
+        r = parseInt(match[0])
+        g = parseInt(match[1])
+        b = parseInt(match[2])
+    } else {
+        return color
+    }
+
+    // Apply brightness
+    r = Math.round(Math.min(255, r * brightness))
+    g = Math.round(Math.min(255, g * brightness))
+    b = Math.round(Math.min(255, b * brightness))
+
+    return `rgb(${r},${g},${b})`
+}
+
 interface Params {
     canvasRef: RefObject<HTMLCanvasElement>
     width: number
@@ -285,15 +314,18 @@ export function useTimelineRenderer({
                         const x = mapper.toX(item.start)
                         const w = mapper.toX(item.end) - x
 
+                        let color = getSeverityColor(item.severity, styles)
+
+                        // Apply brightness based on interaction state
                         if (item === hoveredItem) {
-                            ctx.globalAlpha = 0.85
+                            color = adjustBrightness(color, 1.2)
                         } else if (item === selectedItem) {
-                            ctx.globalAlpha = 1
+                            color = adjustBrightness(color, 1.15)
                         } else {
-                            ctx.globalAlpha = 0.6
+                            color = adjustBrightness(color, 0.8)
                         }
 
-                        ctx.fillStyle = getSeverityColor(item.severity, styles)
+                        ctx.fillStyle = color
                         ctx.beginPath()
                         ctx.roundRect(x, y, Math.max(w, 4), h, 4)
                         ctx.fill()                     
