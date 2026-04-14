@@ -1,4 +1,7 @@
+import { useEffect, useRef } from "react"
+import { useAppStore } from "../../store/useAppStore"
 import type { Warning } from "../../types/general"
+import { getWarningKey } from "../../utils/warningKey"
 import WarningExpandedDetails from "./WarningExpandedDetails"
 import styles from "./WarningRow.module.css"
 
@@ -14,8 +17,24 @@ export default function WarningRow({
     onClick,
 }: Props) {
 
+    const selectedKey = useAppStore(s => s.selection.warningKey)
+    const key = getWarningKey(warning)
+
+    const isSelected = key === selectedKey
+
+    const rowRef = useRef<HTMLDivElement | null>(null)
+
+    useEffect(() => {
+        if (isSelected) {
+            rowRef.current?.scrollIntoView({
+                block: "nearest",
+                behavior: "smooth",
+            })
+        }
+    }, [isSelected])
+
     return (
-        <div className={`${styles.row} ${styles[warning.severity]}`}>
+        <div className={`${styles.row} ${styles[warning.severity]}`} ref={rowRef}>
 
             <div
                 className={styles.summary}
