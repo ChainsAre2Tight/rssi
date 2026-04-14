@@ -79,7 +79,7 @@ def ensure_measurement(conn, measurement_id: int) -> None:
         """,
         (
             measurement_id,
-            "Genaral",
+            "General",
             0, #TODO: maybe add to config idk
             "auto-created by whitelist loader",
         ),
