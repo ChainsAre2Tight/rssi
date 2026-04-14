@@ -9,11 +9,13 @@ import styles from "./ExplorerPanel.module.css"
 type Props = {
     modality: Modality
     incidents: Incident[]
+    totalCount: number
 }
 
 export default function ModalitySection({
     modality,
-    incidents
+    incidents,
+    totalCount,
 }: Props) {
 
     const [collapsed, setCollapsed] = useState(false)
@@ -38,8 +40,8 @@ export default function ModalitySection({
                 className={styles.modalityHeader}
                 onClick={() => setCollapsed(!collapsed)}
             >
-                <span className={styles.modalityHeaderLeft}>
-                    {collapsed ? "▶" : "▼"} {label} ({incidents.length})
+                <span>
+                    {collapsed ? "▶" : "▼"} {label} ({incidents.length} / {totalCount})
                 </span>
 
                 <span className={styles.modalityHeaderRight}>

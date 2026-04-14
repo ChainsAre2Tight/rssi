@@ -1,6 +1,7 @@
 import { useAppStore } from "../../store/useAppStore"
 import { buildIncidentAdapter } from "../../timeline/adapters/incidents"
 import TimelineCanvas from "../../timeline/components/TimelineCanvas"
+import { filterIncidents } from "../../utils/filterIncidents"
 
 export default function GlobalTimeline() {
     const incidentsByModality = useAppStore(s => s.report.incidentsByModality)
@@ -16,8 +17,15 @@ export default function GlobalTimeline() {
     const hoveredIncidentId = useAppStore(s => s.hover.incidentId)
     const hoverTimeUs = useAppStore(s => s.hover.timelineTimeUs)
 
-    const adapter = buildIncidentAdapter({
+    const severityFilter = useAppStore(s => s.filters.severities)
+
+    const filtered = filterIncidents(
         incidentsByModality,
+        severityFilter
+    )
+
+    const adapter = buildIncidentAdapter({
+        incidentsByModality: filtered,
         reportStartUs: startTimeUs!,
         reportEndUs: endTimeUs!,
         minGapS: 10,

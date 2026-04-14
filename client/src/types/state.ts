@@ -1,4 +1,4 @@
-import type { Incident, Modality, Measurement } from "./general"
+import type { Incident, Modality, Measurement, Severity } from "./general"
 
 
 export interface AppState {
@@ -42,6 +42,10 @@ export interface AppState {
     selection: {
         incidentId: string | null
         warningKey: string | null // something like incidentId + ":" + warning.signal .. althoug on different metadata might collide
+    }
+
+    filters: {
+        severities: Record<Severity, boolean>
     }
 
     hover: {
@@ -89,4 +93,6 @@ export interface AppState {
             | Partial<AppState["layout"]>
             | ((prev: AppState["layout"]) => AppState["layout"])
     ) => void
+
+    toggleSeverity: (severity: Severity) => void
 }

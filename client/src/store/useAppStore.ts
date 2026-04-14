@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 import type { AppState } from "../types/state"
+import type { Severity } from "../types/general"
 
 const defaultLayout = {
     explorerWidth: 300,
@@ -54,6 +55,16 @@ persist(
     selection: {
         incidentId: null,
         warningKey: null
+    },
+
+    filters: {
+        severities: {
+            critical: true,
+            high: true,
+            medium: true,
+            low: true,
+            info: true,
+        }
     },
 
     hover: {
@@ -204,7 +215,18 @@ persist(
                 typeof update === "function"
                     ? update(state.layout)
                     : { ...state.layout, ...update }
-        }))
+        })),
+    
+    toggleSeverity: (severity: Severity) =>
+        set((state) => ({
+            filters: {
+                ...state.filters,
+                severities: {
+                    ...state.filters.severities,
+                    [severity]: !state.filters.severities[severity]
+                }
+            }
+        })),
 
 }),
 {
