@@ -60,6 +60,12 @@ export default function ReportControls() {
         applyRange(start, end)
     }
 
+    function presetMonth() {
+        const end = nowUs()
+        const start = end - 31 * 24 * 3600 * 1_000_000
+        applyRange(start, end)
+    }
+
     async function handleGenerate() {
         if (!valid || measurementId === null) return
 
@@ -91,6 +97,7 @@ export default function ReportControls() {
             <button className={styles.btn} onClick={presetLast1h}>1h</button>
             <button className={styles.btn} onClick={presetToday}>Today</button>
             <button className={styles.btn} onClick={presetWeek}>7d</button>
+            <button className={styles.btn} onClick={presetMonth}>1m</button>
 
             <input
                 className={styles.input}
