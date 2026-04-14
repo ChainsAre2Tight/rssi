@@ -3,6 +3,8 @@ import { useState } from "react"
 import type { Incident, Modality } from "../../types/general"
 
 import IncidentList from "./IncidentList"
+import { formatDurationUs, sumDurationsUs } from "../../utils/duration"
+import styles from "./ExplorerPanel.module.css"
 
 type Props = {
     modality: Modality
@@ -20,21 +22,23 @@ export default function ModalitySection({
         modality.charAt(0).toUpperCase() +
         modality.slice(1)
 
+    const totalDurationUs = sumDurationsUs(incidents)
+    const formattedDuration = formatDurationUs(totalDurationUs)
+
     return (
 
         <div>
 
             <div
-                className="panelHeader"
+                className={styles.modalityHeader}
                 onClick={() => setCollapsed(!collapsed)}
-                style={{
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between"
-                }}
             >
-                <span>
+                <span className={styles.modalityHeaderLeft}>
                     {collapsed ? "▶" : "▼"} {label} ({incidents.length})
+                </span>
+
+                <span className={styles.modalityHeaderRight}>
+                    {formattedDuration}
                 </span>
             </div>
 

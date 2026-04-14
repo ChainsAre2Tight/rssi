@@ -1,4 +1,5 @@
-import type { Incident, Modality } from "../../types/general"
+import { SEVERITY_ORDER, type Incident, type Modality } from "../../types/general"
+import { getIncidentDurationUs } from "../../utils/duration"
 
 import IncidentRow from "./IncidentRow"
 
@@ -14,20 +15,21 @@ export default function IncidentList({
 
     const sorted = [...incidents].sort((a, b) => {
 
-        const sevOrder = {
-            critical: 5,
-            high: 4,
-            medium: 3,
-            low: 2,
-            info: 1
-        }
-
+        // 1. severity DESC
         const sevDiff =
-            sevOrder[b.severity] -
-            sevOrder[a.severity]
+            SEVERITY_ORDER[b.severity] -
+            SEVERITY_ORDER[a.severity]
 
         if (sevDiff !== 0) return sevDiff
 
+        // 2. duration DESC
+        const durDiff =
+            getIncidentDurationUs(b) -
+            getIncidentDurationUs(a)
+
+        if (durDiff !== 0) return durDiff
+
+        // 3. start ASC
         return a.startTimeUs - b.startTimeUs
     })
 
