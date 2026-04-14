@@ -26,29 +26,25 @@ export default function ActiveControls() {
                 adapted.startTimeUs,
                 adapted.endTimeUs
             )
-        } catch (err) {
-            console.error("Active load failed", err)
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div className="controlsRow">
 
-            <input
-                type="number"
-                value={offsetS}
-                onChange={(e) => setOffset(Number(e.target.value))}
-            />
+            <button onClick={() => setOffset(300)}>5m</button>
+            <button onClick={() => setOffset(900)}>15m</button>
+            <button onClick={() => setOffset(3600)}>1h</button>
+            <button onClick={() => setOffset(21600)}>6h</button>
 
             <button
                 disabled={measurementId === null}
                 onClick={handleLoad}
             >
-                Load Active
+                Load
             </button>
-
         </div>
     )
 }

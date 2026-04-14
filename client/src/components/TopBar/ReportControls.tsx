@@ -1,7 +1,19 @@
 import { useState } from "react"
-
 import { useAppStore } from "../../store/useAppStore"
 import { loadReport } from "../../features/report/loadReport"
+
+function nowUs() {
+    return Date.now() * 1000
+}
+
+function toInputValue(us: number) {
+    const d = new Date(us / 1000)
+    return d.toISOString().slice(0, 16)
+}
+
+function fromInputValue(value: string) {
+    return new Date(value).getTime() * 1000
+}
 
 export default function ReportControls() {
 
@@ -9,28 +21,57 @@ export default function ReportControls() {
     const setReport = useAppStore((s) => s.setReport)
     const setReportLoading = useAppStore((s) => s.setReportLoading)
 
-    const [startUs, setStartUs] = useState("")
-    const [endUs, setEndUs] = useState("")
+    const [start, setStart] = useState("")
+    const [end, setEnd] = useState("")
 
     const valid =
         measurementId !== null &&
-        startUs !== "" &&
-        endUs !== "" &&
-        Number(startUs) < Number(endUs)
+        start &&
+        end &&
+        fromInputValue(start) < fromInputValue(end)
+
+    function applyRange(startUs: number, endUs: number) {
+        setStart(toInputValue(startUs))
+        setEnd(toInputValue(endUs))
+    }
+
+    function presetLast1h() {
+        const end = nowUs()
+        const start = end - 3600 * 1_000_000
+        applyRange(start, end)
+    }
+
+    function presetToday() {
+        const now = new Date()
+        const start = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+        ).getTime() * 1000
+
+        const end = nowUs()
+        applyRange(start, end)
+    }
+
+    function presetWeek() {
+        const end = nowUs()
+        const start = end - 7 * 24 * 3600 * 1_000_000
+        applyRange(start, end)
+    }
 
     async function handleGenerate() {
         if (!valid || measurementId === null) return
 
-        const start = Number(startUs)
-        const end = Number(endUs)
+        const startUs = fromInputValue(start)
+        const endUs = fromInputValue(end)
 
         setReportLoading(true)
 
         try {
             const adapted = await loadReport({
                 measurementId,
-                startTimeUs: start,
-                endTimeUs: end,
+                startTimeUs: startUs,
+                endTimeUs: endUs,
             })
 
             setReport(
@@ -38,37 +79,40 @@ export default function ReportControls() {
                 adapted.startTimeUs,
                 adapted.endTimeUs,
             )
-        } catch (err) {
-            console.error("Report fetch failed", err)
         } finally {
             setReportLoading(false)
         }
     }
 
     return (
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div className="controlsRow">
 
+            {/* presets */}
+            <button onClick={presetLast1h}>1h</button>
+            <button onClick={presetToday}>Today</button>
+            <button onClick={presetWeek}>7d</button>
+
+            {/* datetime */}
             <input
-                type="number"
-                placeholder="start_us"
-                value={startUs}
-                onChange={(e) => setStartUs(e.target.value)}
+                type="datetime-local"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
             />
 
+            <span>—</span>
+
             <input
-                type="number"
-                placeholder="end_us"
-                value={endUs}
-                onChange={(e) => setEndUs(e.target.value)}
+                type="datetime-local"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
             />
 
             <button
                 disabled={!valid}
                 onClick={handleGenerate}
             >
-                Generate Report
+                Generate
             </button>
-
         </div>
     )
 }

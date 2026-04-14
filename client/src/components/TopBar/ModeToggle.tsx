@@ -1,4 +1,5 @@
 import { useAppStore } from "../../store/useAppStore"
+import styles from "./ModeToggle.module.css"
 
 export default function ModeToggle() {
 
@@ -6,16 +7,16 @@ export default function ModeToggle() {
     const setMode = useAppStore((s) => s.setMode)
 
     return (
-        <div>
+        <div className={styles.toggle}>
             <button
-                disabled={mode === "active"}
+                data-active={mode === "active"}
                 onClick={() => setMode("active")}
             >
                 Active
             </button>
 
             <button
-                disabled={mode === "report"}
+                data-active={mode === "report"}
                 onClick={() => setMode("report")}
             >
                 Report

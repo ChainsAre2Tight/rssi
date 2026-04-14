@@ -22,3 +22,31 @@
     align-items: center;
     gap: 12px;
 }
+
+.controlsRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.controlsRow input {
+    height: 28px;
+}
+
+.controlsRow button {
+    height: 28px;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    cursor: pointer;
+}
+
+.controlsRow button:hover {
+    background: var(--color-surface-hover);
+}
+
+.empty {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
