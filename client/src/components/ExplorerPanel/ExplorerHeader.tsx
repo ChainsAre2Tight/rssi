@@ -35,16 +35,24 @@ export default function ExplorerHeader({
 
             {/* RIGHT */}
             <div className={styles.right}>
-                {severities.map(sev => (
-                    <div
-                        key={sev}
-                        className={styles.dot}
-                        data-active={active[sev]}
-                        data-severity={sev}
-                        onClick={() => toggleSeverity(sev)}
-                        title={sev}
-                    />
-                ))}
+
+                <span className={styles.filtersLabel}>
+                    Filters:
+                </span>
+
+                <div className={styles.dots}>
+                    {severities.map(sev => (
+                        <div
+                            key={sev}
+                            className={styles.dot}
+                            data-active={active[sev]}
+                            data-severity={sev}
+                            onClick={() => toggleSeverity(sev)}
+                            title={sev}
+                        />
+                    ))}
+                </div>
+
             </div>
 
         </div>

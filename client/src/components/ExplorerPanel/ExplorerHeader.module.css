@@ -20,6 +20,17 @@
 
 .right {
     display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filtersLabel {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+
+.dots {
+    display: flex;
     gap: 6px;
 }
 
