@@ -11,11 +11,13 @@ import { useEffect, useRef } from "react"
 type Props = {
     modality: Modality
     incident: Incident
+    maxDurationUs: number
 }
 
 export default function IncidentRow({
     modality,
-    incident
+    incident,
+    maxDurationUs,
 }: Props) {
 
     const selectIncident = useAppStore((s) => s.selectIncident)
@@ -30,13 +32,8 @@ export default function IncidentRow({
         (s) => s.hover.incidentId === incident.id
     )
 
-    const reportStart = useAppStore(s => s.report.startTimeUs)
-    const reportEnd = useAppStore(s => s.report.endTimeUs)
-
     const duration = incident.endTimeUs - incident.startTimeUs
-    const total = reportEnd && reportStart ? reportEnd - reportStart : 1
-
-    const ratio = Math.min(duration / total, 1)
+    const ratio = Math.min(duration / maxDurationUs, 1)
 
     const rowRef = useRef<HTMLDivElement | null>(null)
 
@@ -79,7 +76,7 @@ export default function IncidentRow({
 
             <div className={styles.durationBarContainer}>
                 <div
-                    className={styles.durationBar}
+                    className={`${styles.durationBar} ${styles[incident.severity]}`}
                     style={{ width: `${ratio * 100}%` }}
                 />
             </div>

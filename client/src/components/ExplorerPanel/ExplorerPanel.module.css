@@ -73,22 +73,47 @@
 
 .durationBarContainer {
     height: 4px;
-    background: var(--color-border);
     border-radius: 2px;
     overflow: hidden;
+
+    background: color-mix(in srgb, var(--color-border) 70%, transparent);
 }
 
 .durationBar {
     height: 100%;
-    background: var(--color-accent);
     border-radius: 2px;
+
+    /* fallback (in case class missing) */
+    background: var(--color-accent);
+}
+
+/* severity colors */
+
+.durationBar.info {
+    background: var(--severity-info);
+}
+
+.durationBar.low {
+    background: var(--severity-low);
+}
+
+.durationBar.medium {
+    background: var(--severity-medium);
+}
+
+.durationBar.high {
+    background: var(--severity-high);
+}
+
+.durationBar.critical {
+    background: var(--severity-critical);
 }
 
 .row:hover .durationBar,
 .row[data-hovered="true"] .durationBar {
-    background: var(--color-text);
+    filter: brightness(1.2);
 }
 
 .row[data-selected="true"] .durationBar {
-    background: var(--color-accent);
+    filter: brightness(1.35);
 }

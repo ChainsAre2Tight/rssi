@@ -6,11 +6,13 @@ import IncidentRow from "./IncidentRow"
 type Props = {
     modality: Modality
     incidents: Incident[]
+    maxDurationUs: number
 }
 
 export default function IncidentList({
     modality,
-    incidents
+    incidents,
+    maxDurationUs,
 }: Props) {
 
     const sorted = [...incidents].sort((a, b) => {
@@ -40,6 +42,7 @@ export default function IncidentList({
                     key={incident.id}
                     modality={modality}
                     incident={incident}
+                    maxDurationUs={maxDurationUs}
                 />
             ))}
         </>

@@ -25,6 +25,11 @@ export default function ModalitySection({
     const totalDurationUs = sumDurationsUs(incidents)
     const formattedDuration = formatDurationUs(totalDurationUs)
 
+    const maxDurationUs = Math.max(
+        ...incidents.map(i => i.endTimeUs - i.startTimeUs),
+        1 // safety
+    )
+
     return (
 
         <div>
@@ -46,6 +51,7 @@ export default function ModalitySection({
                 <IncidentList
                     modality={modality}
                     incidents={incidents}
+                    maxDurationUs={maxDurationUs}
                 />
             )}
 
