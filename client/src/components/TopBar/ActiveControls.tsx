@@ -1,5 +1,6 @@
 import { useAppStore } from "../../store/useAppStore"
 import { loadReport } from "../../features/report/loadReport"
+import styles from "./TopBar.module.css"
 
 export default function ActiveControls() {
 
@@ -32,14 +33,44 @@ export default function ActiveControls() {
     }
 
     return (
-        <div className="controlsRow">
+        <div className={styles.controlsRow}>
 
-            <button onClick={() => setOffset(300)}>5m</button>
-            <button onClick={() => setOffset(900)}>15m</button>
-            <button onClick={() => setOffset(3600)}>1h</button>
-            <button onClick={() => setOffset(21600)}>6h</button>
+            {/* offset presets */}
+            <button
+                className={styles.btn}
+                data-active={offsetS === 300}
+                onClick={() => setOffset(300)}
+            >
+                5m
+            </button>
 
             <button
+                className={styles.btn}
+                data-active={offsetS === 900}
+                onClick={() => setOffset(900)}
+            >
+                15m
+            </button>
+
+            <button
+                className={styles.btn}
+                data-active={offsetS === 3600}
+                onClick={() => setOffset(3600)}
+            >
+                1h
+            </button>
+
+            <button
+                className={styles.btn}
+                data-active={offsetS === 21600}
+                onClick={() => setOffset(21600)}
+            >
+                6h
+            </button>
+
+            {/* action */}
+            <button
+                className={styles.btn}
                 disabled={measurementId === null}
                 onClick={handleLoad}
             >

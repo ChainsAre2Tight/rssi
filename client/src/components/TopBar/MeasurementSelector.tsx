@@ -1,4 +1,5 @@
 import { useAppStore } from "../../store/useAppStore"
+import styles from "./TopBar.module.css"
 
 export default function MeasurementSelector() {
 
@@ -9,6 +10,7 @@ export default function MeasurementSelector() {
 
     return (
         <select
+            className={styles.select}
             value={selectedId ?? ""}
             onChange={(e) => {
                 const id = Number(e.target.value)

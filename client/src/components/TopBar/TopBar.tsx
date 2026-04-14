@@ -20,11 +20,18 @@ export default function TopBar() {
     return (
         <div className={styles.root}>
             <div className={styles.left}>
-                <MeasurementSelector />
-                <ModeToggle />
+                <div className={styles.group}>
+                    <MeasurementSelector />
+                </div>
 
-                {mode === "active" && <ActiveControls />}
-                {mode === "report" && <ReportControls />}
+                <div className={styles.group}>
+                    <ModeToggle />
+                </div>
+
+                <div className={styles.group}>
+                    {mode === "active" && <ActiveControls />}
+                    {mode === "report" && <ReportControls />}
+                </div>
             </div>
 
             <div className={styles.right}>

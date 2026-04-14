@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useAppStore } from "../../store/useAppStore"
 import { loadReport } from "../../features/report/loadReport"
+import styles from "./TopBar.module.css"
 
 function nowUs() {
     return Date.now() * 1000
@@ -85,15 +86,14 @@ export default function ReportControls() {
     }
 
     return (
-        <div className="controlsRow">
+        <div className={styles.controlsRow}>
 
-            {/* presets */}
-            <button onClick={presetLast1h}>1h</button>
-            <button onClick={presetToday}>Today</button>
-            <button onClick={presetWeek}>7d</button>
+            <button className={styles.btn} onClick={presetLast1h}>1h</button>
+            <button className={styles.btn} onClick={presetToday}>Today</button>
+            <button className={styles.btn} onClick={presetWeek}>7d</button>
 
-            {/* datetime */}
             <input
+                className={styles.input}
                 type="datetime-local"
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
@@ -102,12 +102,14 @@ export default function ReportControls() {
             <span>—</span>
 
             <input
+                className={styles.input}
                 type="datetime-local"
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
             />
 
             <button
+                className={styles.btn}
                 disabled={!valid}
                 onClick={handleGenerate}
             >
