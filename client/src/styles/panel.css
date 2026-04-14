@@ -1,0 +1,29 @@
+.panel {
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--color-surface);
+
+    border: var(--panel-border-width) solid var(--color-border);
+
+    min-height: 0;
+}
+
+
+.panelHeader {
+
+    padding: var(--space-sm) var(--space-md);
+
+    border-bottom: var(--panel-border-width) solid var(--color-border);
+
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+
+.panelBody {
+    flex: 1;
+    padding: var(--space-md);
+    overflow: auto;
+}

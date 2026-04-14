@@ -1,0 +1,26 @@
+html, body, #root {
+
+    height: 100%;
+    margin: 0;
+
+    background: var(--color-bg);
+    color: var(--color-text);
+
+    font-family: var(--font-ui);
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+
+input, button {
+
+    font-family: inherit;
+}

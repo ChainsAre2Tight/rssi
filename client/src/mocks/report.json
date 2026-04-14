@@ -1,0 +1,39 @@
+{
+    "end_time_us": 1775818611714569,
+    "measurement_id": 1,
+    "modalities": {
+        "logical": [
+            {
+                "end_time_us": 1775679750000000,
+                "identity": {
+                    "bssid": "00:1F:01:6F:60:1C",
+                    "ssid": "AKADO-274F-pro"
+                },
+                "modality": "logical",
+                "severity": "low",
+                "start_time_us": 1775679240000000,
+                "warnings": [
+                    {
+                        "detector": "ssid_whitelist",
+                        "metadada": {
+                            "ssid": "AKADO-274F-pro"
+                        },
+                        "occurrences": [
+                            {
+                                "end_time_us": 1775679420000000,
+                                "start_time_us": 1775679240000000
+                            },
+                            {
+                                "end_time_us": 1775679750000000,
+                                "start_time_us": 1775679540000000
+                            }
+                        ],
+                        "severity": "low",
+                        "signal": "unauthorized_ssid"
+                    }
+                ]
+            }
+        ]
+    },
+    "start_time_us": 1775458611714569
+}

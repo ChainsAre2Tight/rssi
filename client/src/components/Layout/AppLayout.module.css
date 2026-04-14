@@ -1,0 +1,27 @@
+.root {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    height: 100vh;
+}
+
+.topbar {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.timeline {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.main {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    min-height: 0;
+}
+
+.explorer {
+    overflow: auto;
+}
+
+.details {
+    overflow: auto;
+}
