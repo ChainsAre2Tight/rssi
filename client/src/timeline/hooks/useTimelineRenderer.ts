@@ -4,6 +4,7 @@ import type { TimelineAdapterResult, TimelineItem, TrackLayoutItem, Viewport } f
 import { createTimeMapper, hitTest } from "../utils/mapping"
 import { RESIZE_HANDLE_GAP } from "../config"
 import { getSeverityColor } from "../../utils/severity"
+import { formatDateTime } from "../../utils/time"
 
 interface Params {
     canvasRef: RefObject<HTMLCanvasElement>
@@ -176,6 +177,56 @@ export function useTimelineRenderer({
             }
 
             ctx.globalAlpha = 1
+
+            // --- INITIAL BOUNDS MARKERS ---
+            const boundsStartS = adapter.bounds.start / 1_000_000
+            const boundsEndS = adapter.bounds.end / 1_000_000
+
+            const xStart = mapper.toX(boundsStartS)
+            const xEnd = mapper.toX(boundsEndS)
+
+            ctx.save()
+
+            ctx.strokeStyle = styles.getPropertyValue("--color-accent")
+            ctx.lineWidth = 2
+            ctx.globalAlpha = 0.6
+            ctx.setLineDash([6, 4])
+
+            // START line
+            ctx.beginPath()
+            ctx.moveTo(xStart, 0)
+            ctx.lineTo(xStart, height)
+            ctx.stroke()
+
+            // END line
+            ctx.beginPath()
+            ctx.moveTo(xEnd, 0)
+            ctx.lineTo(xEnd, height)
+            ctx.stroke()
+
+            ctx.setLineDash([])
+            ctx.globalAlpha = 1
+
+            // --- LABELS ---
+            ctx.font = "11px sans-serif"
+            ctx.fillStyle = styles.getPropertyValue("--color-accent")
+            ctx.textBaseline = "bottom"
+
+            const startLabel = formatDateTime(adapter.bounds.start)
+            const endLabel = formatDateTime(adapter.bounds.end)
+
+            // avoid drawing offscreen text awkwardly
+            if (xStart >= -50 && xStart <= width + 50) {
+                ctx.fillText(startLabel, xStart + 4, 4)
+            }
+
+            if (xEnd >= -50 && xEnd <= width + 50) {
+                const textWidth = ctx.measureText(endLabel).width
+                ctx.fillText(endLabel, xEnd - textWidth - 4, 4)
+            }
+
+            ctx.restore()
+
 
             // --- TRACKS ---
             ctx.strokeStyle = styles.getPropertyValue("--color-border")
