@@ -116,6 +116,9 @@ export function useTimelineRenderer({
             ctx.globalAlpha = 1
 
             // --- MAJOR GRID + LABELS ---
+            const GRID_LABEL_Y = height - 4
+            const BOUNDS_LABEL_Y = height - 18
+
             ctx.strokeStyle = gridColor
             ctx.globalAlpha = 0.6
 
@@ -192,14 +195,10 @@ export function useTimelineRenderer({
             ctx.globalAlpha = 0.6
             ctx.setLineDash([6, 4])
 
-            // START line
+            // vertical lines
             ctx.beginPath()
             ctx.moveTo(xStart, 0)
             ctx.lineTo(xStart, height)
-            ctx.stroke()
-
-            // END line
-            ctx.beginPath()
             ctx.moveTo(xEnd, 0)
             ctx.lineTo(xEnd, height)
             ctx.stroke()
@@ -207,7 +206,7 @@ export function useTimelineRenderer({
             ctx.setLineDash([])
             ctx.globalAlpha = 1
 
-            // --- LABELS ---
+            // --- LABELS (BOTTOM, ABOVE GRID LABELS) ---
             ctx.font = "11px sans-serif"
             ctx.fillStyle = styles.getPropertyValue("--color-accent")
             ctx.textBaseline = "bottom"
@@ -215,14 +214,23 @@ export function useTimelineRenderer({
             const startLabel = formatDateTime(adapter.bounds.start)
             const endLabel = formatDateTime(adapter.bounds.end)
 
-            // avoid drawing offscreen text awkwardly
-            if (xStart >= -50 && xStart <= width + 50) {
-                ctx.fillText(startLabel, xStart + 4, 4)
+            // clamp helper
+            function clampX(x: number, textWidth: number) {
+                return Math.max(4, Math.min(width - textWidth - 4, x))
             }
 
+            // START label
+            if (xStart >= -50 && xStart <= width + 50) {
+                const w = ctx.measureText(startLabel).width
+                const x = clampX(xStart + 4, w)
+                ctx.fillText(startLabel, x, BOUNDS_LABEL_Y)
+            }
+
+            // END label
             if (xEnd >= -50 && xEnd <= width + 50) {
-                const textWidth = ctx.measureText(endLabel).width
-                ctx.fillText(endLabel, xEnd - textWidth - 4, 4)
+                const w = ctx.measureText(endLabel).width
+                const x = clampX(xEnd - w - 4, w)
+                ctx.fillText(endLabel, x, BOUNDS_LABEL_Y)
             }
 
             ctx.restore()
