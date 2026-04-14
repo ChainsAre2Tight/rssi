@@ -7,7 +7,8 @@ import type { Severity } from "../types/general"
 const defaultLayout = {
     explorerWidth: 300,
     globalTimelineHeight: 300,
-    warningTimelineHeight: 400
+    warningTimelineHeight: 400,
+    warningListWidth: 300,
 }
 
 export const useAppStore = create<AppState>()(

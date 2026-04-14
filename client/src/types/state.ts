@@ -58,6 +58,7 @@ export interface AppState {
         explorerWidth: number
         globalTimelineHeight: number
         warningTimelineHeight: number
+        warningListWidth: number
     }
 
     ui: {

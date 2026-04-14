@@ -7,6 +7,7 @@ import HorizontalResizer from "../Layout/HorizontalResizer"
 import styles from "./IncidentDetailsPanel.module.css"
 
 import { useAppStore } from "../../store/useAppStore"
+import WarningSplitPanel from "./WarningSplitPanel"
 
 export default function IncidentDetailsPanel() {
 
@@ -43,7 +44,7 @@ export default function IncidentDetailsPanel() {
             <HorizontalResizer onDrag={resizeTimeline} />
 
             <div className={styles.details}>
-                <WarningDetailsList />
+                <WarningSplitPanel />
             </div>
 
         </div>

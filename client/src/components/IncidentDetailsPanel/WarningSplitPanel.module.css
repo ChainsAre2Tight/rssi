@@ -1,0 +1,25 @@
+.root {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+}
+
+.right {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+}
+
+.placeholder {
+    padding: var(--space-md);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+}
