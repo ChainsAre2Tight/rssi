@@ -18,7 +18,7 @@ export default function ModalitySection({
     totalCount,
 }: Props) {
 
-    const [collapsed, setCollapsed] = useState(false)
+    const [collapsed, setCollapsed] = useState(true)
 
     const label =
         modality.charAt(0).toUpperCase() +

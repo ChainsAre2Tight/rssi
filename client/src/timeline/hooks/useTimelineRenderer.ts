@@ -303,6 +303,8 @@ export function useTimelineRenderer({
                 ctx.restore()
             }
 
+            ctx.setLineDash([])
+
             if (hoveredItem) {
                 const x1 = mapper.toX(hoveredItem.start)
                 const x2 = mapper.toX(hoveredItem.end)
@@ -331,7 +333,6 @@ export function useTimelineRenderer({
                 ctx.fillRect(x1, 0, x2 - x1, height)
 
                 ctx.globalAlpha = 1
-                ctx.setLineDash([]) // solid
                 ctx.strokeStyle = styles.getPropertyValue("--color-accent")
                 ctx.lineWidth = 2
 

@@ -39,17 +39,19 @@ export default function ExplorerPanel() {
                 filtered={filtered}
             />
 
-            <ModalitySection
-                modality="logical"
-                incidents={filtered.logical}
-                totalCount={incidentsByModality.logical.length}
-            />
+            <div className={styles.scroll}>
+                <ModalitySection
+                    modality="logical"
+                    incidents={filtered.logical}
+                    totalCount={incidentsByModality.logical.length}
+                />
 
-            <ModalitySection
-                modality="physical"
-                incidents={filtered.physical}
-                totalCount={incidentsByModality.physical.length}
-            />
+                <ModalitySection
+                    modality="physical"
+                    incidents={filtered.physical}
+                    totalCount={incidentsByModality.physical.length}
+                />
+            </div>
 
         </div>
     )
