@@ -235,7 +235,7 @@ export default function TimelineCanvas(params: {
         adapter: params.adapter,
         selectedItem: selectedItem ? selectedItem : null,
         hoveredItem,
-        externalCursorTimeUs: externalCursorTimeUs,
+        externalCursorTimeUs: cursor.current ? null : externalCursorTimeUs,
     })
 
     useEffect(() => {

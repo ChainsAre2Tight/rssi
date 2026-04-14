@@ -28,14 +28,15 @@ export function useTimelineHoverSync({
     setHoveredKey,
     setExternalCursorTimeUs,
 }: Params) {
-    const isInternalUpdate = useRef(false)
+    const isInternalKeyUpdate = useRef(false)
+    const isInternalTimeUpdate = useRef(false)
 
     const lastKeyRef = useRef<string | null>(null)
     const lastTimeRef = useRef<number | null>(null)
 
     useEffect(() => {
-        if (isInternalUpdate.current) {
-            isInternalUpdate.current = false
+        if (isInternalKeyUpdate.current) {
+            isInternalKeyUpdate.current = false
             return
         }
 
@@ -43,23 +44,20 @@ export function useTimelineHoverSync({
     }, [externalHoverKey])
 
     useEffect(() => {
+        if (isInternalTimeUpdate.current) {
+            isInternalTimeUpdate.current = false
+            return
+        }
 
-        // this is preventing internal updates
-        // with this disabled both cursors are always drawn
-        // TODO: implement properly
-        // if (isInternalUpdate.current) {
-        //     isInternalUpdate.current = false
-        //     return
-        // }
-
-        setExternalCursorTimeUs(externalHoverTimeUs)
+        if (externalHoverTimeUs !== null) {
+            setExternalCursorTimeUs(externalHoverTimeUs)
+        }
     }, [externalHoverTimeUs])
 
-    function handleInternalHover(
-        key: string | null,
-        timeUs: number | null
-    ) {
-        isInternalUpdate.current = true
+    function handleInternalHover(key: string | null, timeUs: number | null) {
+
+        isInternalKeyUpdate.current = true
+        isInternalTimeUpdate.current = true
 
         // ---- ITEM ----
         if (key !== lastKeyRef.current) {
