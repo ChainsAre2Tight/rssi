@@ -1,11 +1,7 @@
 import { useState } from "react"
 
 import { useAppStore } from "../../store/useAppStore"
-
-import { fetchReport } from "../../services/reportApi"
-import { adaptReport } from "../../features/report/adapter"
-
-import type { BackendReport } from "../../types/backend"
+import { loadReport } from "../../features/report/loadReport"
 
 export default function ReportControls() {
 
@@ -16,8 +12,6 @@ export default function ReportControls() {
     const [startUs, setStartUs] = useState("")
     const [endUs, setEndUs] = useState("")
 
-    const [pendingReport, setPendingReport] = useState<any>(null)
-
     const valid =
         measurementId !== null &&
         startUs !== "" &&
@@ -25,10 +19,7 @@ export default function ReportControls() {
         Number(startUs) < Number(endUs)
 
     async function handleGenerate() {
-
-        if (!valid || measurementId === null) {
-            return
-        }
+        if (!valid || measurementId === null) return
 
         const start = Number(startUs)
         const end = Number(endUs)
@@ -36,25 +27,17 @@ export default function ReportControls() {
         setReportLoading(true)
 
         try {
-
-            const raw = await fetchReport({
+            const adapted = await loadReport({
                 measurementId,
                 startTimeUs: start,
-                endTimeUs: end
+                endTimeUs: end,
             })
 
-            const adapted = adaptReport(raw as BackendReport)
-
-            // store locally first
-            setPendingReport(adapted)
-
-            // commit immediately for now
             setReport(
                 adapted.incidentsByModality,
                 adapted.startTimeUs,
                 adapted.endTimeUs,
             )
-
         } catch (err) {
             console.error("Report fetch failed", err)
         } finally {
