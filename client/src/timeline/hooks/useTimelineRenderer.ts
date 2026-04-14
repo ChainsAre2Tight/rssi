@@ -13,7 +13,6 @@ interface Params {
     cursor: RefObject<{ x: number; y: number } | null>
     zoomAnchorX: RefObject<number | null>
     isZooming: RefObject<boolean>
-    getNiceStep: (raw: number) => number
     tracks: TrackLayoutItem[]
     adapter: TimelineAdapterResult
     selectedItem?: TimelineItem | null
@@ -29,7 +28,6 @@ export function useTimelineRenderer({
     cursor,
     zoomAnchorX,
     isZooming,
-    getNiceStep,
     tracks,
     adapter,
     selectedItem,
@@ -72,22 +70,112 @@ export function useTimelineRenderer({
             const scale = width / duration
 
             const targetPxPerTick = 100
-            const rawStep = targetPxPerTick / scale
-            const step = getNiceStep(rawStep)
 
-            const firstTick = Math.floor(viewport.start / step) * step
+            function getStep(raw: number) {
+                const pow = Math.pow(10, Math.floor(Math.log10(raw)))
+                const norm = raw / pow
 
-            ctx.strokeStyle = styles.getPropertyValue("--color-border")
+                let step
+                if (norm <= 1) step = 1
+                else if (norm <= 2) step = 2
+                else if (norm <= 5) step = 5
+                else step = 10
+
+                return step * pow
+            }
+
+            const majorStep = getStep(targetPxPerTick / scale)
+            const minorStep = majorStep / 5
+
+            const firstMajor = Math.floor(viewport.start / majorStep) * majorStep
+            const firstMinor = Math.floor(viewport.start / minorStep) * minorStep
+
+            // styles
             ctx.lineWidth = 1
 
-            for (let t = firstTick; t < viewport.end; t += step) {
+            const gridColor = styles.getPropertyValue("--color-border")
+            const textColor = styles.getPropertyValue("--color-text-muted") || "#888"
+
+            // --- MINOR GRID ---
+            ctx.strokeStyle = gridColor
+            ctx.globalAlpha = 0.2
+
+            let minorCount = 0
+            for (let t = firstMinor; t < viewport.end; t += minorStep) {
                 const x = Math.round((t - viewport.start) * scale) + 0.5
 
                 ctx.beginPath()
                 ctx.moveTo(x, 0)
                 ctx.lineTo(x, height)
                 ctx.stroke()
+
+                if (++minorCount > 300) break // safety cap
             }
+
+            ctx.globalAlpha = 1
+
+            // --- MAJOR GRID + LABELS ---
+            ctx.strokeStyle = gridColor
+            ctx.globalAlpha = 0.6
+
+            ctx.font = "11px sans-serif"
+            ctx.fillStyle = textColor
+            ctx.textBaseline = "bottom"
+
+            let lastLabelX = -Infinity
+
+            function formatTime(seconds: number) {
+                const d = new Date(seconds * 1000)
+
+                const year = d.getFullYear()
+                const month = d.toLocaleString("default", { month: "short" })
+                const day = d.getDate().toString().padStart(2, "0")
+
+                const hh = d.getHours().toString().padStart(2, "0")
+                const mm = d.getMinutes().toString().padStart(2, "0")
+                const ss = d.getSeconds().toString().padStart(2, "0")
+
+                if (majorStep < 60) {
+                    return `${hh}:${mm}:${ss}`
+                }
+
+                if (majorStep < 3600) {
+                    return `${day} ${hh}:${mm}`
+                }
+
+                if (majorStep < 86400) {
+                    return `${month} ${day} ${hh}:00`
+                }
+
+                if (majorStep < 86400 * 30) {
+                    return `${month} ${day}`
+                }
+
+                return `${year} ${month}`
+            }
+
+            let majorCount = 0
+
+            for (let t = firstMajor; t < viewport.end; t += majorStep) {
+                const x = Math.round((t - viewport.start) * scale) + 0.5
+
+                // line
+                ctx.beginPath()
+                ctx.moveTo(x, 0)
+                ctx.lineTo(x, height)
+                ctx.stroke()
+
+                // label (collision safe)
+                if (x - lastLabelX > 60) {
+                    const label = formatTime(t)
+                    ctx.fillText(label, x + 4, height - 4)
+                    lastLabelX = x
+                }
+
+                if (++majorCount > 200) break // safety cap
+            }
+
+            ctx.globalAlpha = 1
 
             // --- TRACKS ---
             ctx.strokeStyle = styles.getPropertyValue("--color-border")

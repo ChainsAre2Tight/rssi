@@ -4,7 +4,6 @@ import { useViewport } from "../hooks/useViewport"
 import { useTimelineInteraction } from "../hooks/useTimelineInteraction"
 import { useTimelineRenderer } from "../hooks/useTimelineRenderer"
 import { useTrackResizing } from "../hooks/useTrackResizing"
-import { getNiceStep } from "../utils/timeGrid"
 import { computeTrackLayout } from "../utils/trackLayout"
 import type { TimelineAdapterResult, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
@@ -12,7 +11,7 @@ import { createTimeMapper, hitTest } from "../utils/mapping"
 import { ensureVisible, getSafeBoundsViewport } from "../utils/ensureVisible"
 import { useTimelineSync } from "../hooks/useTimelineSync"
 import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
-import { formatDateTime, formatTime } from "../../utils/time"
+import { formatDateTime } from "../../utils/time"
 
 
 export default function TimelineCanvas(params: {
@@ -194,7 +193,6 @@ export default function TimelineCanvas(params: {
         cursor,
         zoomAnchorX,
         isZooming,
-        getNiceStep,
         tracks: layout,
         adapter: params.adapter,
         selectedItem: selectedItem ? selectedItem : null,
