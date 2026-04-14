@@ -24,7 +24,7 @@ services:
     ports:
       - "5001:5001"
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=api
     volumes:
@@ -40,7 +40,7 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=ingestion
     volumes:
@@ -55,7 +55,7 @@ services:
       - core
     command: python -m cmd.workers.events
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=events
     volumes:
@@ -72,7 +72,7 @@ services:
       - core
     command: python -m cmd.workers.aps
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=ap_observations
     volumes:
@@ -89,7 +89,7 @@ services:
       - core
     command: python -m cmd.workers.detection
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=detection
     volumes:
@@ -106,7 +106,7 @@ services:
     profiles:
       - core
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=localization_trigger
     volumes:
@@ -123,7 +123,7 @@ services:
       - localization
     command: python -m cmd.workers.localization_compute
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=localization_compute
     volumes:
@@ -140,7 +140,7 @@ services:
     restart: unless-stopped
     command: python -m cmd.workers.dataset
     env_file:
-      - server/.env
+      - server/.env.docker
     environment:
       - WORKER_NAME=dataset_builder
     volumes:
