@@ -2,7 +2,6 @@ import { useAppStore } from "../../store/useAppStore"
 import VerticalResizer from "../Layout/VerticalResizer"
 import WarningDetails from "./WarningDetails"
 
-import WarningDetailsList from "./WarningDetailsList"
 import WarningList from "./WarningList"
 // later this becomes WarningList
 // and details will move out

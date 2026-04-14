@@ -1,45 +1,98 @@
 :root[data-theme="light"] {
 
-    --color-bg: #f7f7f8;
-    --color-surface: #ffffff;
-    --color-border: #d9d9dd;
+    /* base surfaces */
 
-    --color-text: #1e1e20;
-    --color-text-secondary: #666670;
+    --color-bg: #f4f5f7;              /* slightly darker page bg */
+    --color-surface: #ffffff;         /* main panels */
+    --color-surface-alt: #fafbfc;     /* subtle nested panels */
 
-    --color-accent: #3b82f6;
+    /* borders */
 
-    --color-surface-hover: #f0f0f2;
+    --color-border: #d4d6dc;          /* stronger than before */
+    --color-border-strong: #c2c5cc;   /* for separators / resizers */
 
-    /* severities */
+    /* text */
 
-    --severity-info: #60a5fa;
-    --severity-low: #34d399;
-    --severity-medium: #fbbf24;
+    --color-text: #1b1d22;            /* slightly deeper */
+    --color-text-secondary: #5f636b;  /* improved contrast */
+
+    /* accent */
+
+    --color-accent: #2563eb;          /* slightly deeper blue */
+    --color-accent-soft: rgba(37, 99, 235, 0.12);
+
+    /* interaction */
+
+    --color-surface-hover: #eef1f5;   /* clearer hover */
+    --color-surface-active: #e4e9f2;  /* for pressed/selected feel */
+
+    /* separators / dividers */
+
+    --color-divider: #e3e5ea;
+
+    /* severity */
+
+    --severity-info: #3b82f6;
+    --severity-low: #22c55e;
+    --severity-medium: #f59e0b;
     --severity-high: #f97316;
     --severity-critical: #ef4444;
-}
 
+    /* optional soft backgrounds for pills */
+
+    --severity-info-bg: rgba(59,130,246,0.10);
+    --severity-low-bg: rgba(34,197,94,0.10);
+    --severity-medium-bg: rgba(245,158,11,0.12);
+    --severity-high-bg: rgba(249,115,22,0.12);
+    --severity-critical-bg: rgba(239,68,68,0.12);
+}
 
 
 :root[data-theme="dark"] {
 
-    --color-bg: #151518;
-    --color-surface: #1f1f23;
-    --color-border: #303036;
+    /* base surfaces */
 
-    --color-text: #e6e6ea;
-    --color-text-secondary: #a0a0aa;
+    --color-bg: #141518;              /* deeper, less purple */
+    --color-surface: #1c1e22;         /* main panels */
+    --color-surface-alt: #22252a;     /* nested panels */
 
-    --color-accent: #60a5fa;
+    /* borders */
 
-    --color-surface-hover: #26262b;
+    --color-border: #2c2f36;          /* clearer than before */
+    --color-border-strong: #3a3f47;   /* resizers / strong dividers */
 
-    /* severities */
+    /* text */
+
+    --color-text: #e5e7eb;            /* slightly softer than pure white */
+    --color-text-secondary: #9aa0a6;  /* better readability */
+
+    /* accent */
+
+    --color-accent: #60a5fa;          /* keep your blue */
+    --color-accent-soft: rgba(96,165,250,0.18);
+
+    /* interaction */
+
+    --color-surface-hover: #262a31;   /* more visible hover */
+    --color-surface-active: #2f3540;  /* pressed / selected feel */
+
+    /* separators */
+
+    --color-divider: #2a2e35;
+
+    /* severity */
 
     --severity-info: #60a5fa;
     --severity-low: #4ade80;
     --severity-medium: #facc15;
     --severity-high: #fb923c;
     --severity-critical: #f87171;
+
+    /* soft backgrounds for pills */
+
+    --severity-info-bg: rgba(96,165,250,0.16);
+    --severity-low-bg: rgba(74,222,128,0.16);
+    --severity-medium-bg: rgba(250,204,21,0.18);
+    --severity-high-bg: rgba(251,146,60,0.18);
+    --severity-critical-bg: rgba(248,113,113,0.18);
 }

@@ -1,0 +1,65 @@
+.root {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* bigger hit area */
+    user-select: none;
+}
+
+.line {
+    position: relative;
+
+    background: var(--color-border);
+    border-radius: 2px;
+
+    transition:
+        background var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+/* subtle handle dots */
+.line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+
+    background-image: radial-gradient(
+        var(--color-text-secondary) 1px,
+        transparent 1px
+    );
+    background-size: 4px 4px;
+}
+
+/* hover */
+.root:hover .line {
+    background: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+}
+
+.root:hover .line::after {
+    opacity: 0.4;
+}
+
+/* dragging */
+.root[data-dragging="true"] .line {
+    background: var(--color-accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+/* subtle scale feedback */
+.root.vertical:hover .line {
+    transform: scaleX(1.4);
+}
+
+.root.horizontal:hover .line {
+    transform: scaleY(1.4);
+}
