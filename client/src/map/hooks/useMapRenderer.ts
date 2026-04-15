@@ -34,6 +34,15 @@ export function useMapRenderer({
         let frameId: number
 
         function render() {
+            if (
+                !Number.isFinite(viewport.minX) ||
+                !Number.isFinite(viewport.maxX) ||
+                !Number.isFinite(viewport.minY) ||
+                !Number.isFinite(viewport.maxY)
+            ) {
+                return
+            }
+
             const canvas = canvasRef.current
             if (!canvas || width === 0 || height === 0) {
                 frameId = requestAnimationFrame(render)

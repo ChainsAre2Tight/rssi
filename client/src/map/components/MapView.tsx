@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from "react"
+import { useRef, useEffect, useCallback, useState, useMemo } from "react"
 import type { RefObject } from "react"
 import { useAppStore } from "../../store/useAppStore"
 import { useMapViewport } from "../hooks/useMapViewport"
@@ -45,12 +45,14 @@ export default function MapView() {
     }, [])
 
     // Build adapter from localization data
-    const adapter = localizationData
-        ? buildLocalizationAdapter({
+    const adapter = useMemo(() => {
+        if (!localizationData) return null
+
+        return buildLocalizationAdapter({
             locations: localizationData.locations,
             sensors: sensors[String(measurementId)] || [],
         })
-        : null
+    }, [localizationData, sensors, measurementId])
 
     // Initialize viewport from adapter bounds
     const { viewport, setViewport } = useMapViewport(
@@ -59,10 +61,26 @@ export default function MapView() {
 
     // Update viewport when adapter changes
     useEffect(() => {
-        if (adapter?.bounds) {
-            setViewport(fitBounds(adapter.bounds, 0.15))
+    if (!adapter?.bounds) return
+
+        const { minX, maxX, minY, maxY } = adapter.bounds
+
+        if (
+            !Number.isFinite(minX) ||
+            !Number.isFinite(maxX) ||
+            !Number.isFinite(minY) ||
+            !Number.isFinite(maxY)
+        ) {
+            return
         }
-    }, [adapter?.bounds, setViewport])
+
+        setViewport(fitBounds(adapter.bounds, 0.15))
+    }, [
+        adapter?.bounds.minX,
+        adapter?.bounds.maxX,
+        adapter?.bounds.minY,
+        adapter?.bounds.maxY,
+    ])
 
     // Fetch sensors on mount
     useEffect(() => {

@@ -24,6 +24,24 @@ export function useMapInteraction({
     onClick,
     onMove,
 }: Params) {
+
+    function safeSetViewport(next: SpatialViewport) {
+        if (
+            !Number.isFinite(next.minX) ||
+            !Number.isFinite(next.maxX) ||
+            !Number.isFinite(next.minY) ||
+            !Number.isFinite(next.maxY)
+        ) {
+            return
+        }
+
+        if (next.maxX - next.minX <= 0 || next.maxY - next.minY <= 0) {
+            return
+        }
+
+        setViewport(next)
+    }
+
     const isPanning = useRef(false)
 
     const dragStartClientX = useRef(0)
@@ -53,7 +71,7 @@ export function useMapInteraction({
         const deltaWorldX = deltaPxX / mapper.scale
         const deltaWorldY = deltaPxY / mapper.scale
 
-        setViewport({
+        safeSetViewport({
             minX: base.minX - deltaWorldX,
             maxX: base.maxX - deltaWorldX,
             minY: base.minY + deltaWorldY,
@@ -81,7 +99,7 @@ export function useMapInteraction({
 
         const clamped = clampViewportSize(minX, maxX, minY, maxY)
 
-        setViewport(clamped)
+        safeSetViewport(clamped)
     }
 
     function onMouseDown(e: React.MouseEvent) {
