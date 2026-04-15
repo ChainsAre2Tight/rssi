@@ -1,5 +1,6 @@
 import { useAppStore } from "../../store/useAppStore"
 import { formatDateTime } from "../../utils/time"
+import LocalizationButtons from "./LocalizationButtons"
 
 import styles from "./IncidentHeader.module.css"
 
@@ -33,10 +34,14 @@ export default function IncidentHeader() {
                 <span className={styles.identity}>{identity}</span>
             </div>
 
-            <div className={styles.right}>
+            <div className={styles.center}>
                 {formatDateTime(incident.startTimeUs)}
                 {" — "}
                 {formatDateTime(incident.endTimeUs)}
+            </div>
+
+            <div className={styles.right}>
+                <LocalizationButtons />
             </div>
 
         </div>

@@ -1,5 +1,5 @@
 import type { Incident, Modality, Measurement, Severity } from "./general"
-
+import type { LocalizationData, Sensor } from "../services/localizationApi"
 
 export interface AppState {
     context: {
@@ -65,6 +65,14 @@ export interface AppState {
         warningPanelExpanded: Record<string, boolean>
     }
 
+    localization: {
+        mode: "timeline" | "map"
+        cache: Record<string, LocalizationData>
+        sensors: Record<string, Sensor[]>
+        loading: Record<string, boolean>
+        error: Record<string, string | null>
+    }
+
     // actions
     setMeasurements: (items: Measurement[]) => void
     setMeasurementsLoading: (loading: boolean) => void
@@ -96,4 +104,11 @@ export interface AppState {
     ) => void
 
     toggleSeverity: (severity: Severity) => void
+
+    setLocalizationMode: (mode: "timeline" | "map") => void
+    setLocalizationData: (incidentKey: string, data: LocalizationData) => void
+    setSensors: (measurementId: number, sensors: Sensor[]) => void
+    setLocalizationLoading: (incidentKey: string, loading: boolean) => void
+    setLocalizationError: (incidentKey: string, error: string | null) => void
+    clearLocalizationCache: () => void
 }

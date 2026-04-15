@@ -196,6 +196,7 @@ class LogicalModality(my_types.Modality):
             measurement_id,
             start_time_us,
             end_time_us,
+            0,
         )
 
         valid_windows = get_windows_with_observation_for_bssid(

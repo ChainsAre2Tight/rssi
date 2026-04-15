@@ -80,6 +80,14 @@ persist(
         warningPanelExpanded: {}
     },
 
+    localization: {
+        mode: "timeline",
+        cache: {},
+        sensors: {},
+        loading: {},
+        error: {},
+    },
+
     // ACTIONS
 
     setMeasurementsLoading: (loading) =>
@@ -166,6 +174,13 @@ persist(
                 incidentsByModality,
                 loading: false,
                 loaded: true
+            },
+            localization: {
+                mode: "timeline",
+                cache: {},
+                sensors: {},
+                loading: {},
+                error: {},
             }
         }),
 
@@ -228,6 +243,80 @@ persist(
                 }
             }
         })),
+
+    setLocalizationMode: (mode) =>
+        set((state) => ({
+            localization: {
+                ...state.localization,
+                mode,
+            }
+        })),
+
+    setLocalizationData: (incidentKey, data) =>
+        set((state) => {
+            const newCache = { ...state.localization.cache, [incidentKey]: data }
+
+            // Enforce max cache size (keep 5 most recent)
+            const MAX_CACHE_SIZE = 5
+            if (Object.keys(newCache).length > MAX_CACHE_SIZE) {
+                const keys = Object.keys(newCache)
+                const toRemove = keys[0]
+                delete newCache[toRemove]
+            }
+
+            return {
+                localization: {
+                    ...state.localization,
+                    cache: newCache,
+                    loading: { ...state.localization.loading, [incidentKey]: false },
+                    error: { ...state.localization.error, [incidentKey]: null },
+                }
+            }
+        }),
+
+    setSensors: (measurementId, sensors) =>
+        set((state) => ({
+            localization: {
+                ...state.localization,
+                sensors: {
+                    ...state.localization.sensors,
+                    [String(measurementId)]: sensors,
+                }
+            }
+        })),
+
+    setLocalizationLoading: (incidentKey, loading) =>
+        set((state) => ({
+            localization: {
+                ...state.localization,
+                loading: {
+                    ...state.localization.loading,
+                    [incidentKey]: loading,
+                }
+            }
+        })),
+
+    setLocalizationError: (incidentKey, error) =>
+        set((state) => ({
+            localization: {
+                ...state.localization,
+                error: {
+                    ...state.localization.error,
+                    [incidentKey]: error,
+                }
+            }
+        })),
+
+    clearLocalizationCache: () =>
+        set({
+            localization: {
+                mode: "timeline",
+                cache: {},
+                sensors: {},
+                loading: {},
+                error: {},
+            }
+        }),
 
 }),
 {

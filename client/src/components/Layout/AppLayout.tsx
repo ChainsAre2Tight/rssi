@@ -9,6 +9,7 @@ import HorizontalResizer from "./HorizontalResizer"
 import VerticalResizer from "./VerticalResizer.tsx"
 
 import { useAppStore } from "../../store/useAppStore.ts"
+import GlobalAreaContainer from "./GlobalAreaContainer.tsx"
 
 export default function AppLayout() {
 
@@ -44,7 +45,7 @@ export default function AppLayout() {
                 className={styles.timeline}
                 style={{ height: timelineHeight }}
             >
-                <GlobalTimeline />
+                <GlobalAreaContainer />
             </div>
 
             <HorizontalResizer onDrag={resizeTimeline} />

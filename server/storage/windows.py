@@ -243,7 +243,6 @@ def get_windows_with_observation_for_bssid(
         WHERE
             window_id IN ({placeholders})
             AND bssid = ?
-            AND layer = 0
         """,
         window_ids + [bssid],
     ).fetchall()
