@@ -71,5 +71,6 @@ export function buildIncidentAdapter({
             end: reportEndUs,
         },
         trackIds,
+        hasItems: byId.size > 0,
     }
 }

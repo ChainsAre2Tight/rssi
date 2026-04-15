@@ -22,6 +22,8 @@ export default function MapView() {
     const { cache, sensors } = useAppStore(s => s.localization)
     const { setSensors } = useAppStore()
 
+    // TODO: investigate a bug when requesting positions, placeholder goes away
+    // but to render you have to switch map-timeline-map
     const localizationData = incidentId ? cache[incidentId] : null
 
     // Resize observer for canvas

@@ -76,5 +76,6 @@ export function buildWarningAdapter({
             end: incident.endTimeUs,
         },
         trackIds,
+        hasItems: byKey.size > 0
     }
 }

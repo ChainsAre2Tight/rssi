@@ -279,7 +279,7 @@ export default function TimelineCanvas(params: {
         return () => observer.disconnect()
     }, [])
 
-    if (!params.adapter.itemsByTrack) {
+    if (!params.adapter.hasItems) {
         return (
             <div className={styles.placeholder}>
                 No incidents loaded

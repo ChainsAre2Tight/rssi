@@ -60,4 +60,5 @@ export interface TimelineAdapterResult {
     }
 
     trackIds: string[]
+    hasItems: boolean
 }
