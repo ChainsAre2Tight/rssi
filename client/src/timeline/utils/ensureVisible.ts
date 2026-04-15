@@ -65,3 +65,51 @@ export function getSafeBoundsViewport(
         end: end + padding,
     }
 }
+
+interface EnsureVisibleVerticalParams {
+    scrollY: number
+    viewportHeight: number
+    contentHeight: number
+
+    laneIndex: number
+    laneHeight: number
+
+    paddingRatio?: number
+}
+
+export function ensureLaneVisible({
+    scrollY,
+    viewportHeight,
+    contentHeight,
+    laneIndex,
+    laneHeight,
+    paddingRatio = 0.1,
+}: EnsureVisibleVerticalParams): number {
+
+    const laneTop = laneIndex * laneHeight
+    const laneBottom = laneTop + laneHeight
+
+    const padding = viewportHeight * paddingRatio
+
+    const paddedTop = scrollY + padding
+    const paddedBottom = scrollY + viewportHeight - padding
+
+    // already visible
+    if (laneTop >= paddedTop && laneBottom <= paddedBottom) {
+        return scrollY
+    }
+
+    // shift minimally
+    let nextScroll = scrollY
+
+    if (laneTop < paddedTop) {
+        nextScroll -= (paddedTop - laneTop)
+    } else if (laneBottom > paddedBottom) {
+        nextScroll += (laneBottom - paddedBottom)
+    }
+
+    // clamp
+    const maxScroll = Math.max(0, contentHeight - viewportHeight)
+
+    return Math.max(0, Math.min(maxScroll, nextScroll))
+}

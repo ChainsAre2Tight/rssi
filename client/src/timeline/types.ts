@@ -24,6 +24,8 @@ export interface TimelineItem {
     start: number
     end: number
     severity: Severity
+
+    laneIndex?: number
 }
 
 export interface TrackLayoutItem {

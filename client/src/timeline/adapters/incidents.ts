@@ -55,6 +55,12 @@ export function buildIncidentAdapter({
             minGap: minGapS,
         })
 
+        lanes.forEach((lane, laneIndex) => {
+            lane.forEach(item => {
+                item.laneIndex = laneIndex
+            })
+        })
+
         itemsByTrack[modality] = lanes
     }
 

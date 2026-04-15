@@ -8,7 +8,7 @@ import { computeTrackLayout } from "../utils/trackLayout"
 import type { TimelineAdapterResult, TimelineTrack } from "../types"
 import styles from "./TimelineCanvas.module.css"
 import { createTimeMapper, hitTest } from "../utils/mapping"
-import { ensureVisible, getSafeBoundsViewport } from "../utils/ensureVisible"
+import { ensureLaneVisible, ensureVisible, getSafeBoundsViewport } from "../utils/ensureVisible"
 import { useTimelineSync } from "../hooks/useTimelineSync"
 import { useTimelineHoverSync } from "../hooks/useTimelineHoverSync"
 import { formatDateTime } from "../../utils/time"
@@ -209,6 +209,38 @@ export default function TimelineCanvas(params: {
                 itemEnd: item.end,
             })
         )
+
+        setTracks(prev =>
+            prev.map(t => {
+                const lanes = params.adapter.itemsByTrack[t.id]
+                if (!lanes) return t
+
+                // find item in this track
+                const found = lanes.find(lane =>
+                    lane.some(i => i.key === selectedKey)
+                )
+
+                if (!found) return t
+
+                const laneIndex = item.laneIndex
+                if (laneIndex === undefined) return t
+
+                const contentHeight = lanes.length * 12 // laneHeight
+
+                const nextScroll = ensureLaneVisible({
+                    scrollY: t.scrollY ?? 0,
+                    viewportHeight: t.height,
+                    contentHeight,
+                    laneIndex,
+                    laneHeight: 12,
+                })
+
+                return {
+                    ...t,
+                    scrollY: nextScroll,
+                }
+            }
+        ))
     }, [selectedKey])
 
     const resizing = useTrackResizing({

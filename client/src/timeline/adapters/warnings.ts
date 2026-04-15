@@ -61,6 +61,11 @@ export function buildWarningAdapter({
         }
 
         lanes.push(lane)
+
+        const laneIndex = lanes.length - 1
+        lane.forEach(item => {
+            item.laneIndex = laneIndex
+        })
     }
 
     itemsByTrack[trackId] = lanes
