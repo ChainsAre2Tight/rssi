@@ -1,4 +1,4 @@
-import { useRef, useEffect, type RefObject, useState } from "react"
+import { useRef, useEffect, type RefObject, useState, useMemo } from "react"
 import { useContainerSize } from "../hooks/useContainerSize"
 import { useViewport } from "../hooks/useViewport"
 import { useTimelineInteraction } from "../hooks/useTimelineInteraction"
@@ -34,6 +34,11 @@ export default function TimelineCanvas(params: {
     const { viewport, setViewport, duration } = useViewport()
     
     const [selectedKey, setSelectedKey] = useState<string | null>(null)
+    const [focusedTrackId, setFocusedTrackId] = useState<string | null>(null)
+    const effectiveFocusedTrackId =
+        params.adapter.trackIds.length === 1
+            ? params.adapter.trackIds[0]
+            : focusedTrackId
     const { handleInternalSelect } = useTimelineSync({
         adapter: params.adapter,
         externalSelectedKey: params.externalSelectedKey,
@@ -61,7 +66,26 @@ export default function TimelineCanvas(params: {
     const DEFAULT_EXPANDED_HEIGHT = 120
 
     const [tracks, setTracks] = useState<TimelineTrack[]>([])
-    const layout = computeTrackLayout(tracks, params.adapter.itemsByTrack)
+    const displayTracks = useMemo(() => {
+        if (!tracks.length) return tracks
+
+        if (!effectiveFocusedTrackId) return tracks
+
+        return tracks.map(t => {
+            if (t.id === effectiveFocusedTrackId) {
+                return {
+                    ...t,
+                    height: height,
+                }
+            }
+
+            return {
+                ...t,
+                height: HEADER_HEIGHT,
+            }
+        })
+    }, [tracks, effectiveFocusedTrackId, height])
+    const layout = computeTrackLayout(displayTracks, params.adapter.itemsByTrack)
 
     const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
@@ -108,32 +132,37 @@ export default function TimelineCanvas(params: {
         })
 
     useEffect(() => {
-        if (params.adapter.trackIds.length === 1) {
-            const tracks: TimelineTrack[] = params.adapter.trackIds.map(id => ({
-                id,
-                label: id,
-                height: 100,
-                collapsible: true,
-                resizable: true,
-                lastExpandedHeight: 100,
-                scrollY: 0,
-            }))
-            setTracks(tracks)
-            return
-        }
+        const trackIds = params.adapter.trackIds
+        if (!trackIds.length || height === 0) return
 
-        const nextTracks: TimelineTrack[] = params.adapter.trackIds.map(id => ({
+        const isSingle = trackIds.length === 1
+
+        const nextTracks: TimelineTrack[] = trackIds.map(id => ({
             id,
             label: id,
-            height: 200,
-            collapsible: true,
+            height: 0, // temp, will assign below
+            collapsible: !isSingle,
             resizable: true,
             lastExpandedHeight: 100,
             scrollY: 0,
         }))
 
+        // --- HEIGHT ASSIGNMENT ---
+
+        if (isSingle) {
+            nextTracks[0].height = height
+        } else {
+            const gaps = (trackIds.length - 1) * 4 // RESIZE_HANDLE_GAP
+            const available = height - gaps
+            const perTrack = Math.max(available / trackIds.length, 28)
+
+            for (const t of nextTracks) {
+                t.height = perTrack
+            }
+        }
+
         setTracks(nextTracks)
-    }, [params.adapter.itemsByTrack])
+    }, [params.adapter.trackIds, height])
 
     useEffect(() => {
         if (!params.adapter.bounds.start || !params.adapter.bounds.end) return
@@ -299,7 +328,19 @@ export default function TimelineCanvas(params: {
                                 top: t.y,
                                 height: 28,
                             }}
-                            onClick={() => toggleTrack(t.id)}
+                            onClick={(e) => {
+                                // SHIFT CLICK → focus toggle
+                                if (e.shiftKey) {
+                                    setFocusedTrackId(prev => (prev === t.id ? null : t.id))
+                                    return
+                                }
+
+                                toggleTrack(t.id)
+                            }}
+                            onDoubleClick={() => {
+                                setFocusedTrackId(prev => (prev === t.id ? null : t.id))
+                            }}
+                            title="Click to collapse | Shift+Click or Double-click to focus"
                         >
                             <span className={styles.chevron}>
                                 {t.track.collapsible
