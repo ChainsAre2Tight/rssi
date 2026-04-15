@@ -89,7 +89,7 @@ export default function MapView() {
         width,
         height,
         viewport,
-        adapter: adapter || { segments: [], sensors: [], bounds: { minX: 0, maxX: 10, minY: 0, maxY: 10 } },
+        adapter: adapter || { segments: [], sensors: [], bounds: { minX: 0, maxX: 1, minY: 0, maxY: 1 } },
         cursor,
     })
 
@@ -149,7 +149,10 @@ export default function MapView() {
             />
 
             <div className={styles.debug}>
-                test
+                minX: {viewport.minX.toFixed(2)} <br />
+                maxX: {viewport.maxX.toFixed(2)} <br />
+                minY: {viewport.minY.toFixed(2)} <br />
+                minY: {viewport.maxY.toFixed(2)}
             </div>
 
             <div className={styles.controls}>

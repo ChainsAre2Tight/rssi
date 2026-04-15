@@ -88,7 +88,6 @@ function drawAxisGrid({
     end,
     majorStep,
     minorStep,
-    length,
     gridColor,
     textColor,
     width,
@@ -199,7 +198,7 @@ function drawGrid(
     const worldWidth = viewport.maxX - viewport.minX
     const pxPerUnit = width / worldWidth
 
-    const targetPx = 200 // desired spacing for MAJOR lines
+    const targetPx = 300 // desired spacing for MAJOR lines
     const extended = getExtendedWorldBounds(mapper, width, height)
 
     function getStep(raw: number) {
@@ -227,7 +226,6 @@ function drawGrid(
         end: extended.maxX,
         majorStep,
         minorStep,
-        length: height,
         gridColor,
         textColor,
         width,
@@ -243,7 +241,6 @@ function drawGrid(
         end: extended.maxY,
         majorStep,
         minorStep,
-        length: width,
         gridColor,
         textColor,
         width,
