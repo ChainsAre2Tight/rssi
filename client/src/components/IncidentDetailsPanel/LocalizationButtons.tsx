@@ -9,6 +9,8 @@ export default function LocalizationButtons() {
     const startTimeUs = useAppStore(s => s.report.startTimeUs)
     const endTimeUs = useAppStore(s => s.report.endTimeUs)
 
+    const setLocalizationMode = useAppStore(s => s.setLocalizationMode)
+
     const { cache, loading, error } = useAppStore(s => s.localization)
     const { setLocalizationData, setLocalizationLoading, setLocalizationError } = useAppStore()
 
@@ -42,6 +44,7 @@ export default function LocalizationButtons() {
             })
 
             setLocalizationData(incidentId, data)
+            setLocalizationMode("map")
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to fetch localization"
             setLocalizationError(incidentId, message)
@@ -75,21 +78,28 @@ export default function LocalizationButtons() {
             })
 
             setLocalizationData(incidentId, data)
+            setLocalizationMode("map")
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to request localization"
             setLocalizationError(incidentId, message)
         }
     }
 
+    const primaryLabel = hasData ? "Refresh" : "Request Location"
+    const primaryTitle = hasData
+        ? "Refresh localization data"
+        : "Fetch existing localization data"
+
     return (
         <div className={styles.root}>
+
             <button
                 className={styles.button}
                 onClick={handleRequestLocation}
                 disabled={isLoading}
-                title="Fetch existing localization data"
+                title={primaryTitle}
             >
-                {isLoading ? "Loading..." : "Request Location"}
+                {isLoading ? "Loading..." : primaryLabel}
             </button>
 
             <button
@@ -100,17 +110,6 @@ export default function LocalizationButtons() {
             >
                 {isLoading ? "Processing..." : "Send for Localization"}
             </button>
-
-            {hasData && (
-                <button
-                    className={styles.button}
-                    onClick={handleRequestLocation}
-                    disabled={isLoading}
-                    title="Refresh localization data"
-                >
-                    {isLoading ? "Loading..." : "Refresh"}
-                </button>
-            )}
 
             {isError && (
                 <div className={styles.error}>
