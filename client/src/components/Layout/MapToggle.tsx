@@ -6,8 +6,6 @@ export default function MapToggle() {
     const setLocalizationMode = useAppStore((s) => s.setLocalizationMode)
     const selectedIncidentId = useAppStore((s) => s.selection.incidentId)
 
-    console.log(1233333333)
-
     // Only show toggle when an incident is selected
     if (!selectedIncidentId) {
         return null

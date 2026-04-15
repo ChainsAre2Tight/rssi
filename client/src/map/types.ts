@@ -1,4 +1,4 @@
-import type { LocalizationResult, Sensor } from "../../services/localizationApi"
+import type { Sensor } from "../services/localizationApi"
 
 export interface SpatialViewport {
     minX: number

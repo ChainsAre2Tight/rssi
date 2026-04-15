@@ -1,5 +1,6 @@
 import { useAppStore } from "../../store/useAppStore"
 import GlobalTimeline from "../Timeline/GlobalTimeline"
+import MapView from "../../map/components/MapView"
 import MapToggle from "./MapToggle"
 import styles from "./GlobalAreaContainer.module.css"
 
@@ -11,9 +12,7 @@ export default function GlobalAreaContainer() {
             {localizationMode === "timeline" ? (
                 <GlobalTimeline />
             ) : (
-                <div className={styles.mapPlaceholder}>
-                    Map view coming soon
-                </div>
+                <MapView />
             )}
 
             <div className={styles.toggleContainer}>
