@@ -43,15 +43,19 @@ export function useMapInteraction({
         return { x, y }
     }
 
-    function panByPixels(deltaPxX: number, deltaPxY: number) {
+    function panFromStart(deltaPxX: number, deltaPxY: number) {
+        if (!dragStartViewport.current) return
+
+        const base = dragStartViewport.current
+
         const deltaWorldX = deltaPxX / mapper.scale
         const deltaWorldY = deltaPxY / mapper.scale
 
         setViewport({
-            minX: viewport.minX - deltaWorldX,
-            maxX: viewport.maxX - deltaWorldX,
-            minY: viewport.minY + deltaWorldY,
-            maxY: viewport.maxY + deltaWorldY,
+            minX: base.minX - deltaWorldX,
+            maxX: base.maxX - deltaWorldX,
+            minY: base.minY + deltaWorldY,
+            maxY: base.maxY + deltaWorldY,
         })
     }
 
@@ -111,7 +115,7 @@ export function useMapInteraction({
         }
 
         if (isPanning.current && didDrag.current) {
-            panByPixels(deltaPxX, deltaPxY)
+            panFromStart(deltaPxX, deltaPxY)
         }
     }
 

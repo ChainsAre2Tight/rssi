@@ -1,10 +1,8 @@
 import { useEffect } from "react"
 import type { RefObject } from "react"
 import type { MapAdapterResult, SpatialViewport } from "../types"
-import { worldToCanvas } from "../utils/geometry"
 import { createSpatialMapper, type SpatialMapper } from "../utils/spatialMapper"
 
-const GRID_SPACING = 1.0 // 1 meter
 
 interface Params {
     canvasRef: RefObject<HTMLCanvasElement>
@@ -82,50 +80,153 @@ export function useMapRenderer({
     }, [canvasRef, width, height, viewport, adapter, cursor])
 }
 
+function drawAxisGrid({
+    ctx,
+    mapper,
+    isVertical,
+    start,
+    end,
+    majorStep,
+    minorStep,
+    length,
+    gridColor,
+    textColor,
+    width,
+    height,
+}: any) {
+    ctx.lineWidth = 1
+
+    const firstMajor = Math.floor(start / majorStep) * majorStep
+    const firstMinor = Math.floor(start / minorStep) * minorStep
+
+    // --- MINOR ---
+    ctx.strokeStyle = gridColor
+    ctx.globalAlpha = 0.2
+
+    for (let v = firstMinor; v < end; v += minorStep) {
+        const p = isVertical
+            ? mapper.toCanvas(v, 0)
+            : mapper.toCanvas(0, v)
+
+        const pos = isVertical ? p.x : p.y
+
+        ctx.beginPath()
+        if (isVertical) {
+            ctx.moveTo(pos, 0)
+            ctx.lineTo(pos, height)
+        } else {
+            ctx.moveTo(0, pos)
+            ctx.lineTo(width, pos)
+        }
+        ctx.stroke()
+    }
+
+    // --- MAJOR ---
+    ctx.globalAlpha = 0.6
+    ctx.strokeStyle = gridColor
+    ctx.fillStyle = textColor
+    ctx.font = "11px monospace"
+    ctx.textBaseline = "bottom"
+    ctx.textAlign = "right"
+
+    let lastLabelPos = -Infinity
+
+    for (let v = firstMajor; v < end; v += majorStep) {
+        const p = isVertical
+            ? mapper.toCanvas(v, 0)
+            : mapper.toCanvas(0, v)
+
+        const pos = isVertical ? p.x : p.y
+
+        ctx.beginPath()
+        if (isVertical) {
+            ctx.moveTo(pos, 0)
+            ctx.lineTo(pos, height)
+        } else {
+            ctx.moveTo(0, pos)
+            ctx.lineTo(width, pos)
+        }
+        ctx.stroke()
+
+        // label spacing control
+        if (pos - lastLabelPos > 60) {
+            const label = `${v.toFixed(1)}m`
+
+            if (isVertical) {
+                ctx.fillText(label, pos + 4, height - 4)
+            } else {
+                ctx.fillText(label, 4, pos - 4)
+            }
+
+            lastLabelPos = pos
+        }
+    }
+
+    ctx.globalAlpha = 1
+}
+
 function drawGrid(
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
     viewport: SpatialViewport,
-    mapper: ReturnType<typeof createSpatialMapper>
+    mapper: SpatialMapper
 ) {
-    const gridColor = getColor("--color-border", "#333333")
-    const textColor = getColor("--color-text-secondary", "#999999")
+    const gridColor = getColor("--color-border", "#333")
+    const textColor = getColor("--color-text-secondary", "#999")
 
-    ctx.strokeStyle = gridColor
-    ctx.lineWidth = 1
-    ctx.font = "11px monospace"
-    ctx.fillStyle = textColor
+    const worldWidth = viewport.maxX - viewport.minX
+    const pxPerUnit = width / worldWidth
 
-    const GRID_SPACING = 1
+    const targetPx = 200 // desired spacing for MAJOR lines
 
-    let xStart = Math.floor(viewport.minX)
-    let xEnd = Math.ceil(viewport.maxX)
+    function getStep(raw: number) {
+        const pow = Math.pow(10, Math.floor(Math.log10(raw)))
+        const norm = raw / pow
 
-    for (let x = xStart; x <= xEnd; x += GRID_SPACING) {
-        const p = mapper.toCanvas(x, viewport.minY)
+        let step
+        if (norm <= 1) step = 1
+        else if (norm <= 2) step = 2
+        else if (norm <= 5) step = 5
+        else step = 10
 
-        ctx.beginPath()
-        ctx.moveTo(p.x, 0)
-        ctx.lineTo(p.x, height)
-        ctx.stroke()
-
-        ctx.fillText(`+${x}m`, p.x - 2, height - 2)
+        return step * pow
     }
 
-    let yStart = Math.floor(viewport.minY)
-    let yEnd = Math.ceil(viewport.maxY)
+    const majorStep = getStep(targetPx / pxPerUnit)
+    const minorStep = majorStep / 5
 
-    for (let y = yStart; y <= yEnd; y += GRID_SPACING) {
-        const p = mapper.toCanvas(viewport.minX, y)
+    // --- X GRID ---
+    drawAxisGrid({
+        ctx,
+        mapper,
+        isVertical: true,
+        start: viewport.minX,
+        end: viewport.maxX,
+        majorStep,
+        minorStep,
+        length: height,
+        gridColor,
+        textColor,
+        width,
+        height,
+    })
 
-        ctx.beginPath()
-        ctx.moveTo(0, p.y)
-        ctx.lineTo(width, p.y)
-        ctx.stroke()
-
-        ctx.fillText(`+${y}m`, 2, p.y)
-    }
+    // --- Y GRID ---
+    drawAxisGrid({
+        ctx,
+        mapper,
+        isVertical: false,
+        start: viewport.minY,
+        end: viewport.maxY,
+        majorStep,
+        minorStep,
+        length: width,
+        gridColor,
+        textColor,
+        width,
+        height,
+    })
 }
 
 function drawSensors(
