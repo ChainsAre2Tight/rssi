@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import type { RefObject } from "react"
 import type { MapAdapterResult, SpatialViewport } from "../types"
 import { worldToCanvas } from "../utils/geometry"
+import { createSpatialMapper, type SpatialMapper } from "../utils/spatialMapper"
 
 const GRID_SPACING = 1.0 // 1 meter
 
@@ -47,19 +48,21 @@ export function useMapRenderer({
                 return
             }
 
+            const mapper = createSpatialMapper(viewport, width, height)
+
             // Clear canvas
             const bgColor = getColor("--color-bg", "#1a1a1a")
             ctx.fillStyle = bgColor
             ctx.fillRect(0, 0, width, height)
 
             // Draw grid
-            drawGrid(ctx, width, height, viewport)
+            drawGrid(ctx, width, height, viewport, mapper)
 
             // Draw sensors
-            drawSensors(ctx, width, height, viewport, adapter)
+            drawSensors(ctx, mapper, adapter)
 
             // Draw trajectory segments
-            drawSegments(ctx, width, height, viewport, adapter)
+            drawSegments(ctx, mapper, adapter)
 
             // Draw crosshair cursor
             if (cursor.current) {
@@ -83,7 +86,8 @@ function drawGrid(
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
-    viewport: SpatialViewport
+    viewport: SpatialViewport,
+    mapper: ReturnType<typeof createSpatialMapper>
 ) {
     const gridColor = getColor("--color-border", "#333333")
     const textColor = getColor("--color-text-secondary", "#999999")
@@ -92,53 +96,41 @@ function drawGrid(
     ctx.lineWidth = 1
     ctx.font = "11px monospace"
     ctx.fillStyle = textColor
-    ctx.textAlign = "right"
-    ctx.textBaseline = "bottom"
 
-    // Calculate grid lines
-    let gridStart = Math.floor(viewport.minX / GRID_SPACING) * GRID_SPACING
-    let gridEnd = Math.ceil(viewport.maxX / GRID_SPACING) * GRID_SPACING
+    const GRID_SPACING = 1
 
-    // Draw vertical grid lines and X labels
-    for (let x = gridStart; x <= gridEnd; x += GRID_SPACING) {
-        const canvasX = ((x - viewport.minX) / (viewport.maxX - viewport.minX)) * width
+    let xStart = Math.floor(viewport.minX)
+    let xEnd = Math.ceil(viewport.maxX)
+
+    for (let x = xStart; x <= xEnd; x += GRID_SPACING) {
+        const p = mapper.toCanvas(x, viewport.minY)
 
         ctx.beginPath()
-        ctx.moveTo(canvasX, 0)
-        ctx.lineTo(canvasX, height)
+        ctx.moveTo(p.x, 0)
+        ctx.lineTo(p.x, height)
         ctx.stroke()
 
-        // X labels at bottom
-        const label = `+${Math.round(x)}m`
-        ctx.fillText(label, canvasX - 2, height - 2)
+        ctx.fillText(`+${x}m`, p.x - 2, height - 2)
     }
 
-    gridStart = Math.floor(viewport.minY / GRID_SPACING) * GRID_SPACING
-    gridEnd = Math.ceil(viewport.maxY / GRID_SPACING) * GRID_SPACING
+    let yStart = Math.floor(viewport.minY)
+    let yEnd = Math.ceil(viewport.maxY)
 
-    ctx.textAlign = "left"
-    ctx.textBaseline = "middle"
-
-    // Draw horizontal grid lines and Y labels
-    for (let y = gridStart; y <= gridEnd; y += GRID_SPACING) {
-        const canvasY = height - ((y - viewport.minY) / (viewport.maxY - viewport.minY)) * height
+    for (let y = yStart; y <= yEnd; y += GRID_SPACING) {
+        const p = mapper.toCanvas(viewport.minX, y)
 
         ctx.beginPath()
-        ctx.moveTo(0, canvasY)
-        ctx.lineTo(width, canvasY)
+        ctx.moveTo(0, p.y)
+        ctx.lineTo(width, p.y)
         ctx.stroke()
 
-        // Y labels at left
-        const label = `+${Math.round(y)}m`
-        ctx.fillText(label, 2, canvasY)
+        ctx.fillText(`+${y}m`, 2, p.y)
     }
 }
 
 function drawSensors(
     ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    viewport: SpatialViewport,
+    mapper: ReturnType<typeof createSpatialMapper>,
     adapter: MapAdapterResult
 ) {
     const dotRadius = 4
@@ -150,15 +142,13 @@ function drawSensors(
     ctx.lineWidth = 2
 
     for (const sensor of adapter.sensors) {
-        const canvasCoords = worldToCanvas(sensor.x, sensor.y, viewport, width, height)
+        const canvasCoords = mapper.toCanvas(sensor.x, sensor.y)
 
-        // Draw dot
         ctx.beginPath()
         ctx.arc(canvasCoords.x, canvasCoords.y, dotRadius, 0, Math.PI * 2)
         ctx.fill()
         ctx.stroke()
 
-        // Draw label
         ctx.fillStyle = labelColor
         ctx.font = "11px sans-serif"
         ctx.textAlign = "left"
@@ -169,9 +159,7 @@ function drawSensors(
 
 function drawSegments(
     ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    viewport: SpatialViewport,
+    mapper: ReturnType<typeof createSpatialMapper>,
     adapter: MapAdapterResult
 ) {
     const textColor = getColor("--color-text", "#cccccc")
@@ -179,7 +167,6 @@ function drawSegments(
     for (const segment of adapter.segments) {
         if (segment.points.length < 1) continue
 
-        // Set line style based on calibration and gap type
         ctx.strokeStyle = textColor
         ctx.lineWidth = segment.style.calibrated ? 2 : 1
         ctx.globalAlpha = segment.style.calibrated ? 1 : 0.6
@@ -190,27 +177,20 @@ function drawSegments(
             ctx.setLineDash([])
         }
 
-        // Draw path
         ctx.beginPath()
 
-        const firstCanvasCoords = worldToCanvas(
+        const first = mapper.toCanvas(
             segment.points[0].x,
-            segment.points[0].y,
-            viewport,
-            width,
-            height
+            segment.points[0].y
         )
-        ctx.moveTo(firstCanvasCoords.x, firstCanvasCoords.y)
+        ctx.moveTo(first.x, first.y)
 
         for (let i = 1; i < segment.points.length; i++) {
-            const canvasCoords = worldToCanvas(
+            const p = mapper.toCanvas(
                 segment.points[i].x,
-                segment.points[i].y,
-                viewport,
-                width,
-                height
+                segment.points[i].y
             )
-            ctx.lineTo(canvasCoords.x, canvasCoords.y)
+            ctx.lineTo(p.x, p.y)
         }
 
         ctx.stroke()
