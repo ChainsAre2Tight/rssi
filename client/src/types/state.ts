@@ -46,6 +46,7 @@ export interface AppState {
 
     filters: {
         severities: Record<Severity, boolean>
+        query: string
     }
 
     hover: {
@@ -111,4 +112,6 @@ export interface AppState {
     setLocalizationLoading: (incidentKey: string, loading: boolean) => void
     setLocalizationError: (incidentKey: string, error: string | null) => void
     clearLocalizationCache: () => void
+
+    setSearchQuery: (query: string) => void
 }

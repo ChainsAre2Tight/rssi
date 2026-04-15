@@ -18,10 +18,12 @@ export default function GlobalTimeline() {
     const hoverTimeUs = useAppStore(s => s.hover.timelineTimeUs)
 
     const severityFilter = useAppStore(s => s.filters.severities)
+    const query = useAppStore(s => s.filters.query)
 
     const filtered = filterIncidents(
         incidentsByModality,
-        severityFilter
+        severityFilter,
+        query,
     )
 
     const adapter = buildIncidentAdapter({

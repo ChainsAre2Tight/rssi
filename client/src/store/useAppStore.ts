@@ -65,7 +65,8 @@ persist(
             medium: true,
             low: true,
             info: true,
-        }
+        },
+        query: "",
     },
 
     hover: {
@@ -317,6 +318,14 @@ persist(
                 error: {},
             }
         }),
+    
+    setSearchQuery: (query: string) =>
+        set((state) => ({
+            filters: {
+                ...state.filters,
+                query,
+            }
+        })),
 
 }),
 {
