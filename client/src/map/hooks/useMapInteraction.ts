@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import type { SpatialViewport } from "../types"
-import { zoomViewport, panViewport, canvasToWorld } from "../utils/geometry"
+import { zoomViewport, canvasToWorld } from "../utils/geometry"
 
 interface Params {
     viewport: SpatialViewport
@@ -22,8 +22,8 @@ export function useMapInteraction({
     const isPanning = useRef(false)
     const isZooming = useRef(false)
 
-    const dragStartX = useRef(0)
-    const dragStartY = useRef(0)
+    const dragStartClientX = useRef(0)
+    const dragStartClientY = useRef(0)
     const dragStartViewport = useRef<SpatialViewport | null>(null)
     const didDrag = useRef(false)
 
@@ -42,8 +42,10 @@ export function useMapInteraction({
     }
 
     function panByPixels(deltaPxX: number, deltaPxY: number) {
-        const width = viewport.maxX - viewport.minX
-        const height = viewport.maxY - viewport.minY
+        if (!dragStartViewport.current) return
+
+        const width = dragStartViewport.current.maxX - dragStartViewport.current.minX
+        const height = dragStartViewport.current.maxY - dragStartViewport.current.minY
 
         const scaleX = width / canvasWidth
         const scaleY = height / canvasHeight
@@ -51,32 +53,36 @@ export function useMapInteraction({
         const deltaWorldX = deltaPxX * scaleX
         const deltaWorldY = deltaPxY * scaleY
 
-        setViewport(panViewport(viewport, deltaWorldX, -deltaWorldY))
+        setViewport({
+            minX: dragStartViewport.current.minX - deltaWorldX,
+            maxX: dragStartViewport.current.maxX - deltaWorldX,
+            minY: dragStartViewport.current.minY + deltaWorldY,
+            maxY: dragStartViewport.current.maxY + deltaWorldY,
+        })
     }
 
-    function zoomFromDrag(deltaPx: number) {
+    function zoomFromDrag(deltaPy: number) {
         if (!dragStartViewport.current) return
-        if (Math.abs(deltaPx) < 2) return
+        if (Math.abs(deltaPy) < 2) return
 
         const zoomStrength = 0.005
-        const zoomFactor = Math.exp(-deltaPx * zoomStrength)
+        const zoomFactor = Math.exp(-deltaPy * zoomStrength)
 
         const anchorX =
             zoomAnchorX.current !== null
-                ? viewport.minX + (zoomAnchorX.current / canvasWidth) * (viewport.maxX - viewport.minX)
+                ? dragStartViewport.current.minX +
+                  (zoomAnchorX.current / canvasWidth) *
+                    (dragStartViewport.current.maxX - dragStartViewport.current.minX)
                 : undefined
 
         const anchorY =
             zoomAnchorY.current !== null
-                ? viewport.maxY - (zoomAnchorY.current / canvasHeight) * (viewport.maxY - viewport.minY)
+                ? dragStartViewport.current.maxY -
+                  (zoomAnchorY.current / canvasHeight) *
+                    (dragStartViewport.current.maxY - dragStartViewport.current.minY)
                 : undefined
 
-        const next = zoomViewport(
-            dragStartViewport.current,
-            zoomFactor,
-            anchorX,
-            anchorY
-        )
+        const next = zoomViewport(dragStartViewport.current, zoomFactor, anchorX, anchorY)
 
         setViewport(next)
     }
@@ -84,8 +90,8 @@ export function useMapInteraction({
     function onMouseDown(e: React.MouseEvent) {
         const { x, y } = getCanvasCoords(e)
 
-        dragStartX.current = x
-        dragStartY.current = y
+        dragStartClientX.current = e.clientX
+        dragStartClientY.current = e.clientY
         dragStartViewport.current = { ...viewport }
         didDrag.current = false
 
@@ -105,13 +111,15 @@ export function useMapInteraction({
     function onMouseMove(e: React.MouseEvent) {
         const { x, y } = getCanvasCoords(e)
 
-        cursor.current = { x, y }
-        onMove?.(x, y)
+        if (!isZooming.current) {
+            cursor.current = { x, y }
+            onMove?.(x, y)
+        }
 
         if (!dragStartViewport.current) return
 
-        const deltaPxX = x - dragStartX.current
-        const deltaPxY = y - dragStartY.current
+        const deltaPxX = e.clientX - dragStartClientX.current
+        const deltaPxY = e.clientY - dragStartClientY.current
 
         if (!didDrag.current && Math.abs(deltaPxX) > 5) {
             didDrag.current = true
