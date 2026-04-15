@@ -9,6 +9,8 @@ export interface TimelineTrack {
 
     collapsible?: boolean
     resizable?: boolean
+
+    scrollY?: number
 }
 
 export type TimelineEventType = "incident" | "warning"
@@ -31,9 +33,12 @@ export interface TrackLayoutItem {
 
     contentY: number
     contentHeight: number
+    viewportHeight: number
 
     laneHeight: number
     laneCount: number
+
+    scrollY: number
 
     track: TimelineTrack
 }

@@ -111,6 +111,7 @@ export default function TimelineCanvas(params: {
                 collapsible: false,
                 resizable: true,
                 lastExpandedHeight: 500,
+                scrollY: 0,
             }))
             setTracks(tracks)
             return
@@ -123,6 +124,7 @@ export default function TimelineCanvas(params: {
             collapsible: true,
             resizable: true,
             lastExpandedHeight: 100,
+            scrollY: 0,
         }))
 
         setTracks(nextTracks)
@@ -137,7 +139,7 @@ export default function TimelineCanvas(params: {
         setViewport(getSafeBoundsViewport(start, end, 0.15))
     }, [params.viewportResetKey])
 
-    const layout = computeTrackLayout(tracks)
+    const layout = computeTrackLayout(tracks, params.adapter.itemsByTrack)
 
     function toggleTrack(id: string) {
         setTracks(prev =>

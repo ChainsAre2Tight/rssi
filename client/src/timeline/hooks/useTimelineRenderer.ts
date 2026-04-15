@@ -286,13 +286,21 @@ export function useTimelineRenderer({
 
                 ctx.save()
                 ctx.beginPath()
-                ctx.rect(0, t.contentY-RESIZE_HANDLE_GAP, width, t.contentHeight)
+                ctx.rect(0, t.contentY, width, t.viewportHeight)
                 ctx.clip()
 
-                for (let laneIndex = 0; laneIndex < lanes.length; laneIndex++) {
+                const visibleStart = Math.max(0, Math.floor(t.scrollY / t.laneHeight))
+                const visibleEnd = Math.min(
+                    t.laneCount,
+                    Math.ceil((t.scrollY + t.viewportHeight) / t.laneHeight)
+                )
+
+                for (let laneIndex = visibleStart; laneIndex < visibleEnd; laneIndex++) {
                     const lane = lanes[laneIndex]
 
-                    const laneTop = t.contentY + laneIndex * t.laneHeight
+                    const laneTop =
+                        t.contentY +
+                        (laneIndex * t.laneHeight - t.scrollY)
                     const laneBottom = laneTop + t.laneHeight
 
                     if (laneTop >= t.contentY + t.contentHeight) {

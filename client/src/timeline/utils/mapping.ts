@@ -45,7 +45,9 @@ function findLaneIndex(
 ): number | null {
     if (track.contentHeight <= 0) return null
 
-    const relativeY = y - track.contentY
+    const relativeY =
+        y - track.contentY + track.scrollY
+
     if (relativeY < 0) return null
 
     const laneIndex = Math.floor(relativeY / track.laneHeight)

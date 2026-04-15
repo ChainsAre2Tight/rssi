@@ -1,8 +1,9 @@
 import { RESIZE_HANDLE_GAP } from "../config"
-import type { TimelineTrack, TrackLayoutItem } from "../types"
+import type { TimelineLanes, TimelineTrack, TrackLayoutItem } from "../types"
 
 export function computeTrackLayout(
-    tracks: TimelineTrack[]
+    tracks: TimelineTrack[],
+    itemsByTrack: Record<string, TimelineLanes>,
 ): TrackLayoutItem[] {
     const result: TrackLayoutItem[] = []
 
@@ -12,11 +13,14 @@ export function computeTrackLayout(
         const baseHeight = track.height
 
         const contentY = currentY
-
-        const contentHeight = Math.max(0, baseHeight)
         
         const laneHeight = 12
-        const laneCount = Math.max(1, Math.floor(contentHeight / laneHeight))
+
+        const lanes = itemsByTrack[track.id] || []
+        const laneCount = lanes.length
+
+        const contentHeight = laneCount * laneHeight
+        const viewportHeight = track.height
 
         result.push({
             id: track.id,
@@ -24,9 +28,11 @@ export function computeTrackLayout(
             height: baseHeight,
             contentY,
             contentHeight,
+            viewportHeight,
             track,
             laneHeight,
             laneCount,
+            scrollY: track.scrollY ?? 0,
         })
 
         currentY += baseHeight + RESIZE_HANDLE_GAP
