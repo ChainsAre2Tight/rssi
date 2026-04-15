@@ -22,8 +22,6 @@ export default function MapView() {
     const { cache, sensors } = useAppStore(s => s.localization)
     const { setSensors } = useAppStore()
 
-    // TODO: investigate a bug when requesting positions, placeholder goes away
-    // but to render you have to switch map-timeline-map
     const localizationData = incidentId ? cache[incidentId] : null
 
     // Resize observer for canvas
@@ -148,14 +146,6 @@ export default function MapView() {
         setViewport(fitBounds(adapter.bounds, 0.15))
     }, [adapter, setViewport])
 
-    if (!localizationData) {
-        return (
-            <div className={styles.placeholder}>
-                No localization data loaded
-            </div>
-        )
-    }
-
     return (
         <div ref={containerRef} className={styles.root}>
             <canvas
@@ -165,6 +155,12 @@ export default function MapView() {
                 {...bind}
                 className={styles.canvas}
             />
+
+            {!localizationData && (
+                <div className={styles.placeholderOverlay}>
+                    No localization data loaded
+                </div>
+            )}
 
             <div className={styles.debug}>
                 minX: {viewport.minX.toFixed(2)} <br />

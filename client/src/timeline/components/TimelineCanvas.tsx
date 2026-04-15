@@ -279,14 +279,6 @@ export default function TimelineCanvas(params: {
         return () => observer.disconnect()
     }, [])
 
-    if (!params.adapter.hasItems) {
-        return (
-            <div className={styles.placeholder}>
-                No incidents loaded
-            </div>
-        )
-    }
-
     return (
         <div ref={containerRef} className={styles.root}>
             {/* LEFT: HEADERS */}
@@ -323,6 +315,12 @@ export default function TimelineCanvas(params: {
                 {...resizing.bind}
             >
                 <canvas ref={canvasRef} {...bind} />
+
+                {!params.adapter.hasItems && (
+                    <div className={styles.placeholderOverlay}>
+                        No incidents loaded
+                    </div>
+                )}
 
                 <div className={styles.debug}>
                     start: {formatDateTime(viewport.start*1_000_000)}<br />

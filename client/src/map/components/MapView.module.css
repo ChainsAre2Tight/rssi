@@ -39,14 +39,15 @@
     font-family: monospace;
 }
 
-.placeholder {
-    flex: 1;
+.placeholderOverlay {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-
+    background: rgba(0, 0, 0, 0.4);
     color: var(--color-text-secondary);
-    font-size: 14px;
+    pointer-events: none;
 }
 
 .controls {
