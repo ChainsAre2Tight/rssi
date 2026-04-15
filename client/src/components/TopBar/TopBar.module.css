@@ -144,3 +144,50 @@
     width: 1px;
     background: var(--color-border);
 }
+
+.search {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    height: 28px;
+    padding: 0 6px;
+
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+
+    background: var(--color-bg);
+
+    transition: border var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.input {
+    border: none;
+    outline: none;
+
+    background: transparent;
+    color: var(--color-text);
+
+    font-size: 12px;
+
+    width: 180px;
+}
+
+.clear {
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+    font-size: 12px;
+
+    color: var(--color-text-secondary);
+}
+
+.clear:hover {
+    color: var(--color-text);
+}
