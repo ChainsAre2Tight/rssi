@@ -27,7 +27,7 @@ export function createTimeMapper(
     }
 }
 
-function findTrackAtY(
+export function findTrackAtY(
     y: number,
     tracks: TrackLayoutItem[]
 ): TrackLayoutItem | null {

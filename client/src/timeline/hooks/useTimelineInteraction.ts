@@ -1,6 +1,7 @@
 import { useRef } from "react"
-import type { Viewport } from "../types"
+import type { TimelineTrack, TrackLayoutItem, Viewport } from "../types"
 import { zoomViewport } from "../utils/zoomViewport"
+import { findTrackAtY } from "../utils/mapping"
 
 interface Params {
     viewport: Viewport
@@ -8,6 +9,9 @@ interface Params {
     width: number
     onClick?: (x: number, y: number) => void
     onMove?: (x: number, y: number) => void
+    layout: TrackLayoutItem[]
+    tracks: TimelineTrack[]
+    setTracks: React.Dispatch<React.SetStateAction<TimelineTrack[]>>
 }
 
 export function useTimelineInteraction({
@@ -16,6 +20,9 @@ export function useTimelineInteraction({
     width,
     onClick,
     onMove,
+    layout,
+    tracks,
+    setTracks,
 }: Params) {
     const isPanning = useRef(false)
     const isZooming = useRef(false)
@@ -150,6 +157,43 @@ export function useTimelineInteraction({
     function onWheel(e: React.WheelEvent) {
         if (width === 0) return
         e.preventDefault()
+
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+        const y = e.clientY - rect.top
+
+        if (e.shiftKey) {
+            const trackLayout = findTrackAtY(y, layout)
+            if (!trackLayout) return
+
+            const trackId = trackLayout.id
+
+            setTracks(prev =>
+                prev.map(t => {
+                    if (t.id !== trackId) return t
+
+                    const scrollY = t.scrollY ?? 0
+
+                    const maxScroll = Math.max(
+                        0,
+                        trackLayout.contentHeight - trackLayout.viewportHeight
+                    )
+
+                    const nextScroll = Math.min(
+                        maxScroll,
+                        Math.max(0, scrollY + e.deltaY)
+                    )
+
+                    return {
+                        ...t,
+                        scrollY: nextScroll,
+                    }
+                })
+            )
+
+            return
+        }
+
+        // default behavior (horizontal pan)
         panByPixels(e.deltaY)
     }
 

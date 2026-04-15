@@ -57,6 +57,12 @@ export default function TimelineCanvas(params: {
         setExternalCursorTimeUs,
     })
 
+    const HEADER_HEIGHT = 28
+    const DEFAULT_EXPANDED_HEIGHT = 120
+
+    const [tracks, setTracks] = useState<TimelineTrack[]>([])
+    const layout = computeTrackLayout(tracks, params.adapter.itemsByTrack)
+
     const { bind, cursor, zoomAnchorX, isZooming } =
         useTimelineInteraction({
             viewport,
@@ -95,22 +101,21 @@ export default function TimelineCanvas(params: {
 
                 handleInternalHover(item ? item.key : null, timeUs)
             },
+
+            layout,
+            tracks,
+            setTracks,
         })
-
-    const HEADER_HEIGHT = 28
-    const DEFAULT_EXPANDED_HEIGHT = 120
-
-    const [tracks, setTracks] = useState<TimelineTrack[]>([])
 
     useEffect(() => {
         if (params.adapter.trackIds.length === 1) {
             const tracks: TimelineTrack[] = params.adapter.trackIds.map(id => ({
                 id,
                 label: id,
-                height: 500,
-                collapsible: false,
+                height: 100,
+                collapsible: true,
                 resizable: true,
-                lastExpandedHeight: 500,
+                lastExpandedHeight: 100,
                 scrollY: 0,
             }))
             setTracks(tracks)
@@ -138,8 +143,6 @@ export default function TimelineCanvas(params: {
 
         setViewport(getSafeBoundsViewport(start, end, 0.15))
     }, [params.viewportResetKey])
-
-    const layout = computeTrackLayout(tracks, params.adapter.itemsByTrack)
 
     function toggleTrack(id: string) {
         setTracks(prev =>
