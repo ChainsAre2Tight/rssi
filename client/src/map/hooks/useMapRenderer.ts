@@ -126,8 +126,6 @@ function drawAxisGrid({
     ctx.strokeStyle = gridColor
     ctx.fillStyle = textColor
     ctx.font = "11px monospace"
-    ctx.textBaseline = "bottom"
-    ctx.textAlign = "right"
 
     let lastLabelPos = -Infinity
 
@@ -149,13 +147,18 @@ function drawAxisGrid({
         ctx.stroke()
 
         // label spacing control
-        if (pos - lastLabelPos > 60) {
+        if (Math.abs(pos - lastLabelPos) > 60) {
             const label = `${v.toFixed(1)}m`
 
             if (isVertical) {
+                ctx.textAlign = "left"
+                ctx.textBaseline = "bottom"
                 ctx.fillText(label, pos + 4, height - 4)
             } else {
-                ctx.fillText(label, 4, pos - 4)
+                console.log(pos)
+                ctx.textAlign = "left"
+                ctx.textBaseline = "middle"
+                ctx.fillText(label, 4, pos)
             }
 
             lastLabelPos = pos
@@ -163,6 +166,25 @@ function drawAxisGrid({
     }
 
     ctx.globalAlpha = 1
+}
+
+function getExtendedWorldBounds(
+    mapper: SpatialMapper,
+    width: number,
+    height: number
+) {
+    const left = mapper.toWorld(0, 0).x
+    const right = mapper.toWorld(width, 0).x
+
+    const bottom = mapper.toWorld(0, height).y
+    const top = mapper.toWorld(0, 0).y
+
+    return {
+        minX: Math.min(left, right),
+        maxX: Math.max(left, right),
+        minY: Math.min(bottom, top),
+        maxY: Math.max(bottom, top),
+    }
 }
 
 function drawGrid(
@@ -179,6 +201,7 @@ function drawGrid(
     const pxPerUnit = width / worldWidth
 
     const targetPx = 200 // desired spacing for MAJOR lines
+    const extended = getExtendedWorldBounds(mapper, width, height)
 
     function getStep(raw: number) {
         const pow = Math.pow(10, Math.floor(Math.log10(raw)))
@@ -201,8 +224,8 @@ function drawGrid(
         ctx,
         mapper,
         isVertical: true,
-        start: viewport.minX,
-        end: viewport.maxX,
+        start: extended.minX,
+        end: extended.maxX,
         majorStep,
         minorStep,
         length: height,
@@ -217,8 +240,8 @@ function drawGrid(
         ctx,
         mapper,
         isVertical: false,
-        start: viewport.minY,
-        end: viewport.maxY,
+        start: extended.minY,
+        end: extended.maxY,
         majorStep,
         minorStep,
         length: width,
