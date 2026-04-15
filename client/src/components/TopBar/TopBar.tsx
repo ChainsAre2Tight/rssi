@@ -14,6 +14,7 @@ export default function TopBar() {
     const mode = useAppStore((s) => s.context.mode)
     const startUs = useAppStore((s) => s.report.startTimeUs)
     const endUs = useAppStore((s) => s.report.endTimeUs)
+    const setQuery = useAppStore((s) => s.setSearchQuery)
 
     const hasData = startUs && endUs
 
@@ -34,7 +35,7 @@ export default function TopBar() {
                 </div>
             </div>
 
-            <div className={styles.right}>
+            <div className={styles.middle}>
                 {hasData ? (
                     <>
                         {formatDateTime(startUs)}
@@ -46,6 +47,14 @@ export default function TopBar() {
                         No data loaded
                     </span>
                 )}
+            </div>
+
+            <div className={styles.right}>
+                <input
+                    onChange={(e) => setQuery(e.target.value)}
+                    className={styles.input}
+                    placeholder="Search for incidents..."
+                />
             </div>
         </div>
     )

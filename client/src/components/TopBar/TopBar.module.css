@@ -11,6 +11,11 @@
     border-bottom: 1px solid var(--color-border);
 }
 
+.middle {
+    display: flex;
+    align-items: center;
+}
+
 .right {
     display: flex;
     align-items: center;
