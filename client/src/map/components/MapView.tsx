@@ -8,6 +8,7 @@ import { buildLocalizationAdapter } from "../adapters/localization"
 import { fetchSensors } from "../../services/localizationApi"
 import { fitBounds } from "../utils/geometry"
 import styles from "./MapView.module.css"
+import { createSpatialMapper } from "../utils/spatialMapper"
 
 export default function MapView() {
     const containerRef = useRef<HTMLDivElement | null>(null)
@@ -70,12 +71,14 @@ export default function MapView() {
             .catch(() => {})
     }, [measurementId, sensors, setSensors])
 
+    const mapper = createSpatialMapper(viewport, width, height)
     // Interaction
     const { bind, cursor } = useMapInteraction({
         viewport,
         setViewport,
         canvasWidth: width,
         canvasHeight: height,
+        mapper: mapper,
     })
 
     // Rendering

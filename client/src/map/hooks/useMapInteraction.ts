@@ -1,12 +1,14 @@
 import { useRef } from "react"
 import type { SpatialViewport } from "../types"
 import { zoomViewport } from "../utils/geometry"
+import type { SpatialMapper } from "../utils/spatialMapper"
 
 interface Params {
     viewport: SpatialViewport
     setViewport: (v: SpatialViewport) => void
     canvasWidth: number
     canvasHeight: number
+    mapper: SpatialMapper
     onClick?: (x: number, y: number) => void
     onMove?: (x: number, y: number) => void
 }
@@ -16,11 +18,11 @@ export function useMapInteraction({
     setViewport,
     canvasWidth,
     canvasHeight,
+    mapper,
     onClick,
     onMove,
 }: Params) {
     const isPanning = useRef(false)
-    const isZooming = useRef(false)
 
     const dragStartClientX = useRef(0)
     const dragStartClientY = useRef(0)
@@ -30,7 +32,7 @@ export function useMapInteraction({
     const zoomAnchorX = useRef<number | null>(null)
     const zoomAnchorY = useRef<number | null>(null)
 
-    const cursor = useRef<{ x: number; y: number } | null>(null)
+    const cursor = useRef<{ x: number; y: number, world: {x: number; y: number} } | null>(null)
 
     function getCanvasCoords(e: React.MouseEvent) {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -42,50 +44,36 @@ export function useMapInteraction({
     }
 
     function panByPixels(deltaPxX: number, deltaPxY: number) {
-        // For wheel events, dragStartViewport might be null, so use current viewport
-        const baseViewport = dragStartViewport.current || viewport
-
-        const width = baseViewport.maxX - baseViewport.minX
-        const height = baseViewport.maxY - baseViewport.minY
-
-        const scaleX = width / canvasWidth
-        const scaleY = height / canvasHeight
-
-        const deltaWorldX = deltaPxX * scaleX
-        const deltaWorldY = deltaPxY * scaleY
+        const deltaWorldX = deltaPxX / mapper.scale
+        const deltaWorldY = deltaPxY / mapper.scale
 
         setViewport({
-            minX: baseViewport.minX - deltaWorldX,
-            maxX: baseViewport.maxX - deltaWorldX,
-            minY: baseViewport.minY + deltaWorldY,
-            maxY: baseViewport.maxY + deltaWorldY,
+            minX: viewport.minX - deltaWorldX,
+            maxX: viewport.maxX - deltaWorldX,
+            minY: viewport.minY + deltaWorldY,
+            maxY: viewport.maxY + deltaWorldY,
         })
     }
 
-    function zoomFromDrag(deltaPy: number) {
-        if (!dragStartViewport.current) return
-        if (Math.abs(deltaPy) < 2) return
+    function zoomAtPoint(canvasX: number, canvasY: number, zoomFactor: number) {
+        const anchor = mapper.toWorld(canvasX, canvasY)
 
-        const zoomStrength = 0.005
-        const zoomFactor = Math.exp(-deltaPy * zoomStrength)
+        const width = viewport.maxX - viewport.minX
+        const height = viewport.maxY - viewport.minY
 
-        const anchorX =
-            zoomAnchorX.current !== null
-                ? dragStartViewport.current.minX +
-                  (zoomAnchorX.current / canvasWidth) *
-                    (dragStartViewport.current.maxX - dragStartViewport.current.minX)
-                : undefined
+        const newWidth = width * zoomFactor
+        const newHeight = height * zoomFactor
 
-        const anchorY =
-            zoomAnchorY.current !== null
-                ? dragStartViewport.current.maxY -
-                  (zoomAnchorY.current / canvasHeight) *
-                    (dragStartViewport.current.maxY - dragStartViewport.current.minY)
-                : undefined
+        const relX = (anchor.x - viewport.minX) / width
+        const relY = (anchor.y - viewport.minY) / height
 
-        const next = zoomViewport(dragStartViewport.current, zoomFactor, anchorX, anchorY)
+        const minX = anchor.x - newWidth * relX
+        const maxX = anchor.x + newWidth * (1 - relX)
 
-        setViewport(next)
+        const minY = anchor.y - newHeight * relY
+        const maxY = anchor.y + newHeight * (1 - relY)
+
+        setViewport({ minX, maxX, minY, maxY })
     }
 
     function onMouseDown(e: React.MouseEvent) {
@@ -100,24 +88,18 @@ export function useMapInteraction({
             isPanning.current = true
         }
 
-        if (e.button === 2) {
-            isZooming.current = true
-            zoomAnchorX.current = x
-            zoomAnchorY.current = y
-        }
-
-        cursor.current = { x, y }
+        const world = mapper.toWorld(x, y)
+        cursor.current = { x, y, world }
     }
 
     function onMouseMove(e: React.MouseEvent) {
         const { x, y } = getCanvasCoords(e)
 
         // Always update cursor position for hover feedback
-        cursor.current = { x, y }
+        const world = mapper.toWorld(x, y)
+        cursor.current = { x, y, world }
 
-        if (!isZooming.current) {
-            onMove?.(x, y)
-        }
+        onMove?.(x, y)
 
         if (!dragStartViewport.current) return
 
@@ -131,27 +113,21 @@ export function useMapInteraction({
         if (isPanning.current && didDrag.current) {
             panByPixels(deltaPxX, deltaPxY)
         }
-
-        if (isZooming.current) {
-            zoomFromDrag(deltaPxY)
-        }
     }
 
     function onMouseUp(e: React.MouseEvent) {
-        if (!didDrag.current && !isZooming.current) {
+        if (!didDrag.current) {
             const { x, y } = getCanvasCoords(e)
             onClick?.(x, y)
         }
 
         isPanning.current = false
-        isZooming.current = false
         zoomAnchorX.current = null
         zoomAnchorY.current = null
     }
 
     function onMouseLeave() {
         isPanning.current = false
-        isZooming.current = false
         cursor.current = null
         zoomAnchorX.current = null
         zoomAnchorY.current = null
@@ -159,8 +135,15 @@ export function useMapInteraction({
 
     function onWheel(e: React.WheelEvent) {
         if (canvasWidth === 0 || canvasHeight === 0) return
+
         e.preventDefault()
-        panByPixels(0, e.deltaY)
+
+        const { x, y } = getCanvasCoords(e)
+
+        const zoomStrength = 0.0015
+        const zoomFactor = Math.exp(e.deltaY * zoomStrength)
+
+        zoomAtPoint(x, y, zoomFactor)
     }
 
     function onContextMenu(e: React.MouseEvent) {
