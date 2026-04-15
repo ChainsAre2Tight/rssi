@@ -33,7 +33,7 @@ def localization_orchestrator(
 
         if observation_id is None:
             logger.warning(f"[localization] no observation found")
-            return
+            raise RuntimeError("[localization] no observation found")
 
         calibration_model = run_calibration(
             conn=conn,
@@ -44,7 +44,7 @@ def localization_orchestrator(
 
         if calibration_model is None:
             logger.warning(f"[localization] calibration failed")
-            return
+            raise RuntimeError("[localization] no observation found")
 
         loc_input = build_localization_input(
             conn=conn,
@@ -55,7 +55,7 @@ def localization_orchestrator(
 
         if loc_input[0] is None or len(loc_input[0].devices) < 3:
             logger.warning(f"[localization] insufficient data")
-            return
+            raise RuntimeError("[localization] insufficient data")
 
         # print(loc_input)
         result_raw = run_localizer(loc_input[0])
@@ -81,6 +81,7 @@ def localization_orchestrator(
 
     except Exception as e:
         logger.exception(f"[localization] failed: {e}")
+        raise e
 
 
 if __name__ == "__main__":
