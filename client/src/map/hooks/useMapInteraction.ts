@@ -1,7 +1,9 @@
 import { useRef } from "react"
 import type { SpatialViewport } from "../types"
-import { zoomViewport } from "../utils/geometry"
 import type { SpatialMapper } from "../utils/spatialMapper"
+
+const MIN_WORLD_SIZE = 1      // 1 meter (max zoom-in)
+const MAX_WORLD_SIZE = 100    // 100 meters (max zoom-out)
 
 interface Params {
     viewport: SpatialViewport
@@ -65,19 +67,21 @@ export function useMapInteraction({
         const width = viewport.maxX - viewport.minX
         const height = viewport.maxY - viewport.minY
 
-        const newWidth = width * zoomFactor
-        const newHeight = height * zoomFactor
+        let newWidth = width * zoomFactor
+        let newHeight = height * zoomFactor
 
         const relX = (anchor.x - viewport.minX) / width
         const relY = (anchor.y - viewport.minY) / height
 
-        const minX = anchor.x - newWidth * relX
-        const maxX = anchor.x + newWidth * (1 - relX)
+        let minX = anchor.x - newWidth * relX
+        let maxX = anchor.x + newWidth * (1 - relX)
 
-        const minY = anchor.y - newHeight * relY
-        const maxY = anchor.y + newHeight * (1 - relY)
+        let minY = anchor.y - newHeight * relY
+        let maxY = anchor.y + newHeight * (1 - relY)
 
-        setViewport({ minX, maxX, minY, maxY })
+        const clamped = clampViewportSize(minX, maxX, minY, maxY)
+
+        setViewport(clamped)
     }
 
     function onMouseDown(e: React.MouseEvent) {
@@ -164,5 +168,33 @@ export function useMapInteraction({
             onContextMenu,
         },
         cursor,
+    }
+}
+
+function clampViewportSize(
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number
+) {
+    let width = maxX - minX
+    let height = maxY - minY
+
+    const centerX = (minX + maxX) / 2
+    const centerY = (minY + maxY) / 2
+
+    // Clamp width
+    if (width < MIN_WORLD_SIZE) width = MIN_WORLD_SIZE
+    if (width > MAX_WORLD_SIZE) width = MAX_WORLD_SIZE
+
+    // Clamp height
+    if (height < MIN_WORLD_SIZE) height = MIN_WORLD_SIZE
+    if (height > MAX_WORLD_SIZE) height = MAX_WORLD_SIZE
+
+    return {
+        minX: centerX - width / 2,
+        maxX: centerX + width / 2,
+        minY: centerY - height / 2,
+        maxY: centerY + height / 2,
     }
 }

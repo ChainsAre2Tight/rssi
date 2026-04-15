@@ -4,12 +4,12 @@ import styles from "./MapToggle.module.css"
 export default function MapToggle() {
     const localizationMode = useAppStore((s) => s.localization.mode)
     const setLocalizationMode = useAppStore((s) => s.setLocalizationMode)
-    const selectedIncidentId = useAppStore((s) => s.selection.incidentId)
+    // const selectedIncidentId = useAppStore((s) => s.selection.incidentId)
 
     // Only show toggle when an incident is selected
-    if (!selectedIncidentId) {
-        return null
-    }
+    // if (!selectedIncidentId) {
+    //     return null
+    // }
 
     return (
         <div className={styles.toggle}>

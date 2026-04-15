@@ -155,9 +155,8 @@ function drawAxisGrid({
                 ctx.textBaseline = "bottom"
                 ctx.fillText(label, pos + 4, height - 4)
             } else {
-                console.log(pos)
                 ctx.textAlign = "left"
-                ctx.textBaseline = "middle"
+                ctx.textBaseline = "bottom"
                 ctx.fillText(label, 4, pos)
             }
 

@@ -279,6 +279,14 @@ export default function TimelineCanvas(params: {
         return () => observer.disconnect()
     }, [])
 
+    if (!params.adapter.itemsByTrack) {
+        return (
+            <div className={styles.placeholder}>
+                No incidents loaded
+            </div>
+        )
+    }
+
     return (
         <div ref={containerRef} className={styles.root}>
             {/* LEFT: HEADERS */}
