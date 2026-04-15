@@ -1,7 +1,8 @@
 import { useMemo } from "react"
 import { useAppStore } from "../../store/useAppStore"
-import { getWarningKey } from "../../utils/warningKey"
 import styles from "./WarningList.module.css"
+import { WarningListItem } from "./WarningListItem"
+import { getWarningKey } from "../../utils/warningKey"
 
 const sevOrder = {
     critical: 5,
@@ -61,52 +62,22 @@ export default function WarningList() {
 
     return (
         <div className={styles.root}>
-
             <div className={styles.scroll}>
                 {warnings.map(({ warning, ratio }) => {
-
                     const key = getWarningKey(warning)
-                    const selected = key === selectedKey
 
                     return (
-                        <div
+                        <WarningListItem
                             key={key}
-                            className={styles.row}
-                            data-selected={selected}
-
-                            onClick={() => selectWarning(key)}
-                            onMouseEnter={() => hoverWarning(key)}
-                            onMouseLeave={() => hoverWarning(null)}
-                        >
-
-                            <div
-                                className={styles.dot}
-                                style={{
-                                    background: `var(--severity-${warning.severity})`
-                                }}
-                            />
-
-                            <span
-                                className={styles.label}
-                                title={warning.signal}
-                            >
-                                {warning.signal}
-                            </span>
-
-                            <div className={styles.durationBarContainer}>
-                                <div
-                                    className={`${styles.durationBar} ${styles[warning.severity]}`}
-                                    style={{
-                                        width: `${Math.max(ratio * 100, 2)}%`
-                                    }}
-                                />
-                            </div>
-
-                        </div>
+                            warning={warning}
+                            ratio={ratio}
+                            selected={key === selectedKey}
+                            onSelect={selectWarning}
+                            onHover={hoverWarning}
+                        />
                     )
                 })}
             </div>
-
         </div>
     )
 }
