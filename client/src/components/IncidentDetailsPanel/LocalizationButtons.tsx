@@ -1,6 +1,7 @@
 import { useAppStore } from "../../store/useAppStore"
 import { fetchLocalization, requestLocalization } from "../../services/localizationApi"
 import styles from "./LocalizationButtons.module.css"
+import { useEffect, useState } from "react"
 
 export default function LocalizationButtons() {
     const incidentId = useAppStore(s => s.selection.incidentId)
@@ -25,6 +26,22 @@ export default function LocalizationButtons() {
     const isLoading = loading[incidentId] || false
     const isError = error[incidentId] || null
     const hasData = cache[incidentId] || null
+
+    const [jobSummary, setJobSummary] = useState<{
+        created: number
+        ignored: number
+    } | null>(null)
+
+    useEffect(() => {
+        if (!jobSummary) return
+
+        const t = setTimeout(() => setJobSummary(null), 10_000)
+        return () => clearTimeout(t)
+    }, [jobSummary])
+
+    useEffect(() => {
+        setJobSummary(null)
+    }, [incidentId])
 
     async function handleRequestLocation() {
         if (!incidentId || !measurementId
@@ -68,7 +85,15 @@ export default function LocalizationButtons() {
                 modality: incident.modality,
             })
 
-            // After sending, fetch current status
+            setJobSummary({
+                created: result.jobs_created,
+                ignored: result.jobs_ignored,
+            })
+
+            // Switch to map view
+            setLocalizationMode("map")
+
+            // Fetch latest data
             const data = await fetchLocalization({
                 measurementId,
                 startTimeUs,
@@ -78,13 +103,12 @@ export default function LocalizationButtons() {
             })
 
             setLocalizationData(incidentId, data)
-            setLocalizationMode("map")
+
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to request localization"
             setLocalizationError(incidentId, message)
         }
     }
-
     const primaryLabel = hasData ? "Refresh" : "Request Location"
     const primaryTitle = hasData
         ? "Refresh localization data"
@@ -106,9 +130,17 @@ export default function LocalizationButtons() {
                 className={styles.button}
                 onClick={handleSendForLocalization}
                 disabled={isLoading}
-                title="Enqueue new localization jobs"
+                title={
+                    jobSummary
+                        ? `Created: ${jobSummary.created}, Ignored: ${jobSummary.ignored}`
+                        : "Enqueue new localization jobs"
+                }
             >
-                {isLoading ? "Processing..." : "Send for Localization"}
+                {isLoading
+                    ? "Processing..."
+                    : jobSummary
+                        ? `+${jobSummary.created} / ${jobSummary.ignored} ignored`
+                        : "Send for Localization"}
             </button>
 
             {isError && (

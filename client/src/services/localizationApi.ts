@@ -59,7 +59,7 @@ export async function requestLocalization(params: {
     endTimeUs: number
     bssid: string
     modality?: string
-}): Promise<{ measurement_id: number; jobs_created: number; jobs_ignored: number; pending: number }> {
+}): Promise<{ measurement_id: number; jobs_created: number; jobs_ignored: number}> {
     const url = "/localize"
     const queryParams = new URLSearchParams({
         measurement_id: String(params.measurementId),

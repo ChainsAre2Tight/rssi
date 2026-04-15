@@ -58,8 +58,6 @@ export function buildIncidentAdapter({
         itemsByTrack[modality] = lanes
     }
 
-    console.log(reportStartUs, reportEndUs)
-
     return {
         itemsByTrack,
         index: {
