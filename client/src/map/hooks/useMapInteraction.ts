@@ -49,9 +49,6 @@ export function useMapInteraction({
     const dragStartViewport = useRef<SpatialViewport | null>(null)
     const didDrag = useRef(false)
 
-    const zoomAnchorX = useRef<number | null>(null)
-    const zoomAnchorY = useRef<number | null>(null)
-
     const cursor = useRef<{ x: number; y: number, world: {x: number; y: number} } | null>(null)
 
     function getCanvasCoords(e: React.MouseEvent) {
@@ -97,7 +94,14 @@ export function useMapInteraction({
         let minY = anchor.y - newHeight * relY
         let maxY = anchor.y + newHeight * (1 - relY)
 
-        const clamped = clampViewportSize(minX, maxX, minY, maxY)
+        const clamped = clampViewportSize(
+            minX,
+            maxX,
+            minY,
+            maxY,
+            anchor.x,
+            anchor.y
+        )
 
         safeSetViewport(clamped)
     }
@@ -148,15 +152,11 @@ export function useMapInteraction({
         }
 
         isPanning.current = false
-        zoomAnchorX.current = null
-        zoomAnchorY.current = null
     }
 
     function onMouseLeave() {
         isPanning.current = false
         cursor.current = null
-        zoomAnchorX.current = null
-        zoomAnchorY.current = null
     }
 
     function onWheel(e: React.WheelEvent) {
@@ -193,26 +193,36 @@ function clampViewportSize(
     minX: number,
     maxX: number,
     minY: number,
-    maxY: number
+    maxY: number,
+    anchorX: number,
+    anchorY: number
 ) {
     let width = maxX - minX
     let height = maxY - minY
 
-    const centerX = (minX + maxX) / 2
-    const centerY = (minY + maxY) / 2
+    // Clamp sizes
+    const clampedWidth = Math.min(Math.max(width, MIN_WORLD_SIZE), MAX_WORLD_SIZE)
+    const clampedHeight = Math.min(Math.max(height, MIN_WORLD_SIZE), MAX_WORLD_SIZE)
 
-    // Clamp width
-    if (width < MIN_WORLD_SIZE) width = MIN_WORLD_SIZE
-    if (width > MAX_WORLD_SIZE) width = MAX_WORLD_SIZE
+    // If no clamp → return original (important: prevents drift)
+    if (clampedWidth === width && clampedHeight === height) {
+        return { minX, maxX, minY, maxY }
+    }
 
-    // Clamp height
-    if (height < MIN_WORLD_SIZE) height = MIN_WORLD_SIZE
-    if (height > MAX_WORLD_SIZE) height = MAX_WORLD_SIZE
+    // Preserve anchor position
+    const relX = (anchorX - minX) / width
+    const relY = (anchorY - minY) / height
+
+    const newMinX = anchorX - clampedWidth * relX
+    const newMaxX = anchorX + clampedWidth * (1 - relX)
+
+    const newMinY = anchorY - clampedHeight * relY
+    const newMaxY = anchorY + clampedHeight * (1 - relY)
 
     return {
-        minX: centerX - width / 2,
-        maxX: centerX + width / 2,
-        minY: centerY - height / 2,
-        maxY: centerY + height / 2,
+        minX: newMinX,
+        maxX: newMaxX,
+        minY: newMinY,
+        maxY: newMaxY,
     }
 }
