@@ -6,7 +6,7 @@ import { useMapInteraction } from "../hooks/useMapInteraction"
 import { useMapRenderer } from "../hooks/useMapRenderer"
 import { buildLocalizationAdapter } from "../adapters/localization"
 import { fetchSensors } from "../../services/localizationApi"
-import { fitBounds, canvasToWorld } from "../utils/geometry"
+import { fitBounds } from "../utils/geometry"
 import styles from "./MapView.module.css"
 
 export default function MapView() {
@@ -85,6 +85,7 @@ export default function MapView() {
         height,
         viewport,
         adapter: adapter || { segments: [], sensors: [], bounds: { minX: 0, maxX: 10, minY: 0, maxY: 10 } },
+        cursor,
     })
 
     const handleZoomIn = useCallback(() => {
@@ -124,24 +125,6 @@ export default function MapView() {
         setViewport(fitBounds(adapter.bounds, 0.15))
     }, [adapter, setViewport])
 
-    // Calculate cursor world position for debug
-    const cursorWorldPos = cursor.current
-        ? canvasToWorld(cursor.current.x, cursor.current.y, viewport, width, height)
-        : null
-
-    // Find Z coordinate at cursor position (from adapter segments)
-    let cursorZ: number | null = null
-    if (cursorWorldPos && adapter) {
-        for (const seg of adapter.segments) {
-            for (const pt of seg.points) {
-                if (Math.abs(pt.x - cursorWorldPos.x) < 0.1 && Math.abs(pt.y - cursorWorldPos.y) < 0.1) {
-                    cursorZ = pt.z
-                    break
-                }
-            }
-        }
-    }
-
     if (!localizationData) {
         return (
             <div className={styles.placeholder}>
@@ -161,9 +144,7 @@ export default function MapView() {
             />
 
             <div className={styles.debug}>
-                x: {cursorWorldPos ? cursorWorldPos.x.toFixed(2) : "-"}m<br />
-                y: {cursorWorldPos ? cursorWorldPos.y.toFixed(2) : "-"}m<br />
-                z: {cursorZ !== null ? cursorZ.toFixed(2) : "-"}m<br />
+                test
             </div>
 
             <div className={styles.controls}>

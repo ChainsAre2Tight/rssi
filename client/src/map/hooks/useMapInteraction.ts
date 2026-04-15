@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import type { SpatialViewport } from "../types"
-import { zoomViewport, canvasToWorld } from "../utils/geometry"
+import { zoomViewport } from "../utils/geometry"
 
 interface Params {
     viewport: SpatialViewport
@@ -42,10 +42,11 @@ export function useMapInteraction({
     }
 
     function panByPixels(deltaPxX: number, deltaPxY: number) {
-        if (!dragStartViewport.current) return
+        // For wheel events, dragStartViewport might be null, so use current viewport
+        const baseViewport = dragStartViewport.current || viewport
 
-        const width = dragStartViewport.current.maxX - dragStartViewport.current.minX
-        const height = dragStartViewport.current.maxY - dragStartViewport.current.minY
+        const width = baseViewport.maxX - baseViewport.minX
+        const height = baseViewport.maxY - baseViewport.minY
 
         const scaleX = width / canvasWidth
         const scaleY = height / canvasHeight
@@ -54,10 +55,10 @@ export function useMapInteraction({
         const deltaWorldY = deltaPxY * scaleY
 
         setViewport({
-            minX: dragStartViewport.current.minX - deltaWorldX,
-            maxX: dragStartViewport.current.maxX - deltaWorldX,
-            minY: dragStartViewport.current.minY + deltaWorldY,
-            maxY: dragStartViewport.current.maxY + deltaWorldY,
+            minX: baseViewport.minX - deltaWorldX,
+            maxX: baseViewport.maxX - deltaWorldX,
+            minY: baseViewport.minY + deltaWorldY,
+            maxY: baseViewport.maxY + deltaWorldY,
         })
     }
 
@@ -111,8 +112,10 @@ export function useMapInteraction({
     function onMouseMove(e: React.MouseEvent) {
         const { x, y } = getCanvasCoords(e)
 
+        // Always update cursor position for hover feedback
+        cursor.current = { x, y }
+
         if (!isZooming.current) {
-            cursor.current = { x, y }
             onMove?.(x, y)
         }
 

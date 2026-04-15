@@ -11,6 +11,7 @@ interface Params {
     height: number
     viewport: SpatialViewport
     adapter: MapAdapterResult
+    cursor: RefObject<{ x: number; y: number } | null>
 }
 
 function getColor(varName: string, fallback: string): string {
@@ -28,28 +29,54 @@ export function useMapRenderer({
     height,
     viewport,
     adapter,
+    cursor,
 }: Params) {
     useEffect(() => {
-        const canvas = canvasRef.current
-        if (!canvas || width === 0 || height === 0) return
+        let frameId: number
 
-        const ctx = canvas.getContext("2d")
-        if (!ctx) return
+        function render() {
+            const canvas = canvasRef.current
+            if (!canvas || width === 0 || height === 0) {
+                frameId = requestAnimationFrame(render)
+                return
+            }
 
-        // Clear canvas
-        const bgColor = getColor("--color-bg", "#1a1a1a")
-        ctx.fillStyle = bgColor
-        ctx.fillRect(0, 0, width, height)
+            const ctx = canvas.getContext("2d")
+            if (!ctx) {
+                frameId = requestAnimationFrame(render)
+                return
+            }
 
-        // Draw grid
-        drawGrid(ctx, width, height, viewport)
+            // Clear canvas
+            const bgColor = getColor("--color-bg", "#1a1a1a")
+            ctx.fillStyle = bgColor
+            ctx.fillRect(0, 0, width, height)
 
-        // Draw sensors
-        drawSensors(ctx, width, height, viewport, adapter)
+            // Draw grid
+            drawGrid(ctx, width, height, viewport)
 
-        // Draw trajectory segments
-        drawSegments(ctx, width, height, viewport, adapter)
-    }, [canvasRef, width, height, viewport, adapter])
+            // Draw sensors
+            drawSensors(ctx, width, height, viewport, adapter)
+
+            // Draw trajectory segments
+            drawSegments(ctx, width, height, viewport, adapter)
+
+            // Draw crosshair cursor
+            if (cursor.current) {
+                drawCrosshair(ctx, cursor.current.x, cursor.current.y, width, height)
+            }
+
+            frameId = requestAnimationFrame(render)
+        }
+
+        frameId = requestAnimationFrame(render)
+
+        return () => {
+            if (frameId) {
+                cancelAnimationFrame(frameId)
+            }
+        }
+    }, [canvasRef, width, height, viewport, adapter, cursor])
 }
 
 function drawGrid(
@@ -188,6 +215,35 @@ function drawSegments(
 
         ctx.stroke()
     }
+
+    ctx.setLineDash([])
+    ctx.globalAlpha = 1
+}
+
+function drawCrosshair(
+    ctx: CanvasRenderingContext2D,
+    cursorX: number,
+    cursorY: number,
+    width: number,
+    height: number
+) {
+    const crosshairColor = getColor("--color-accent", "#4a90e2")
+    ctx.strokeStyle = crosshairColor
+    ctx.lineWidth = 1
+    ctx.globalAlpha = 0.5
+    ctx.setLineDash([4, 4])
+
+    // Horizontal line (left to right)
+    ctx.beginPath()
+    ctx.moveTo(0, cursorY)
+    ctx.lineTo(width, cursorY)
+    ctx.stroke()
+
+    // Vertical line (top to bottom)
+    ctx.beginPath()
+    ctx.moveTo(cursorX, 0)
+    ctx.lineTo(cursorX, height)
+    ctx.stroke()
 
     ctx.setLineDash([])
     ctx.globalAlpha = 1
