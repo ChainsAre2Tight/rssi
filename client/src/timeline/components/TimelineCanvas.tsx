@@ -162,7 +162,7 @@ export default function TimelineCanvas(params: {
         }
 
         setTracks(nextTracks)
-    }, [params.adapter.trackIds])
+    }, [params.adapter.trackIds, height])
 
     useEffect(() => {
         if (!params.adapter.bounds.start || !params.adapter.bounds.end) return
