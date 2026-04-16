@@ -1,0 +1,11 @@
+{
+  "measurement_id": 1,
+  "window_id": 23,
+  "start_time_us": 1776361350000000,
+  "end_time_us": 1776361950000000,
+  "dataset_version": 1,
+  "schema_version": 1,
+  "packet_count": 107,
+  "sensor_count": 2,
+  "ap_count": 1
+}
