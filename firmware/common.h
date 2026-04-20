@@ -11,7 +11,7 @@
 #include "esp_wifi.h"
 #include "esp_system.h"
 
-// ==== Настройки Wi-Fi и сервера ====
+// endpoint config
 #define WIFI_SSID "dmitry-moosetop"
 #define WIFI_PASS "gQmB9LdM"
 #define SNTP_SERVER "10.42.0.1"
@@ -42,16 +42,17 @@
 #define BURST_MIN_HOPS       3
 #define BURST_MAX_HOPS       6
 
-// -------- SENSOR FOCUS CHANNEL 1 --------
+// SENSOR FOCUS CHANNEL 1
 // #define CHANNEL_PRESET_FOCUS_1
 
-// -------- SENSOR FOCUS CHANNEL 6 --------
+// SENSOR FOCUS CHANNEL 6
 // #define CHANNEL_PRESET_FOCUS_6
 
-// -------- SENSOR FOCUS CHANNEL 11 --------
+// SENSOR FOCUS CHANNEL 11
 // #define CHANNEL_PRESET_FOCUS_11
 
-// -------- BALANCED SCANNING --------
+// BALANCED SCANNING for CSI
+// TODO: fix them to only authorized channels to increase observability
 // #define CHANNEL_PRESET_BALANCED
 
 

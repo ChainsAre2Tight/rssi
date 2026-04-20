@@ -51,7 +51,6 @@ base_position = np.array(storage.positions.get_device_position(
 ))
 
 
-# ---------- 2. Параметры ----------
 n = 3
 P0_values = np.linspace(-80, -50, 30)
 # bounds = ((0, 6), (0, 3), (0, 3))  # кубический объём
@@ -87,8 +86,7 @@ def compute_radius(pt):
     return np.array([10 ** ((pt - np.mean(arr)) / (10 * n)) for arr in rssi_values])
 
 # def trilaterate(P0):
-#     """Находит точку, минимизирующую невязку сфер"""
-    
+    е
 #     # def residuals(p):
 #     #     return (np.linalg.norm(points - np.array(p[:-1]), axis=1) - compute_radius(p[-1]))
 #     def residuals(p):

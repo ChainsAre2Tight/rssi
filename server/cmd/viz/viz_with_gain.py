@@ -4,9 +4,6 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
 
 
-# ------------------------------
-# Генератор направлений (icosphere)
-# ------------------------------
 def icosphere(subdivisions=2):
     """Возвращает нормализованные направления (N, 3) равномерно распределённые по сфере."""
     t = (1.0 + np.sqrt(5.0)) / 2.0
@@ -63,9 +60,6 @@ def icosphere(subdivisions=2):
     return verts, faces
 
 
-# ------------------------------
-# Построение сфер для модели
-# ------------------------------
 def plot_signal_surfaces(model, n=2.5, K_db=0.0):
     """
     model: {
@@ -122,11 +116,6 @@ def plot_signal_surfaces(model, n=2.5, K_db=0.0):
     ax.set_title("Path-Loss surfaces per device (RSSI median)")
     plt.tight_layout()
     plt.show()
-
-
-# ------------------------------
-# Пример использования
-# ------------------------------
 
 from compute.pair_calibrate import data, base_position
 from compute.calc_gain import calibrate_devices

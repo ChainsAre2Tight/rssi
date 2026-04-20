@@ -1,14 +1,3 @@
-"""
-rssi_localization.py
-
-Локализация источника по RSSI (3D, log-distance PL, аналитический GainModel.gain(vec_local) -> dB)
-- P0 (в dB) оптимизируем
-- n фиксирован и задаётся в config
-- GainModel возвращает только скаляр (dB); градиенты вычисляются центральными конечными разностями
-- Инициализация: геометрический центр, P0 старт = медиана rssi
-- Нет оценки шума; веса не используются (L2 loss)
-"""
-
 from typing import Dict, Callable, Tuple, Any, Optional
 import numpy as np
 
@@ -16,9 +5,6 @@ import numpy as np
 from scipy.optimize import least_squares
 from numpy.linalg import inv, LinAlgError
 
-# ----------------------------
-# Типы и конфиг
-# ----------------------------
 Vec3 = Tuple[float, float, float]
 
 class GainModelInterface:
@@ -57,9 +43,6 @@ class Config:
         self.sigma_for_covariance = sigma_for_covariance
 
 
-# ----------------------------
-# Вспомогательные функции
-# ----------------------------
 def aggregate_rssi_list(values: list, method: str = "median") -> float:
     arr = np.asarray(values, dtype=float)
     if method == "median":
@@ -69,10 +52,6 @@ def aggregate_rssi_list(values: list, method: str = "median") -> float:
     else:
         raise ValueError("Unknown aggregation method: %s" % method)
 
-
-# ----------------------------
-# Основная реализация
-# ----------------------------
 class RSSILocalizer:
     def __init__(
         self,
@@ -82,13 +61,6 @@ class RSSILocalizer:
         positions: Dict[Any, Vec3],
         config: Config
     ):
-        """
-        devices: список id устройств (ключи словарей ниже)
-        GainModels: {id: GainModelInterface}
-        rssi_values: {id: list_of_measurements (dB)}
-        positions: {id: (x,y,z)} в метрах
-        config: объект Config
-        """
         self.devices = devices
         self.GainModels = GainModels
         self.rssi_values = rssi_values
@@ -101,12 +73,6 @@ class RSSILocalizer:
             self.rssi_meas[d] = aggregate_rssi_list(self.rssi_values[d], method=self.config.aggregate_rssi)
 
     def _model_rssi(self, x: np.ndarray, P0: float, device_id) -> float:
-        """
-        Вычисляет модельный RSSI в dB для одного датчика
-        x: (3,) глобальная позиция источника
-        P0: опорная мощность (dB)
-        device_id: id датчика
-        """
         s = self.positions[device_id]
         vec = -(x - s)  # радиус-вектор от датчика к источнику, глобальная система; GainModel принимает локальный vec
         d = np.linalg.norm(vec)
@@ -119,10 +85,6 @@ class RSSILocalizer:
         return float(r_model)
 
     def residuals_vector(self, params: np.ndarray) -> np.ndarray:
-        """
-        params: [x, y, z, P0]
-        возвращает вектор остатков e_i = r_i - r_model_i
-        """
         x = params[0:3]
         P0 = float(params[3])
         res = []
@@ -176,10 +138,6 @@ class RSSILocalizer:
         return J
 
     def localize(self, verbose: bool = True, return_full: bool = False) -> Dict[str, Any]:
-        """
-        Запустить оптимизацию и вернуть результат.
-        return_full: если True, возвращает полный объект результата и якобиан/ковариацию
-        """
         # стартовая инициализация
         s_positions = np.array([self.positions[d] for d in self.devices])
         x0 = np.mean(s_positions, axis=0)  # геометрический центр
@@ -267,13 +225,6 @@ import numpy as np
 import itertools
 
 def plot_rssi_localization(positions: dict, result: dict, true_pos: tuple[float, float, float] = (0, 0, 0), title: str = "RSSI Localization Visualization"):
-    """
-    Визуализирует расположение датчиков и оценённую позицию источника.
-    
-    positions : dict {device_id: (x,y,z)} — координаты датчиков (в метрах)
-    result : dict, полученный от RSSILocalizer.localize() (см. out["estimated_position"])
-    title : str — заголовок графика
-    """
     # Извлечь координаты
     device_ids = list(positions.keys())
     pos_array = np.array([positions[d] for d in device_ids])
@@ -341,9 +292,6 @@ def plot_rssi_localization(positions: dict, result: dict, true_pos: tuple[float,
     plt.show()
 
 
-# ----------------------------
-# Демонстрация / тест синтетических данных
-# ----------------------------
 if __name__ == "__main__":
     
     from compute.pair_calibrate import data, base_position

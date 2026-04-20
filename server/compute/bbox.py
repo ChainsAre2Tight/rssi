@@ -4,7 +4,7 @@ def compute_bounding_box_center(devices: dict):
     if not positions:
         raise ValueError("Нет данных о позициях устройств")
 
-    # Транспонируем список [[x1,y1,z1], [x2,y2,z2], ...] → [(x1,x2,...), (y1,y2,...), (z1,z2,...)]
+    # Транспонируем список [[x1,y1,z1], [x2,y2,z2], ...] -> [(x1,x2,...), (y1,y2,...), (z1,z2,...)]
     xs, ys, zs = zip(*positions)
 
     bbox_min = [min(xs), min(ys), min(zs)]
@@ -20,24 +20,6 @@ def compute_bounding_box_center(devices: dict):
 import numpy as np
 
 def angular_error(bbox: dict, true_pos, pred_pos) -> float:
-    """
-    Вычисляет угловую ошибку (в радианах) между векторами 
-    'центр → истинная позиция' и 'центр → предсказанная позиция'.
-
-    Parameters
-    ----------
-    bbox : dict
-        {'bbox_min': [x_min, y_min, z_min], 'bbox_max': [x_max, y_max, z_max]}
-    true_pos : array-like
-        Истинная позиция [x, y, z]
-    pred_pos : array-like
-        Предсказанная позиция [x, y, z]
-
-    Returns
-    -------
-    float
-        Угловая ошибка в радианах (0 — идеальное совпадение направлений)
-    """
 
     # Центр бокса
     bbox_min = np.array(bbox["bbox_min"])

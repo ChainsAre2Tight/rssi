@@ -3,9 +3,6 @@ from scipy.spatial.distance import cdist
 from scipy.optimize import least_squares
 from scipy.special import sph_harm
 
-# ============================================================
-# 1️⃣   Расчёт вспомогательных геометрических параметров
-# ============================================================
 def spherical_angles(vec):
     """Преобразование векторного направления в сферические координаты (θ, φ)"""
     x, y, z = vec
@@ -18,9 +15,6 @@ def path_loss(d, n=2.0, PL0=-40, d0=1.0):
     """Модель затухания (логарифмическая)"""
     return PL0 + 10 * n * np.log10(d / d0)
 
-# ============================================================
-# 2️⃣   RBF-модель диаграммы направленности
-# ============================================================
 class GainZero:
     def gain(self, direction_vec):
         return 0.0
@@ -170,9 +164,6 @@ class GainIDW:
         theta, phi = spherical_angles(direction_vec)
         return float(self.predict(np.array([[theta, phi]])))
 
-# ============================================================
-# 3️⃣   Основная оптимизация
-# ============================================================
 def calibrate_devices(data_dict, n_pathloss=2.0, K=0.0):
     devices = list(data_dict.keys())
     N = len(devices)
