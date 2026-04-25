@@ -7,8 +7,9 @@
 
 #define CHANNEL_PRESET_BALANCED
 
-#define DEVICE_NAME "ESP32_02"
+// #define DEVICE_NAME "ESP32_02"
 // #define DEVICE_NAME "ESP32_04"
+#define DEVICE_NAME "ESP32_06"
 // #define DEVICE_NAME "ESP32_08"
 
 #include "../common.h"

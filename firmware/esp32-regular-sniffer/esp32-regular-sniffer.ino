@@ -10,6 +10,9 @@
 // #define CHANNEL_PRESET_FOCUS_6
 // #define DEVICE_NAME "ESP32_03"
 
+// #define CHANNEL_PRESET_FOCUS_6
+// #define DEVICE_NAME "ESP32_05"
+
 // #define CHANNEL_PRESET_FOCUS_11
 // #define DEVICE_NAME "ESP32_07"
 
