@@ -22,7 +22,7 @@ export default function TopBar() {
 
     const hasData = startUs && endUs
 
-    // 🔥 Ctrl/Cmd + F focus
+    // Ctrl/Cmd + F focus
     useEffect(() => {
         function handleKey(e: KeyboardEvent) {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {

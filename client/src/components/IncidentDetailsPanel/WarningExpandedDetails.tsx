@@ -1,4 +1,5 @@
 import type { Warning } from "../../types/general"
+import { prettifyWarnings } from "../../utils/prettyMapper"
 import { formatOccurrenceRange } from "../../utils/time"
 
 import styles from "./WarningExpandedDetails.module.css"
@@ -22,6 +23,8 @@ function renderMetadataValue(value: any) {
 
 export default function WarningExpandedDetails({ warning }: Props) {
 
+    const prettyWarning = prettifyWarnings(warning?.signal)
+
     return (
 
         <div className={styles.details}>
@@ -36,6 +39,11 @@ export default function WarningExpandedDetails({ warning }: Props) {
                 <span className={`${styles.severity} ${styles[warning.severity]}`}>
                     {warning.severity.toUpperCase()}
                 </span>
+            </div>
+
+            <div className={styles.block}>
+                Description:
+                <span className={styles.value}>{prettyWarning.description}</span>
             </div>
 
             {Object.keys(warning.metadata).length > 0 && (

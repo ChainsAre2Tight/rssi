@@ -3,6 +3,7 @@ import { getWarningKey } from "../../utils/warningKey"
 import WarningExpandedDetails from "./WarningExpandedDetails"
 
 import styles from "./WarningDetails.module.css"
+import { prettifyWarnings } from "../../utils/prettyMapper"
 
 export default function WarningDetails() {
 
@@ -26,6 +27,8 @@ export default function WarningDetails() {
         w => getWarningKey(w) === selectedKey
     )
 
+    const prettyWarning = prettifyWarnings(warning?.signal)
+
     if (!warning) {
         return (
             <div className={styles.empty}>
@@ -39,7 +42,7 @@ export default function WarningDetails() {
 
             <div className={styles.header}>
                 <span className={styles.title}>
-                    {warning.signal}
+                    {prettyWarning.name}
                 </span>
 
                 <span className={`${styles.severity} ${styles[warning.severity]}`}>

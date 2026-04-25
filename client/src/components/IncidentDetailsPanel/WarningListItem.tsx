@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import styles from "./WarningList.module.css"
 import { getWarningKey } from "../../utils/warningKey"
+import { prettifyWarnings } from "../../utils/prettyMapper"
 
 interface Props {
     warning: any
@@ -20,7 +21,7 @@ export function WarningListItem({
     onHover,
 }: Props) {
     const key = getWarningKey(warning)
-
+    const prettyWarning = prettifyWarnings(warning?.signal)
     const rowRef = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
@@ -50,9 +51,9 @@ export function WarningListItem({
 
             <span
                 className={styles.label}
-                title={warning.signal}
+                title={prettyWarning.name}
             >
-                {warning.signal}
+                {prettyWarning.name}
             </span>
 
             <div className={styles.durationBarContainer}>

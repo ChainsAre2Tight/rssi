@@ -55,3 +55,8 @@ export const SEVERITY_ORDER: Record<Severity, number> = {
     low: 2,
     info: 1,
 }
+
+export interface PrettyWarning {
+    name: string
+    description: string
+}
