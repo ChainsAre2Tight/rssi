@@ -100,6 +100,7 @@ class Severity(str, Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+    WHITELIST = "whitelist"
 
     @property
     def rank(self) -> int:
@@ -113,6 +114,7 @@ class Severity(str, Enum):
             raise ValueError(f"Unknown severity: {value}")
 
 _SEVERITY_RANK = {
+    Severity.WHITELIST: -1,
     Severity.INFO: 0,
     Severity.LOW: 1,
     Severity.MEDIUM: 2,

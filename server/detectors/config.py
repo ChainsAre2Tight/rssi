@@ -30,6 +30,11 @@ class SSIDWhitelistSignals:
 class BSSIDWhitelistSignals:
     unauthorized_bssid: SignalSpec
 
+
+@dataclass(slots=True)
+class AuthorizedWhitelistSignals:
+    authorized_ap: SignalSpec
+
 @dataclass(slots=True)
 class AuthorizedAPWrongSSIDSignals:
     wrong_ssid: SignalSpec
@@ -62,6 +67,7 @@ class DetectorDefinitions:
     hidden_ssid: DetectorSpec
     beacon_ratio: DetectorSpec
     ssid_similarity: DetectorSpec
+    authorized_whitelist: DetectorSpec
 
 DETECTORS = DetectorDefinitions(
 
@@ -144,6 +150,16 @@ DETECTORS = DetectorDefinitions(
                 name="typosquat_ssid",
                 severity=Severity.CRITICAL,
             ),
+        ),
+    ),
+
+    authorized_whitelist=DetectorSpec(
+        name="authorized_whitelist",
+        signals=AuthorizedWhitelistSignals(
+            authorized_ap=SignalSpec(
+                name="authorized_ap",
+                severity=Severity.WHITELIST,
+            )
         ),
     ),
 )

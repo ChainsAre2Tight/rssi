@@ -3,6 +3,7 @@ from detectors.whitelists import (
     SSIDWhitelistDetector,
     BSSIDWhitelistDetector,
     AuthorizedAPWrongSSIDDetector,
+    AuthorizedWhitelistDetector,
 )
 from detectors.ssid import (
     HiddenSSIDDetector,
@@ -16,6 +17,7 @@ DETECTORS = [
     # TestDetector(),
     SSIDWhitelistDetector(),
     BSSIDWhitelistDetector(),
+    AuthorizedWhitelistDetector(),
     AuthorizedAPWrongSSIDDetector(),
     HiddenSSIDDetector(),
     BeaconRatioDetector(),
