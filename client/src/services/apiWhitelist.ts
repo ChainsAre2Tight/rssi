@@ -14,6 +14,8 @@ export interface WhitelistActionResponse {
     status: string
 }
 
+
+// TODO: fix for hidden ssids
 export async function addWhitelistPair(
     measurementId: number,
     ssid: string,
@@ -28,6 +30,7 @@ export async function addWhitelistPair(
 
 }
 
+// TODO: fix for hidden ssids
 export async function removeWhitelistPair(
     measurementId: number,
     ssid: string,
