@@ -53,3 +53,4 @@
 .high { background: var(--severity-high); }
 .critical { background: var(--severity-critical); }
 .info { background: var(--severity-info); }
+.whitelist { background: var(--severity-whitelist); }

@@ -15,6 +15,8 @@ export function getSeverityColor(
             return styles.getPropertyValue("--severity-high")
         case "critical":
             return styles.getPropertyValue("--severity-critical")
+        case "whitelist":
+            return styles.getPropertyValue("--severity-whitelist")
         default:
             return styles.getPropertyValue("--severity-info")
     }

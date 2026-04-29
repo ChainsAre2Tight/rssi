@@ -60,6 +60,7 @@
     border-radius: 2px;
 }
 
+.durationBar.whitelist { background: var(--severity-whitelist); }
 .durationBar.info { background: var(--severity-info); }
 .durationBar.low { background: var(--severity-low); }
 .durationBar.medium { background: var(--severity-medium); }

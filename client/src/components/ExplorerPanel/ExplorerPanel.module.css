@@ -121,6 +121,10 @@
     background: var(--severity-critical);
 }
 
+.durationBar.whitelist {
+    background: var(--severity-whitelist);
+}
+
 .row:hover .durationBar,
 .row[data-hovered="true"] .durationBar {
     filter: brightness(1.2);

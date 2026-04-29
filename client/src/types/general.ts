@@ -12,6 +12,16 @@ export type Severity =
     | "medium"
     | "high"
     | "critical"
+    | "whitelist"
+
+export const SEVERITIES: Severity[] = [
+  "whitelist",
+  "info",
+  "low",
+  "medium",
+  "high",
+  "critical",
+];
 
 export interface Occurrence {
     startTimeUs: number
@@ -54,6 +64,7 @@ export const SEVERITY_ORDER: Record<Severity, number> = {
     medium: 3,
     low: 2,
     info: 1,
+    whitelist: -1,
 }
 
 export interface PrettyWarning {

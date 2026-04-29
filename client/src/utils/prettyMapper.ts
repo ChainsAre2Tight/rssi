@@ -14,6 +14,7 @@ const mapping: WarningMapping = {
     "persistent_hidden_ssid":   {name: "Persistent hidden SSID",description: "AP broadcasts hidden SSID, high activity"},
     "beacon_only_ap":           {name: "Beacon-only AP",        description: "AP sent only beacons, no data packets were observed"},
     "high_beacon_ratio":        {name: "High beacon ratio",     description: "AP sent an unusual beacon-to-data packet ratio"},
+    "authorized_ap":            {name: "Authorized AP",         description: "This AP is authorized to broadcast this SSID"},
 }
 
 export function prettifyWarnings(warning: string | null | undefined): PrettyWarning {

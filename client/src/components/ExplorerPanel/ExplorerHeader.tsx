@@ -1,13 +1,11 @@
 import { useAppStore } from "../../store/useAppStore"
-import type { Incident, Modality } from "../../types/general"
+import { SEVERITIES, type Incident, type Modality } from "../../types/general"
 import styles from "./ExplorerHeader.module.css"
 
 type Props = {
     incidentsByModality: Record<Modality, Incident[]>
     filtered: Record<Modality, Incident[]>
 }
-
-const severities = ["critical", "high", "medium", "low", "info"] as const
 
 export default function ExplorerHeader({
     incidentsByModality,
@@ -41,7 +39,7 @@ export default function ExplorerHeader({
                 </span>
 
                 <div className={styles.dots}>
-                    {severities.map(sev => (
+                    {SEVERITIES.map(sev => (
                         <div
                             key={sev}
                             className={styles.dot}

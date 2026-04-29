@@ -56,3 +56,4 @@
 .dot[data-severity="medium"] { background: var(--severity-medium); }
 .dot[data-severity="low"] { background: var(--severity-low); }
 .dot[data-severity="info"] { background: var(--severity-info); }
+.dot[data-severity="whitelist"] { background: var(--severity-whitelist); }

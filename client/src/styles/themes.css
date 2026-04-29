@@ -2,7 +2,7 @@
 
     /* base surfaces */
 
-    --color-bg: #f4f5f7;              /* slightly darker page bg */
+    --color-bg: #f3f3f3;              /* slightly darker page bg */
     --color-surface: #ffffff;         /* main panels */
     --color-surface-alt: #fafbfc;     /* subtle nested panels */
 
@@ -37,6 +37,7 @@
     --severity-medium: #f59e0b;
     --severity-high: #f97316;
     --severity-critical: #ef4444;
+    --severity-whitelist: #ffffff;
 
     /* optional soft backgrounds for pills */
 
@@ -45,6 +46,7 @@
     --severity-medium-bg: rgba(245,158,11,0.12);
     --severity-high-bg: rgba(249,115,22,0.12);
     --severity-critical-bg: rgba(239,68,68,0.12);
+    --severity-whitelist-bg: rgba(236, 236, 236, 0.12);
 }
 
 
@@ -87,6 +89,7 @@
     --severity-medium: #facc15;
     --severity-high: #fb923c;
     --severity-critical: #f87171;
+    --severity-whitelist: #ffffff;
 
     /* soft backgrounds for pills */
 
@@ -95,4 +98,5 @@
     --severity-medium-bg: rgba(250,204,21,0.18);
     --severity-high-bg: rgba(251,146,60,0.18);
     --severity-critical-bg: rgba(248,113,113,0.18);
+    --severity-whitelist-bg: rgba(236, 236, 236, 0.18);
 }

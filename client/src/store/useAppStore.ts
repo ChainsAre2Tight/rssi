@@ -65,6 +65,7 @@ persist(
             medium: true,
             low: true,
             info: true,
+            whitelist: true,
         },
         query: "",
     },

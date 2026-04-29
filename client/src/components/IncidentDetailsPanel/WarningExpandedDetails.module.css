@@ -60,6 +60,12 @@
     color: var(--severity-info);
 }
 
+.severity.whitelist {
+    background: var(--severity-whitelist-bg);
+    border-color: var(--severity-whitelist);
+    color: var(--severity-whitelist);
+}
+
 /* metadata */
 
 .metadataList {
