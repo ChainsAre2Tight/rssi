@@ -53,6 +53,23 @@ def load_measurement_whitelist(
 
     return json.loads(whitelist_json)
 
+def store_measurement_whitelist(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    whitelist: dict
+) -> None:
+
+    whitelist_json = json.dumps(whitelist)
+
+    conn.execute(
+        """
+        UPDATE measurements
+        SET whitelist_json = ?
+        WHERE id = ?
+        """,
+        (whitelist_json, measurement_id),
+    )
+
 def list_measurements(
     conn: sqlite3.Connection,
 ) -> list[dict]:

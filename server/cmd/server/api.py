@@ -4,6 +4,10 @@ from typing import Dict
 import sqlite3
 from flask import Flask, request, jsonify
 
+from compute.whitelist import (
+    add_whitelist_entry,
+    remove_whitelist_entry,
+)
 import storage
 from compute.modalities import LogicalModality
 from storage.devices import load_sensors_for_measurement
@@ -170,6 +174,72 @@ def whitelist():
 
     except ValueError as e:
         return api_error(str(e))
+
+
+@app.route("/api/v1/whitelist", methods=["POST"])
+def whitelist_add():
+    try:
+        measurement_id = parse_int_param("measurement_id")
+        ssid = parse_str_param("ssid")
+        bssid = parse_str_param("bssid")
+
+        with storage.Session() as conn:
+            changed = add_whitelist_entry(
+                conn=conn,
+                measurement_id=measurement_id,
+                ssid=ssid,
+                bssid=bssid,
+            )
+            # TODO: maybe recompute signals
+
+        if changed:
+            return jsonify({
+                "status": "ok",
+                "action": "added",
+            })
+        else:
+            return jsonify({
+                "status": "noop",
+                "action": "already_exists",
+            })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
+
+
+@app.route("/api/v1/whitelist", methods=["DELETE"])
+def whitelist_remove():
+    try:
+        measurement_id = parse_int_param("measurement_id")
+        ssid = parse_str_param("ssid")
+        bssid = parse_str_param("bssid")
+
+        with storage.Session() as conn:
+            changed = remove_whitelist_entry(
+                conn=conn,
+                measurement_id=measurement_id,
+                ssid=ssid,
+                bssid=bssid,
+            )
+            # TODO: maybe recompute signals
+
+        if changed:
+            return jsonify({
+                "status": "ok",
+                "action": "removed",
+            })
+        else:
+            return jsonify({
+                "status": "noop",
+                "action": "not_found",
+            })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
 
 
 @app.route("/api/v1/localize", methods=["POST"])
