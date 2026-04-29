@@ -42,6 +42,12 @@ persist(
         loaded: false
     },
 
+    whitelist: {
+        byMeasurement: {},
+        loading: false,
+        loaded: false
+    },
+
     timeline: {
         global: {
             zoom: 1,
@@ -327,6 +333,35 @@ persist(
                 query,
             }
         })),
+    
+    setWhitelistLoading: (loading) =>
+        set((state) => ({
+            whitelist: {
+                ...state.whitelist,
+                loading
+            }
+        })),
+
+    setWhitelist: (measurementId, whitelist) =>
+        set((state) => ({
+            whitelist: {
+                byMeasurement: {
+                    ...state.whitelist.byMeasurement,
+                    [measurementId]: whitelist
+                },
+                loading: false,
+                loaded: true
+            }
+        })),
+
+    clearWhitelist: () =>
+        set({
+            whitelist: {
+                byMeasurement: {},
+                loading: false,
+                loaded: false
+            }
+        }),
 
 }),
 {

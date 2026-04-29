@@ -1,4 +1,4 @@
-import { apiGet } from "./apiClient"
+import { apiFetch } from "./apiClient"
 
 export interface LocalizationResult {
     window_id: number
@@ -44,7 +44,7 @@ export async function fetchLocalization(params: {
     bssid: string
     modality?: string
 }): Promise<LocalizationData> {
-    return apiGet("/localizations", {
+    return apiFetch("/localizations", "GET", {
         measurement_id: params.measurementId,
         start_time_us: params.startTimeUs,
         end_time_us: params.endTimeUs,
@@ -53,6 +53,7 @@ export async function fetchLocalization(params: {
     })
 }
 
+// TODO: move to apiFetch
 export async function requestLocalization(params: {
     measurementId: number
     startTimeUs: number
@@ -82,7 +83,7 @@ export async function requestLocalization(params: {
 }
 
 export async function fetchSensors(measurementId: number): Promise<Sensor[]> {
-    const response: SensorsResponse = await apiGet("/sensors", {
+    const response: SensorsResponse = await apiFetch("/sensors", "GET", {
         measurement_id: measurementId,
     })
     return response.sensors

@@ -1,4 +1,4 @@
-import { apiGet } from "./apiClient"
+import { apiFetch } from "./apiClient"
 
 export interface ReportRequest {
     measurementId: number
@@ -15,7 +15,7 @@ export interface ActiveRequest {
 
 export async function fetchReport(params: ReportRequest) {
 
-    return apiGet("/reports", {
+    return apiFetch("/reports", "GET", {
         measurement_id: params.measurementId,
         start_time_us: params.startTimeUs,
         end_time_us: params.endTimeUs,
@@ -25,7 +25,7 @@ export async function fetchReport(params: ReportRequest) {
 
 export async function fetchActiveReport(params: ActiveRequest) {
 
-    return apiGet("/active", {
+    return apiFetch("/active", "GET", {
         measurement_id: params.measurementId,
         offset_s: params.offsetS,
         modalities: params.modalities?.join(",")

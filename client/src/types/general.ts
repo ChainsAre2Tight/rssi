@@ -71,3 +71,5 @@ export interface PrettyWarning {
     name: string
     description: string
 }
+
+export type Whitelist = Record<string, Record<string, boolean>>

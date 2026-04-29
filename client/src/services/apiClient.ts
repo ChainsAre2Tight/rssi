@@ -13,8 +13,11 @@ function buildQuery(params: Record<string, string | number | undefined>) {
     return search.toString()
 }
 
-export async function apiGet<T>(
+
+
+export async function apiFetch<T>(
     path: string,
+    method: "GET" | "POST" | "DELETE",
     params?: Record<string, string | number | undefined>
 ): Promise<T> {
 
@@ -27,7 +30,7 @@ export async function apiGet<T>(
         }
     }
 
-    const res = await fetch(url)
+    const res = await fetch(url, { method })
 
     if (!res.ok) {
         const text = await res.text()

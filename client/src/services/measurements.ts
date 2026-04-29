@@ -1,4 +1,4 @@
-import { apiGet } from "./apiClient"
+import { apiFetch } from "./apiClient"
 
 interface MeasurementsResponse {
     measurements: {
@@ -10,5 +10,5 @@ interface MeasurementsResponse {
 }
 
 export async function fetchMeasurements() {
-    return apiGet<MeasurementsResponse>("/measurements")
+    return apiFetch<MeasurementsResponse>("/measurements", "GET")
 }

@@ -25,3 +25,8 @@ export interface BackendWarning {
         end_time_us: number
     }[]
 }
+
+export interface BackendWhitelist {
+    measurement_id: number
+    whitelist: Record<string, string[]>
+}

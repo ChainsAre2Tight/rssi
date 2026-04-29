@@ -1,6 +1,7 @@
 import { useAppStore } from "../../store/useAppStore"
 import { loadReport } from "../../features/report/loadReport"
 import styles from "./TopBar.module.css"
+import { loadWhitelist } from "../../features/whitelist/loadWhitelist"
 
 export default function ActiveControls() {
 
@@ -10,6 +11,7 @@ export default function ActiveControls() {
     const setOffset = useAppStore(s => s.setActiveOffset)
     const setReport = useAppStore(s => s.setReport)
     const setLoading = useAppStore(s => s.setReportLoading)
+    const setWhitelist = useAppStore((s) => s.setWhitelist)
 
     async function handleLoad() {
         if (measurementId === null) return
@@ -27,6 +29,10 @@ export default function ActiveControls() {
                 adapted.startTimeUs,
                 adapted.endTimeUs
             )
+
+            const whitelist = await loadWhitelist(measurementId)
+            setWhitelist(measurementId, whitelist)
+
         } finally {
             setLoading(false)
         }

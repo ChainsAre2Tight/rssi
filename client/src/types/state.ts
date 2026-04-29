@@ -1,4 +1,4 @@
-import type { Incident, Modality, Measurement, Severity } from "./general"
+import type { Incident, Modality, Measurement, Severity, Whitelist } from "./general"
 import type { LocalizationData, Sensor } from "../services/localizationApi"
 
 export interface AppState {
@@ -24,6 +24,12 @@ export interface AppState {
 
         incidentsByModality: Record<Modality, Incident[]>
 
+        loading: boolean
+        loaded: boolean
+    }
+
+    whitelist: {
+        byMeasurement: Record<number, Whitelist>
         loading: boolean
         loaded: boolean
     }
@@ -114,4 +120,11 @@ export interface AppState {
     clearLocalizationCache: () => void
 
     setSearchQuery: (query: string) => void
+
+    setWhitelistLoading: (loading: boolean) => void
+    setWhitelist: (
+        measurementId: number,
+        whitelist: Whitelist,
+    ) => void
+    clearWhitelist: () => void
 }

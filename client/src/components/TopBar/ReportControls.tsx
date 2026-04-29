@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useAppStore } from "../../store/useAppStore"
 import { loadReport } from "../../features/report/loadReport"
 import styles from "./TopBar.module.css"
+import { loadWhitelist } from "../../features/whitelist/loadWhitelist"
 
 function nowUs() {
     return Date.now() * 1000
@@ -21,6 +22,7 @@ export default function ReportControls() {
     const measurementId = useAppStore((s) => s.context.measurementId)
     const setReport = useAppStore((s) => s.setReport)
     const setReportLoading = useAppStore((s) => s.setReportLoading)
+    const setWhitelist = useAppStore((s) => s.setWhitelist)
 
     const [start, setStart] = useState("")
     const [end, setEnd] = useState("")
@@ -86,6 +88,10 @@ export default function ReportControls() {
                 adapted.startTimeUs,
                 adapted.endTimeUs,
             )
+
+            const whitelist = await loadWhitelist(measurementId)
+            setWhitelist(measurementId, whitelist)
+
         } finally {
             setReportLoading(false)
         }
