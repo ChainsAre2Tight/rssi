@@ -57,7 +57,7 @@ def validate_bssid(bssid: str) -> str:
     bssid = bssid.strip().lower()
     if not BSSID_REGEX.match(bssid):
         raise ValueError("Invalid BSSID format")
-    return bssid
+    return bssid.upper()
 
 
 def validate_inputs(ssid: str, bssid: str) -> tuple[str, str]:

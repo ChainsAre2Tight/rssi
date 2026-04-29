@@ -9,6 +9,6 @@ export async function loadWhitelist(
 
     const raw = await fetchWhitelist(measurementId)
     const adapted = adaptWhitelist(raw)
-
+    console.log(adapted)
     return adapted
 }

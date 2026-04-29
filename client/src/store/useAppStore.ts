@@ -385,7 +385,11 @@ persist(
             startTimeUs: state.report.startTimeUs,
             endTimeUs: state.report.endTimeUs,
             incidentsByModality: state.report.incidentsByModality
-        }
+        },
+
+        whitelist: {
+            byMeasurement: state.whitelist.byMeasurement,
+        },
     }),
 
     onRehydrateStorage: () => (state) => {

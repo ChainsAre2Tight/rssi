@@ -3,6 +3,7 @@ import { formatDateTime } from "../../utils/time"
 import LocalizationButtons from "./LocalizationButtons"
 
 import styles from "./IncidentHeader.module.css"
+import WhitelistButtons from "./WhitelistButtons"
 
 export default function IncidentHeader() {
 
@@ -41,6 +42,8 @@ export default function IncidentHeader() {
             </div>
 
             <div className={styles.right}>
+                <WhitelistButtons />
+                <div className={styles.separator} />
                 <LocalizationButtons />
             </div>
 

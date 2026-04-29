@@ -9,16 +9,23 @@ export async function fetchWhitelist(
     })
 }
 
+export interface WhitelistActionResponse {
+    action: string
+    status: string
+}
+
 export async function addWhitelistPair(
     measurementId: number,
     ssid: string,
     bssid: string
 ) {
-    return apiFetch("/whitelist", "POST", {
+    return await apiFetch<WhitelistActionResponse>("/whitelist", "POST", {
         measurement_id: measurementId,
         ssid,
         bssid
     })
+
+
 }
 
 export async function removeWhitelistPair(
@@ -26,7 +33,7 @@ export async function removeWhitelistPair(
     ssid: string,
     bssid: string
 ) {
-    return apiFetch("/whitelist", "DELETE", {
+    return apiFetch<WhitelistActionResponse>("/whitelist", "DELETE", {
         measurement_id: measurementId,
         ssid,
         bssid
