@@ -1,4 +1,5 @@
 import { useAppStore } from "../../store/useAppStore"
+import { TRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
 
 export function SSIDRow({ ssid }: { ssid: string }) {
@@ -102,9 +103,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
             }
             onMouseLeave={() => hoverWhitelist(null)}
         >
-            <div className={styles.indent} />
-
-            <div className={styles.chevron}>▼</div>
+            <TRail />
 
             <div className={styles.icon}>🖧</div>
 

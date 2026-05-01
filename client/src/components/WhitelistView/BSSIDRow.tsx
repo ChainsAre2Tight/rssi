@@ -1,4 +1,5 @@
 import { useAppStore } from "../../store/useAppStore"
+import { IRail, TRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
 
 export function BSSIDRow({
@@ -94,12 +95,8 @@ export function BSSIDRow({
             }
             onMouseLeave={() => hoverWhitelist(null)}
         >
-            <div className={styles.indent} />
-            <div className={styles.indent} />
-
-            <div className={styles.icon}>📡</div>
-
-            <div className={styles.chevron} />
+            <IRail />
+            <TRail />
 
             <div className={styles.label} title={bssid}>
                 {bssid}

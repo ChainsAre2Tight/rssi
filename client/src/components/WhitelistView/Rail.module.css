@@ -1,0 +1,66 @@
+.i::before,
+.t .vertical,
+.t .horizontal,
+.l .vertical,
+.t .horizontal {
+    background: var(--color-border-strong);
+}
+
+.i {
+    width: 16px;
+    position: relative;
+    align-self: stretch;
+}
+
+.i::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+}
+
+.t {
+    width: 16px;
+    position: relative;
+    align-self: stretch;
+}
+
+.t .vertical {
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+}
+
+.t .horizontal {
+    position: absolute;
+    left: 7px;
+    top: 50%;
+    width: 8px;
+    height: 1px;
+}
+
+.l {
+    width: 16px;
+    position: relative;
+    align-self: stretch;
+}
+
+.l .horizontal {
+    position: absolute;
+    left: 7px;
+    top: 50%;
+    width: 8px;
+    height: 1px;
+}
+
+.l .vertical {
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 50%;
+    width: 1px;
+}

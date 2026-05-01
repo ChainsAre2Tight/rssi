@@ -1,4 +1,5 @@
 import { useAppStore } from "../../store/useAppStore"
+import { LRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
 
 export function AddSSIDRow() {
@@ -54,9 +55,7 @@ export function AddSSIDRow() {
                 setMode("editing")
             }}
         >
-            <div className={styles.indent} />
-            <div className={styles.icon} />
-            <div className={styles.chevron} />
+            <LRail />
 
             <div className={styles.label}>
                 {isEditing ? (

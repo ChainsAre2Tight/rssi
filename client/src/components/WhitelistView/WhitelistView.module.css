@@ -89,6 +89,7 @@
 }
 
 /* show when selected */
+.row[data-selected="true"] .actions,
 .row[data-selected="true"][data-confirm="true"] .actions,
 .row[data-selected="true"][data-editing="true"] .actions {
     opacity: 1;
