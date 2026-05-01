@@ -138,7 +138,7 @@ export function AddBSSIDRow({ ssid }: { ssid: string }) {
             {isEditing && (
                 <div className={styles.actions}>
                     <button
-                        className={styles.btn}
+                        className={`${styles.btn} ${styles.btnConfirm}`}
                         disabled={!isValid}
                         onClick={(e) => {
                             e.stopPropagation()
@@ -149,7 +149,7 @@ export function AddBSSIDRow({ ssid }: { ssid: string }) {
                     </button>
 
                     <button
-                        className={styles.btn}
+                        className={`${styles.btn} ${styles.btnDanger}`}
                         onClick={(e) => {
                             e.stopPropagation()
                             cancel()

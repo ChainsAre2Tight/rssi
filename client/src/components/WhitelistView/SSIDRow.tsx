@@ -132,27 +132,27 @@ export function SSIDRow({ ssid }: { ssid: string }) {
             <div className={styles.actions}>
                 {isEditing ? (
                     <>
-                        <button className={styles.btn} onClick={(e) => { e.stopPropagation(); submitRename() }}>
+                        <button className={`${styles.btn} ${styles.btnConfirm}`} onClick={(e) => { e.stopPropagation(); submitRename() }}>
                             ✔
                         </button>
-                        <button className={styles.btn} onClick={(e) => { e.stopPropagation(); cancel() }}>
+                        <button className={`${styles.btn} ${styles.btnDanger}`} onClick={(e) => { e.stopPropagation(); cancel() }}>
                             ✕
                         </button>
                     </>
                 ) : isConfirmDelete ? (
                     <>
                         <button
-                            className={styles.btn}
+                            className={`${styles.btn} ${styles.btnDanger}`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 confirmDelete()
                             }}
                         >
-                            ✔
+                            🗑
                         </button>
 
                         <button
-                            className={styles.btn}
+                            className={`${styles.btn} ${styles.btnConfirm}`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 cancelDelete()

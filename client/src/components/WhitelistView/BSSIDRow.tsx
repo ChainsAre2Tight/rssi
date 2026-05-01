@@ -106,23 +106,23 @@ export function BSSIDRow({
                 {isConfirmDelete ? (
                     <>
                         <button
-                            className={styles.btn}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                confirmDelete()
-                            }}
-                        >
-                            ✔
-                        </button>
-
-                        <button
-                            className={styles.btn}
+                            className={`${styles.btn} ${styles.btnConfirm}`}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 cancelDelete()
                             }}
                         >
                             ✕
+                        </button>
+
+                        <button
+                            className={`${styles.btn} ${styles.btnDanger}`}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                confirmDelete()
+                            }}
+                        >
+                            🗑
                         </button>
                     </>
                 ) : (

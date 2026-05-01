@@ -83,7 +83,8 @@
 
 /* show on hover */
 .row:hover .actions,
-.row[data-hovered="true"][data-editing="true"] .actions {
+.row[data-hovered="true"][data-editing="true"] .actions,
+.row[data-hovered="true"][data-confirm="true"] .actions {
     opacity: 1;
     pointer-events: auto;
 }
@@ -120,6 +121,40 @@
 .btn:hover {
     background: var(--color-surface-hover);
     color: var(--color-text);
+}
+
+.btnConfirm {
+    border-color: var(--severity-low);
+    color: var(--severity-low);
+}
+
+.btnConfirm:hover {
+    background: var(--severity-low-bg);
+    color: var(--severity-low);
+}
+
+.btnConfirm:disabled {
+    opacity: 0.4;
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.btnDanger {
+    border-color: var(--severity-critical);
+    color: var(--severity-critical);
+}
+
+.btnDanger:hover {
+    background: var(--severity-critical-bg);
+    color: var(--severity-critical);
+}
+
+.btn {
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        opacity var(--transition-fast);
 }
 
 /* ADD ROW */

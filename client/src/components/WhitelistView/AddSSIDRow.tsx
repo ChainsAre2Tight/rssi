@@ -86,7 +86,7 @@ export function AddSSIDRow() {
             {isEditing && (
                 <div className={styles.actions}>
                     <button
-                        className={styles.btn}
+                        className={`${styles.btn} ${styles.btnConfirm}`}
                         onClick={(e) => {
                             e.stopPropagation()
                             submit()
@@ -96,7 +96,7 @@ export function AddSSIDRow() {
                     </button>
 
                     <button
-                        className={styles.btn}
+                        className={`${styles.btn} ${styles.btnDanger}`}
                         onClick={(e) => {
                             e.stopPropagation()
                             cancel()
