@@ -444,6 +444,13 @@ persist(
                 }
             }
         }),
+    setWhitelistActiveForce: (payload) =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                active: payload
+            }
+        })),
     setWhitelistMode: (mode) =>
         set((state) => ({
             whitelistUI: {

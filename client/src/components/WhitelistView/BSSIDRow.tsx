@@ -14,6 +14,7 @@ export function BSSIDRow({
     const mode = useAppStore(s => s.whitelistUI.mode)
 
     const setActive = useAppStore(s => s.setWhitelistActive)
+    const setActiveForce = useAppStore(s => s.setWhitelistActiveForce)
     const hoverWhitelist = useAppStore(s => s.hoverWhitelist)
 
     const isBlockingMode =
@@ -131,7 +132,7 @@ export function BSSIDRow({
                         onClick={(e) => {
                             e.stopPropagation()
 
-                            setActive({
+                            setActiveForce({
                                 type: "bssid",
                                 ssid,
                                 bssid

@@ -8,6 +8,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
     const hover = useAppStore(s => s.hover.whitelist)
 
     const setActive = useAppStore(s => s.setWhitelistActive)
+    const setActiveForce = useAppStore(s => s.setWhitelistActiveForce)
     const hoverWhitelist = useAppStore(s => s.hoverWhitelist)
 
     const isActive =
@@ -167,7 +168,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                             className={styles.btn}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                setActive({ type: "ssid", ssid, bssid: null })
+                                setActiveForce({ type: "ssid", ssid, bssid: null })
                                 setDraft(ssid)
                                 setMode("editing")
                             }}
@@ -180,7 +181,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                             onClick={(e) => {
                                 e.stopPropagation()
 
-                                setActive({ type: "ssid", ssid, bssid: null })
+                                setActiveForce({ type: "ssid", ssid, bssid: null })
                                 setMode("confirm-delete")
                             }}
                         >

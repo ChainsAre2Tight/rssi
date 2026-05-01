@@ -149,6 +149,7 @@ export interface AppState {
     clearWhitelist: () => void
 
     setWhitelistActive: (payload: AppState["whitelistUI"]["active"]) => void
+    setWhitelistActiveForce: (payload: AppState["whitelistUI"]["active"]) => void
     setWhitelistMode: (mode: AppState["whitelistUI"]["mode"]) => void
     setWhitelistDraft: (value: string) => void
     clearWhitelistUI: () => void
