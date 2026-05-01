@@ -414,14 +414,36 @@ persist(
         }),
     
     setWhitelistActive: (payload) =>
-        set((state) => ({
-            whitelistUI: {
-                ...state.whitelistUI,
-                active: payload,
-                mode: "idle",
-                draftValue: ""
+        set((state) => {
+            const isSame =
+                state.whitelistUI.active.type === payload.type &&
+                state.whitelistUI.active.ssid === payload.ssid &&
+                state.whitelistUI.active.bssid === payload.bssid
+
+            if (isSame) {
+                return {
+                    whitelistUI: {
+                        ...state.whitelistUI,
+                        active: {
+                            type: null,
+                            ssid: null,
+                            bssid: null
+                        },
+                        mode: "idle",
+                        draftValue: ""
+                    }
+                }
             }
-        })),
+
+            return {
+                whitelistUI: {
+                    ...state.whitelistUI,
+                    active: payload,
+                    mode: "idle",
+                    draftValue: ""
+                }
+            }
+        }),
     setWhitelistMode: (mode) =>
         set((state) => ({
             whitelistUI: {
