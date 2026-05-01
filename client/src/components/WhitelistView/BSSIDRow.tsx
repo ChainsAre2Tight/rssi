@@ -38,6 +38,26 @@ export function BSSIDRow({
         return { isPrimary, isSecondary }
     })()
 
+    const setMode = useAppStore(s => s.setWhitelistMode)
+    const clearUI = useAppStore(s => s.clearWhitelistUI)
+
+    const isConfirmDelete =
+        mode === "confirm-delete" &&
+        active.type === "bssid" &&
+        active.ssid === ssid &&
+        active.bssid === bssid
+
+    function confirmDelete() {
+        console.log("DELETE BSSID", ssid, bssid)
+
+        // simulate refetch
+        clearUI()
+    }
+
+    function cancelDelete() {
+        clearUI()
+    }
+
     const isDisabled =
         isBlockingMode && !match.isPrimary
 
@@ -47,6 +67,7 @@ export function BSSIDRow({
             data-selected={match.isPrimary || undefined}
             data-secondary={match.isSecondary || undefined}
             data-disabled={isDisabled || undefined}
+            data-confirm={isConfirmDelete || undefined}
             onClick={() => {
                 if (isDisabled) return
 
@@ -56,6 +77,14 @@ export function BSSIDRow({
                     bssid
                 })
             }}
+            onKeyDown={(e) => {
+                if (!match.isPrimary) return
+                if (mode === "confirm-delete") {
+                    if (e.key === "Enter") confirmDelete()
+                    if (e.key === "Escape") cancelDelete()
+                }
+            }}
+            tabIndex={0}
             onMouseEnter={() =>
                 hoverWhitelist({
                     type: "bssid",
@@ -77,7 +106,46 @@ export function BSSIDRow({
             </div>
 
             <div className={styles.actions}>
-                <button className={styles.btn}>🗑</button>
+                {isConfirmDelete ? (
+                    <>
+                        <button
+                            className={styles.btn}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                confirmDelete()
+                            }}
+                        >
+                            ✔
+                        </button>
+
+                        <button
+                            className={styles.btn}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                cancelDelete()
+                            }}
+                        >
+                            ✕
+                        </button>
+                    </>
+                ) : (
+                    <button
+                        className={styles.btn}
+                        onClick={(e) => {
+                            e.stopPropagation()
+
+                            setActive({
+                                type: "bssid",
+                                ssid,
+                                bssid
+                            })
+
+                            setMode("confirm-delete")
+                        }}
+                    >
+                        🗑
+                    </button>
+                )}
             </div>
         </div>
     )

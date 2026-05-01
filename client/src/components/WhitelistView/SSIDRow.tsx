@@ -31,6 +31,20 @@ export function SSIDRow({ ssid }: { ssid: string }) {
     const setDraft = useAppStore(s => s.setWhitelistDraft)
     const setMode = useAppStore(s => s.setWhitelistMode)
     const clearUI = useAppStore(s => s.clearWhitelistUI)
+    const isConfirmDelete =
+        mode === "confirm-delete" &&
+        active.type === "ssid" &&
+        active.ssid === ssid
+
+    function confirmDelete() {
+        console.log("DELETE SSID", ssid)
+
+        clearUI()
+    }
+
+    function cancelDelete() {
+        clearUI()
+    }
 
     function submitRename() {
         if (!draft.trim() || draft === ssid) {
@@ -55,6 +69,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
             data-hovered={isHovered || undefined}
             data-disabled={isDisabled || undefined}
             data-editing={isEditing || undefined}
+            data-confirm={isConfirmDelete || undefined}
             onClick={() => {
                 if (isDisabled) return
 
@@ -64,6 +79,20 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                     bssid: null
                 })
             }}
+            onKeyDown={(e) => {
+                if (!isActive) return
+
+                if (mode === "confirm-delete") {
+                    if (e.key === "Enter") confirmDelete()
+                    if (e.key === "Escape") cancelDelete()
+                }
+
+                if (mode === "editing") {
+                    if (e.key === "Enter") submitRename()
+                    if (e.key === "Escape") cancel()
+                }
+            }}
+            tabIndex={0}
             onMouseEnter={() =>
                 hoverWhitelist({
                     type: "ssid",
@@ -77,7 +106,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
 
             <div className={styles.chevron}>▼</div>
 
-            <div className={styles.icon}>📶</div>
+            <div className={styles.icon}>🖧</div>
 
             <div className={styles.label}>
                 {isEditing ? (
@@ -104,11 +133,20 @@ export function SSIDRow({ ssid }: { ssid: string }) {
             <div className={styles.actions}>
                 {isEditing ? (
                     <>
+                        <button className={styles.btn} onClick={(e) => { e.stopPropagation(); submitRename() }}>
+                            ✔
+                        </button>
+                        <button className={styles.btn} onClick={(e) => { e.stopPropagation(); cancel() }}>
+                            ✕
+                        </button>
+                    </>
+                ) : isConfirmDelete ? (
+                    <>
                         <button
                             className={styles.btn}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                submitRename()
+                                confirmDelete()
                             }}
                         >
                             ✔
@@ -118,7 +156,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                             className={styles.btn}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                cancel()
+                                cancelDelete()
                             }}
                         >
                             ✕
@@ -138,8 +176,17 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                             ✎
                         </button>
 
-                        <button className={styles.btn}>🗑</button>
-                        <button className={styles.btn}>+</button>
+                        <button
+                            className={styles.btn}
+                            onClick={(e) => {
+                                e.stopPropagation()
+
+                                setActive({ type: "ssid", ssid, bssid: null })
+                                setMode("confirm-delete")
+                            }}
+                        >
+                            🗑
+                        </button>
                     </>
                 )}
             </div>
