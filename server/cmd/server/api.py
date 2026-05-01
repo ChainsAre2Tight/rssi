@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from compute.whitelist import (
     add_whitelist_entry,
     remove_whitelist_entry,
+    rename_whitelist_ssid,
 )
 import storage
 from compute.modalities import LogicalModality
@@ -181,27 +182,20 @@ def whitelist_add():
     try:
         measurement_id = parse_int_param("measurement_id")
         ssid = parse_str_param("ssid")
-        bssid = parse_str_param("bssid")
+        bssid = parse_str_param("bssid", required=False)
 
         with storage.Session() as conn:
-            changed = add_whitelist_entry(
+            changed, action = add_whitelist_entry(
                 conn=conn,
                 measurement_id=measurement_id,
                 ssid=ssid,
                 bssid=bssid,
             )
-            # TODO: maybe recompute signals
 
-        if changed:
-            return jsonify({
-                "status": "ok",
-                "action": "added",
-            })
-        else:
-            return jsonify({
-                "status": "noop",
-                "action": "already_exists",
-            })
+        return jsonify({
+            "status": "ok" if changed else "noop",
+            "action": action,
+        })
 
     except ValueError as e:
         return api_error(str(e))
@@ -214,27 +208,49 @@ def whitelist_remove():
     try:
         measurement_id = parse_int_param("measurement_id")
         ssid = parse_str_param("ssid")
-        bssid = parse_str_param("bssid")
+        bssid = parse_str_param("bssid", required=False)
+
+        remove_empty_ssid = request.args.get("remove_empty_ssid", "true").lower() == "true"
 
         with storage.Session() as conn:
-            changed = remove_whitelist_entry(
+            changed, action = remove_whitelist_entry(
                 conn=conn,
                 measurement_id=measurement_id,
                 ssid=ssid,
                 bssid=bssid,
+                remove_empty_ssid=remove_empty_ssid,
             )
-            # TODO: maybe recompute signals
 
-        if changed:
-            return jsonify({
-                "status": "ok",
-                "action": "removed",
-            })
-        else:
-            return jsonify({
-                "status": "noop",
-                "action": "not_found",
-            })
+        return jsonify({
+            "status": "ok" if changed else "noop",
+            "action": action,
+        })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
+
+
+@app.route("/api/v1/whitelist", methods=["PATCH"])
+def whitelist_rename():
+    try:
+        measurement_id = parse_int_param("measurement_id")
+        ssid = parse_str_param("ssid")
+        new_ssid = parse_str_param("new_ssid")
+
+        with storage.Session() as conn:
+            changed, action = rename_whitelist_ssid(
+                conn=conn,
+                measurement_id=measurement_id,
+                ssid=ssid,
+                new_ssid=new_ssid,
+            )
+
+        return jsonify({
+            "status": "ok" if changed else "noop",
+            "action": action,
+        })
 
     except ValueError as e:
         return api_error(str(e))
