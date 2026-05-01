@@ -1,5 +1,8 @@
 import { useAppStore } from "../../store/useAppStore"
-import { AddBSSIDRow, AddSSIDRow, BSSIDRow, SSIDRow } from "./Rows"
+import { AddBSSIDRow } from "./AddBSSIDRow"
+import { AddSSIDRow } from "./AddSSIDRow"
+import { BSSIDRow } from "./BSSIDRow"
+import { SSIDRow } from "./SSIDRow"
 import styles from "./WhitelistView.module.css"
 
 export default function WhitelistView() {
@@ -56,11 +59,12 @@ function SSIDGroup({
             {bssids.map(bssid => (
                 <BSSIDRow
                     key={bssid}
+                    ssid={bssid}
                     bssid={bssid}
                 />
             ))}
 
-            <AddBSSIDRow />
+            <AddBSSIDRow ssid={ssid} />
         </>
     )
 }

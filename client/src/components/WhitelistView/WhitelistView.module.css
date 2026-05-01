@@ -37,6 +37,11 @@
     background: var(--color-surface-hover);
 }
 
+.row[data-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 /* TREE INDENTATION */
 
 .indent {
@@ -73,10 +78,25 @@
 
 .actions {
     display: flex;
-    align-items: center;
     gap: 4px;
 
-    flex-shrink: 0; /* prevent wrapping */
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity var(--transition-fast);
+}
+
+/* show on hover */
+.row:hover .actions,
+.row[data-hovered="true"] .actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* show when selected */
+.row[data-selected="true"] .actions {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* BUTTONS */
