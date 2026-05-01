@@ -59,6 +59,12 @@ export interface AppState {
         incidentId: string | null
         warningKey: string | null
         timelineTimeUs: number | null
+
+        whitelist: {
+            type: "ssid" | "bssid" | null
+            ssid: string | null
+            bssid: string | null
+        }
     }
 
     layout: {
@@ -68,12 +74,8 @@ export interface AppState {
         warningListWidth: number
     }
 
-    ui: {
-        warningPanelExpanded: Record<string, boolean>
-    }
-
     localization: {
-        mode: "timeline" | "map"
+        mode: "timeline" | "map" | "whitelist"
         cache: Record<string, LocalizationData>
         sensors: Record<string, Sensor[]>
         loading: Record<string, boolean>
@@ -112,7 +114,7 @@ export interface AppState {
 
     toggleSeverity: (severity: Severity) => void
 
-    setLocalizationMode: (mode: "timeline" | "map") => void
+    setLocalizationMode: (mode: "timeline" | "map" | "whitelist") => void
     setLocalizationData: (incidentKey: string, data: LocalizationData) => void
     setSensors: (measurementId: number, sensors: Sensor[]) => void
     setLocalizationLoading: (incidentKey: string, loading: boolean) => void

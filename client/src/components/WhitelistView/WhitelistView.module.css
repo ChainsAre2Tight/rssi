@@ -1,0 +1,123 @@
+.root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.header {
+    padding: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.tree {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* ROW BASE */
+
+.row {
+    display: flex;
+    align-items: center;;
+
+    gap: var(--space-xs);
+
+    padding: var(--space-xs) var(--space-sm);
+
+    cursor: pointer;
+    min-width: 0; /* CRITICAL for text truncation */
+}
+
+.row:hover {
+    background: var(--color-surface-hover);
+}
+
+/* TREE INDENTATION */
+
+.indent {
+    width: 12px;
+    flex-shrink: 0;
+}
+
+/* ICON + CHEVRON */
+
+.icon {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.chevron {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* LABEL (CRITICAL FIX AREA) */
+
+.label {
+    min-width: 0; /* CRITICAL */
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ACTIONS */
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    flex-shrink: 0; /* prevent wrapping */
+}
+
+/* BUTTONS */
+
+.btn {
+    height: 24px;
+    padding: 0 6px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+}
+
+/* ADD ROW */
+
+.addRow {
+    opacity: 0.7;
+}
+
+/* STATES (for next step) */
+
+.row[data-selected="true"] {
+    background: var(--color-accent-soft);
+}
+
+.row[data-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+}

@@ -79,14 +79,15 @@ persist(
     hover: {
         incidentId: null,
         warningKey: null,
-        timelineTimeUs: null
+        timelineTimeUs: null,
+        whitelist: {
+            type: null,
+            ssid: null,
+            bssid: null,
+        },
     },
 
     layout: defaultLayout,
-
-    ui: {
-        warningPanelExpanded: {}
-    },
 
     localization: {
         mode: "timeline",
@@ -362,7 +363,6 @@ persist(
                 loaded: false
             }
         }),
-
 }),
 {
     name: "app-store",

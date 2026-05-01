@@ -26,6 +26,13 @@ export default function MapToggle() {
             >
                 Map
             </button>
+
+            <button
+                data-active={localizationMode === "whitelist"}
+                onClick={() => setLocalizationMode("whitelist")}
+            >
+                Whitelist
+            </button>
         </div>
     )
 }
