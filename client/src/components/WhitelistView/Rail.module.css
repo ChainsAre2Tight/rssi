@@ -2,7 +2,7 @@
 .t .vertical,
 .t .horizontal,
 .l .vertical,
-.t .horizontal {
+.l .horizontal {
     background: var(--color-border-strong);
 }
 

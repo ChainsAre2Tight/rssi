@@ -1,3 +1,5 @@
+import { loadWhitelist } from "../../features/whitelist/loadWhitelist"
+import { addWhitelistSSID } from "../../services/apiWhitelist"
 import { useAppStore } from "../../store/useAppStore"
 import { LRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
@@ -21,15 +23,34 @@ export function AddSSIDRow() {
         mode === "editing" &&
         active.type === "add-ssid"
     
-    function submit() {
-        if (!draft.trim()) {
+    async function submit() {
+        const value = draft.trim()
+        if (!value) {
             clearUI()
             return
         }
 
-        console.log("ADD SSID", draft)
+        const { context, setWhitelistLoading, setWhitelist } = useAppStore.getState()
+        const measurementId = context.measurementId
+        if (!measurementId) return
 
-        clearUI()
+        try {
+            setWhitelistLoading(true)
+
+            // no bssid → SSID create
+            await addWhitelistSSID(
+                measurementId,
+                value,
+            )
+
+            const fresh = await loadWhitelist(measurementId)
+
+            setWhitelist(measurementId, fresh)
+        } catch (err) {
+            console.error("ADD SSID failed", err)
+        } finally {
+            setWhitelistLoading(false)
+        }
     }
 
     function cancel() {

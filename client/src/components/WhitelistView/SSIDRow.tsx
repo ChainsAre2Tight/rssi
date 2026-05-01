@@ -1,3 +1,5 @@
+import { loadWhitelist } from "../../features/whitelist/loadWhitelist"
+import { removeWhitelistSSID, renameWhitelistSSID } from "../../services/apiWhitelist"
 import { useAppStore } from "../../store/useAppStore"
 import { TRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
@@ -38,26 +40,62 @@ export function SSIDRow({ ssid }: { ssid: string }) {
         active.type === "ssid" &&
         active.ssid === ssid
 
-    function confirmDelete() {
-        console.log("DELETE SSID", ssid)
+    async function confirmDelete() {
+        const { context, setWhitelistLoading, setWhitelist } = useAppStore.getState()
+        const measurementId = context.measurementId
+        if (!measurementId) return
 
-        clearUI()
+        try {
+            setWhitelistLoading(true)
+
+            await removeWhitelistSSID(
+                measurementId,
+                ssid
+            )
+
+            const fresh = await loadWhitelist(measurementId)
+
+            setWhitelist(measurementId, fresh)
+        } catch (err) {
+            console.error("DELETE SSID failed", err)
+        } finally {
+            setWhitelistLoading(false)
+        }
     }
 
     function cancelDelete() {
         clearUI()
     }
 
-    function submitRename() {
-        if (!draft.trim() || draft === ssid) {
+    async function submitRename() {
+        const value = draft.trim()
+
+        if (!value || value === ssid) {
             clearUI()
             return
         }
 
-        console.log("RENAME SSID", ssid, "->", draft)
+        const { context, setWhitelistLoading, setWhitelist } = useAppStore.getState()
+        const measurementId = context.measurementId
+        if (!measurementId) return
 
-        // simulate reload
-        clearUI()
+        try {
+            setWhitelistLoading(true)
+
+            await renameWhitelistSSID(
+                measurementId,
+                ssid,
+                value
+            )
+
+            const fresh = await loadWhitelist(measurementId)
+
+            setWhitelist(measurementId, fresh)
+        } catch (err) {
+            console.error("RENAME SSID failed", err)
+        } finally {
+            setWhitelistLoading(false)
+        }
     }
 
     function cancel() {
