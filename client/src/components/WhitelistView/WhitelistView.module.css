@@ -37,11 +37,6 @@
     background: var(--color-surface-hover);
 }
 
-.row[data-disabled="true"] {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
 /* TREE INDENTATION */
 
 .indent {
@@ -135,6 +130,14 @@
 
 .row[data-selected="true"] {
     background: var(--color-accent-soft);
+}
+
+.row[data-secondary="true"] {
+    background: color-mix(
+        in srgb,
+        var(--color-accent-soft) 40%,
+        transparent
+    );
 }
 
 .row[data-disabled="true"] {

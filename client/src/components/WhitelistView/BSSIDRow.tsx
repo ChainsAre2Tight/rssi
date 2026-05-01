@@ -15,26 +15,37 @@ export function BSSIDRow({
     const setActive = useAppStore(s => s.setWhitelistActive)
     const hoverWhitelist = useAppStore(s => s.hoverWhitelist)
 
-    const isActive =
-        active.type === "bssid" &&
-        active.ssid === ssid &&
-        active.bssid === bssid
-
     const isBlockingMode =
         mode === "editing" || mode === "confirm-delete"
-    const isDisabled =
-        isBlockingMode && !isActive
 
-    const isHovered =
-        hover.type === "bssid" &&
-        hover.ssid === ssid &&
-        hover.bssid === bssid
+    const match = (() => {
+        const isPrimary =
+            (active.type === "bssid" &&
+                active.ssid === ssid &&
+                active.bssid === bssid) ||
+            (hover.type === "bssid" &&
+                hover.ssid === ssid &&
+                hover.bssid === bssid)
+
+        const isSecondary =
+            (active.type === "bssid" &&
+                active.bssid === bssid &&
+                active.ssid !== ssid) ||
+            (hover.type === "bssid" &&
+                hover.bssid === bssid &&
+                hover.ssid !== ssid)
+
+        return { isPrimary, isSecondary }
+    })()
+
+    const isDisabled =
+        isBlockingMode && !match.isPrimary
 
     return (
         <div
             className={styles.row}
-            data-selected={isActive || undefined}
-            data-hovered={isHovered || undefined}
+            data-selected={match.isPrimary || undefined}
+            data-secondary={match.isSecondary || undefined}
             data-disabled={isDisabled || undefined}
             onClick={() => {
                 if (isDisabled) return

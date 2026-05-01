@@ -59,7 +59,7 @@ function SSIDGroup({
             {bssids.map(bssid => (
                 <BSSIDRow
                     key={bssid}
-                    ssid={bssid}
+                    ssid={ssid}
                     bssid={bssid}
                 />
             ))}
