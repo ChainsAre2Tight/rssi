@@ -1,3 +1,5 @@
+import { loadWhitelist } from "../../features/whitelist/loadWhitelist"
+import { removeWhitelistBSSID } from "../../services/apiWhitelist"
 import { useAppStore } from "../../store/useAppStore"
 import { IRail, TRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
@@ -49,11 +51,34 @@ export function BSSIDRow({
         active.ssid === ssid &&
         active.bssid === bssid
 
-    function confirmDelete() {
-        console.log("DELETE BSSID", ssid, bssid)
+    async function confirmDelete() {
+        const measurementId = useAppStore.getState().context.measurementId
+        if (!measurementId) return
 
-        // simulate refetch
-        clearUI()
+        try {
+            // optional: optimistic UI lock
+            useAppStore.getState().setWhitelistLoading(true)
+
+            await removeWhitelistBSSID(
+                measurementId,
+                ssid,
+                bssid,
+                false,
+            )
+
+            const fresh = await loadWhitelist(measurementId)
+
+            useAppStore.getState().setWhitelist(
+                measurementId,
+                fresh
+            )
+
+        } catch (err) {
+            console.error("Failed to delete BSSID", err)
+        } finally {
+            // UI reset is handled by setWhitelist reconciliation
+            useAppStore.getState().setWhitelistLoading(false)
+        }
     }
 
     function cancelDelete() {
