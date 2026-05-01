@@ -29,6 +29,9 @@
     /* separators / dividers */
 
     --color-divider: #e3e5ea;
+    --color-input-valid: var(--severity-low);
+    --color-input-invalid: var(--severity-critical);
+    --color-input-neutral: var(--color-border);
 
     /* severity */
 
@@ -81,6 +84,9 @@
     /* separators */
 
     --color-divider: #2a2e35;
+    --color-input-valid: var(--severity-low);
+    --color-input-invalid: var(--severity-critical);
+    --color-input-neutral: var(--color-border);
 
     /* severity */
 

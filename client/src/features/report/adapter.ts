@@ -45,8 +45,6 @@ export function adaptReport(api: BackendReport) {
         })
     }
 
-    console.log(result)
-
     return {
         startTimeUs: api.start_time_us,
         endTimeUs: api.end_time_us,

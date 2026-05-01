@@ -54,6 +54,13 @@ export function AddSSIDRow() {
                 setDraft("")
                 setMode("editing")
             }}
+            onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                    submit()
+                    return
+                }
+                if (e.key === "Escape") cancel()
+            }}
         >
             <LRail />
 
