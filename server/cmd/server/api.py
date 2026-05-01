@@ -12,7 +12,7 @@ from compute.whitelist import (
 import storage
 from compute.modalities import LogicalModality
 from storage.devices import load_sensors_for_measurement
-from storage.measurements import list_measurements, load_measurement_whitelist
+from storage.measurements import list_measurements, load_measurement_whitelist, update_measurement
 
 import my_types
 
@@ -356,6 +356,63 @@ def measurements():
     except Exception as e:
         return api_error(str(e), 500)
 
+def validate_measurement_name(name: str) -> str:
+    if not isinstance(name, str):
+        raise ValueError("name must be a string")
+    name = name.strip()
+    if not name:
+        raise ValueError("name cannot be empty")
+    return name
+
+
+def validate_measurement_description(description: str | None) -> str | None:
+    if description is None:
+        return None
+    if not isinstance(description, str):
+        raise ValueError("description must be a string")
+    return description.strip()
+
+@app.route("/api/v1/measurements", methods=["PATCH"])
+def update_measurement_api():
+    try:
+        measurement_id = parse_int_param("measurement_id")
+
+        name = parse_str_param("name", required=False)
+        description = parse_str_param("description", required=False)
+
+        if name is None and description is None:
+            return api_error("at least one of name or description must be provided")
+
+        if name is not None:
+            name = validate_measurement_name(name)
+
+        if description is not None:
+            description = validate_measurement_description(description)
+
+        with storage.Session() as conn:
+            changed, action, measurement = update_measurement(
+                conn=conn,
+                measurement_id=measurement_id,
+                name=name,
+                description=description,
+            )
+
+        if measurement is None:
+            return jsonify({
+                "status": "noop",
+                "action": action,
+            })
+
+        return jsonify({
+            "status": "ok" if changed else "noop",
+            "action": action,
+            "measurement": measurement,
+        })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)

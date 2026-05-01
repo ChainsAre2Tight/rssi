@@ -91,3 +91,66 @@ def list_measurements(
         }
         for row in rows
     ]
+
+def update_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+    name: str | None = None,
+    description: str | None = None,
+) -> tuple[bool, str, dict | None]:
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id, name, description FROM measurements WHERE id = ?",
+        (measurement_id,)
+    )
+    row = cursor.fetchone()
+
+    if row is None:
+        return False, "not_found", None
+
+    current_id, current_name, current_description = row
+
+    updates = []
+    params = []
+
+    changed = False
+
+    if name is not None and name != current_name:
+        updates.append("name = ?")
+        params.append(name)
+        changed = True
+
+    if description is not None and description != current_description:
+        updates.append("description = ?")
+        params.append(description)
+        changed = True
+
+    if changed:
+        query = f"""
+            UPDATE measurements
+            SET {", ".join(updates)}
+            WHERE id = ?
+        """
+        params.append(measurement_id)
+        cursor.execute(query, params)
+        conn.commit()
+
+    # Always return final state
+    cursor.execute(
+        "SELECT id, name, description FROM measurements WHERE id = ?",
+        (measurement_id,)
+    )
+    final_row = cursor.fetchone()
+
+    measurement = {
+        "id": final_row[0],
+        "name": final_row[1],
+        "description": final_row[2],
+    }
+
+    if not changed:
+        return False, "no_changes", measurement
+
+    return True, "updated", measurement
