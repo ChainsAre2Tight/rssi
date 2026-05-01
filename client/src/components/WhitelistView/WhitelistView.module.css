@@ -83,7 +83,7 @@
 
 /* show on hover */
 .row:hover .actions,
-.row[data-hovered="true"] .actions {
+.row[data-hovered="true"][data-editing="true"] .actions {
     opacity: 1;
     pointer-events: auto;
 }
@@ -126,6 +126,10 @@
     opacity: 0.7;
 }
 
+.addRow[data-editing="true"]{
+    opacity: 1;
+}
+
 /* STATES (for next step) */
 
 .row[data-selected="true"] {
@@ -143,4 +147,26 @@
 .row[data-disabled="true"] {
     opacity: 0.5;
     pointer-events: none;
+}
+
+.input {
+    width: 100%;
+    min-width: 0;
+
+    height: 24px;
+    padding: 0 6px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+
+    background: var(--color-bg);
+    color: var(--color-text);
+
+    font-size: 12px;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
 }

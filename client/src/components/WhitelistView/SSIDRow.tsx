@@ -21,6 +21,32 @@ export function SSIDRow({ ssid }: { ssid: string }) {
     const isHovered =
         hover.type === "ssid" &&
         hover.ssid === ssid
+    
+    const isEditing =
+        mode === "editing" &&
+        active.type === "ssid" &&
+        active.ssid === ssid
+    
+    const draft = useAppStore(s => s.whitelistUI.draftValue)
+    const setDraft = useAppStore(s => s.setWhitelistDraft)
+    const setMode = useAppStore(s => s.setWhitelistMode)
+    const clearUI = useAppStore(s => s.clearWhitelistUI)
+
+    function submitRename() {
+        if (!draft.trim() || draft === ssid) {
+            clearUI()
+            return
+        }
+
+        console.log("RENAME SSID", ssid, "->", draft)
+
+        // simulate reload
+        clearUI()
+    }
+
+    function cancel() {
+        clearUI()
+    }
 
     return (
         <div
@@ -28,6 +54,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
             data-selected={isActive || undefined}
             data-hovered={isHovered || undefined}
             data-disabled={isDisabled || undefined}
+            data-editing={isEditing || undefined}
             onClick={() => {
                 if (isDisabled) return
 
@@ -52,14 +79,69 @@ export function SSIDRow({ ssid }: { ssid: string }) {
 
             <div className={styles.icon}>📶</div>
 
-            <div className={styles.label} title={ssid}>
-                {ssid}
+            <div className={styles.label}>
+                {isEditing ? (
+                    <input
+                        className={styles.input}
+                        value={draft}
+                        autoFocus
+                        onChange={e => setDraft(e.target.value)}
+                        onClick={e => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                submitRename()
+                            }
+                            if (e.key === "Escape") {
+                                cancel()
+                            }
+                        }}
+                    />
+                ) : (
+                    <span title={ssid}>{ssid}</span>
+                )}
             </div>
 
             <div className={styles.actions}>
-                <button className={styles.btn}>✎</button>
-                <button className={styles.btn}>🗑</button>
-                <button className={styles.btn}>+</button>
+                {isEditing ? (
+                    <>
+                        <button
+                            className={styles.btn}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                submitRename()
+                            }}
+                        >
+                            ✔
+                        </button>
+
+                        <button
+                            className={styles.btn}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                cancel()
+                            }}
+                        >
+                            ✕
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <button
+                            className={styles.btn}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setActive({ type: "ssid", ssid, bssid: null })
+                                setDraft(ssid)
+                                setMode("editing")
+                            }}
+                        >
+                            ✎
+                        </button>
+
+                        <button className={styles.btn}>🗑</button>
+                        <button className={styles.btn}>+</button>
+                    </>
+                )}
             </div>
         </div>
     )
