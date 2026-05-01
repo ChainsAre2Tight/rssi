@@ -74,6 +74,24 @@ export interface AppState {
         warningListWidth: number
     }
 
+    whitelistUI: {
+        active: {
+            type: "ssid" | "bssid" | "add-ssid" | "add-bssid" | null
+            ssid: string | null
+            bssid: string | null
+        }
+
+        mode: "idle" | "editing" | "confirm-delete"
+
+        draftValue: string
+
+        lastAction: {
+            type: "add" | "rename" | null
+            ssid?: string
+            bssid?: string
+        } | null
+    }
+
     localization: {
         mode: "timeline" | "map" | "whitelist"
         cache: Record<string, LocalizationData>
@@ -129,4 +147,16 @@ export interface AppState {
         whitelist: Whitelist,
     ) => void
     clearWhitelist: () => void
+
+    setWhitelistActive: (payload: AppState["whitelistUI"]["active"]) => void
+    setWhitelistMode: (mode: AppState["whitelistUI"]["mode"]) => void
+    setWhitelistDraft: (value: string) => void
+    clearWhitelistUI: () => void
+    setWhitelistLastAction: (action: AppState["whitelistUI"]["lastAction"]) => void
+
+    reconcileWhitelistUI: (whitelist: Whitelist) => void
+
+    hoverWhitelist: (
+        payload: AppState["hover"]["whitelist"] | null
+    ) => void
 }

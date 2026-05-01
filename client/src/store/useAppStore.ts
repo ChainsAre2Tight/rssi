@@ -89,6 +89,17 @@ persist(
 
     layout: defaultLayout,
 
+    whitelistUI: {
+        active: {
+            type: null,
+            ssid: null,
+            bssid: null
+        },
+        mode: "idle",
+        draftValue: "",
+        lastAction: null
+    },
+
     localization: {
         mode: "timeline",
         cache: {},
@@ -344,8 +355,8 @@ persist(
         })),
 
     setWhitelist: (measurementId, whitelist) =>
-        set((state) => ({
-            whitelist: {
+        set((state) => {
+            const newWhitelistState = {
                 byMeasurement: {
                     ...state.whitelist.byMeasurement,
                     [measurementId]: whitelist
@@ -353,7 +364,45 @@ persist(
                 loading: false,
                 loaded: true
             }
-        })),
+
+            // --- reconcile ---
+            const { active } = state.whitelistUI
+
+            let stillExists = false
+
+            if (active.type === "ssid") {
+                stillExists = !!whitelist[active.ssid ?? ""]
+            }
+
+            if (active.type === "bssid") {
+                const ssid = active.ssid ?? ""
+                const bssid = active.bssid ?? ""
+
+                stillExists =
+                    !!whitelist[ssid] &&
+                    !!whitelist[ssid][bssid]
+            }
+
+            if (active.type === "add-ssid" || active.type === "add-bssid") {
+                stillExists = false
+            }
+
+            return {
+                whitelist: newWhitelistState,
+                whitelistUI: {
+                    ...state.whitelistUI,
+                    active: stillExists
+                        ? active
+                        : {
+                            type: null,
+                            ssid: null,
+                            bssid: null
+                        },
+                    mode: "idle",
+                    draftValue: ""
+                }
+            }
+        }),
 
     clearWhitelist: () =>
         set({
@@ -361,6 +410,111 @@ persist(
                 byMeasurement: {},
                 loading: false,
                 loaded: false
+            }
+        }),
+    
+    setWhitelistActive: (payload) =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                active: payload,
+                mode: "idle",
+                draftValue: ""
+            }
+        })),
+    setWhitelistMode: (mode) =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                mode
+            }
+        })),
+    setWhitelistDraft: (value) =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                draftValue: value
+            }
+        })),
+    clearWhitelistUI: () =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                active: {
+                    type: null,
+                    ssid: null,
+                    bssid: null
+                },
+                mode: "idle",
+                draftValue: ""
+            }
+        })),
+    setWhitelistLastAction: (action) =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                lastAction: action
+            }
+        })),
+    hoverWhitelist: (payload) =>
+        set((state) => ({
+            hover: {
+                ...state.hover,
+                whitelist: payload ?? {
+                    type: null,
+                    ssid: null,
+                    bssid: null
+                }
+            }
+        })),
+    reconcileWhitelistUI: (whitelist) =>
+        set((state) => {
+            const { active } = state.whitelistUI
+
+            if (!active.type) {
+                return {
+                    whitelistUI: {
+                        ...state.whitelistUI,
+                        mode: "idle",
+                        draftValue: ""
+                    }
+                }
+            }
+
+            // Validate existence
+            let stillExists = false
+
+            if (active.type === "ssid") {
+                stillExists = !!whitelist[active.ssid ?? ""]
+            }
+
+            if (active.type === "bssid") {
+                const ssid = active.ssid ?? ""
+                const bssid = active.bssid ?? ""
+
+                stillExists =
+                    !!whitelist[ssid] &&
+                    !!whitelist[ssid][bssid]
+            }
+
+            // add rows are always cleared after reload
+            if (active.type === "add-ssid" || active.type === "add-bssid") {
+                stillExists = false
+            }
+
+            return {
+                whitelistUI: {
+                    ...state.whitelistUI,
+                    active: stillExists
+                        ? active
+                        : {
+                            type: null,
+                            ssid: null,
+                            bssid: null
+                        },
+                    mode: "idle",
+                    draftValue: ""
+                }
             }
         }),
 }),
