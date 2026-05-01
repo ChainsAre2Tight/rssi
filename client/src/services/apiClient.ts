@@ -1,6 +1,6 @@
 const API_BASE = "/api/v1"
 
-function buildQuery(params: Record<string, string | number | undefined>) {
+function buildQuery(params: Record<string, string | number | undefined | boolean>) {
     const search = new URLSearchParams()
 
     for (const key in params) {
@@ -17,8 +17,8 @@ function buildQuery(params: Record<string, string | number | undefined>) {
 
 export async function apiFetch<T>(
     path: string,
-    method: "GET" | "POST" | "DELETE",
-    params?: Record<string, string | number | undefined>
+    method: "GET" | "POST" | "DELETE" | "PATCH",
+    params?: Record<string, string | number | boolean | undefined>
 ): Promise<T> {
 
     let url = `${API_BASE}${path}`
