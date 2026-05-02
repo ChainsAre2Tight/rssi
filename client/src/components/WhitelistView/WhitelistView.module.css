@@ -225,3 +225,70 @@
     border-color: var(--color-input-invalid);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-input-invalid) 30%, transparent);
 }
+
+/* HEADER LAYOUT */
+
+.headerGroup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.headerRight {
+    margin-left: auto;
+}
+
+/* DESCRIPTION (non-edit mode) */
+
+.description,
+.textarea {
+    width: fit-content;
+    max-width: 600px;
+    min-width: 300px;
+}
+
+.description {
+    max-height: 28px;
+    min-width: 0;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+    overflow-y: scroll;
+}
+
+/* TEXTAREA (edit mode) */
+
+.textarea {
+    min-height: 48px;
+    max-height: 200px;
+
+    resize: vertical;
+
+    padding: 4px 6px;
+
+    border: 1px solid var(--color-input-neutral);
+    border-radius: var(--radius-sm);
+
+    background: var(--color-bg);
+    color: var(--color-text);
+
+    font-size: 12px;
+}
+
+/* prevent row from stretching height */
+.row {
+    align-items: center;
+}
+
+/* allow textarea to overflow visually without breaking layout */
+.row textarea {
+    position: relative;
+    z-index: 2;
+}
+
+.separator {
+    width: 1px;
+    background: var(--color-border);
+    margin: 0 2px;
+}

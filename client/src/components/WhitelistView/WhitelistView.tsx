@@ -2,6 +2,7 @@ import { useAppStore } from "../../store/useAppStore"
 import { AddBSSIDRow } from "./AddBSSIDRow"
 import { AddSSIDRow } from "./AddSSIDRow"
 import { BSSIDRow } from "./BSSIDRow"
+import { MeasurementHeader } from "./MeasurementHeader"
 import { SSIDRow } from "./SSIDRow"
 import styles from "./WhitelistView.module.css"
 
@@ -26,7 +27,7 @@ export default function WhitelistView() {
             
             {/* Measurement Header (placeholder for now) */}
             <div className={styles.header}>
-                Measurement Header (TODO)
+                <MeasurementHeader />
             </div>
 
             {/* Tree */}
