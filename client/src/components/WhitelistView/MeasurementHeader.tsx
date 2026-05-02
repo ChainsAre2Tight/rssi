@@ -1,3 +1,4 @@
+import { patchMeasurement } from "../../services/measurements"
 import { useAppStore } from "../../store/useAppStore"
 import styles from "./WhitelistView.module.css"
 
@@ -47,8 +48,9 @@ export function MeasurementHeader() {
         setMode("editing")
     }
 
-    function submitName() {
+    async function submitName() {
         if (!draft) return
+
         const value = draft.name.trim()
 
         if (!value || value === measurement!.name) {
@@ -56,21 +58,49 @@ export function MeasurementHeader() {
             return
         }
 
-        console.log("PATCH NAME", measurement!.id, value)
-        clearUI()
+        try {
+            const res = await patchMeasurement({
+                measurement_id: measurement!.id,
+                name: value
+            })
+
+            if ("measurement" in res) {
+                console.log(123, res.measurement)
+                useAppStore.getState().updateMeasurement(res.measurement)
+            }
+
+        } catch (err) {
+            console.error("PATCH NAME failed", err)
+        } finally {
+            clearUI()
+        }
     }
 
-    function submitDescription() {
+    async function submitDescription() {
         if (!draft) return
+
         const value = draft.description.trim()
 
-        if (value === measurement!.description) {
+        if (!value || value === measurement!.description) {
             clearUI()
             return
         }
 
-        console.log("PATCH DESCRIPTION", measurement!.id, value)
-        clearUI()
+        try {
+            const res = await patchMeasurement({
+                measurement_id: measurement!.id,
+                description: value,
+            })
+
+            if ("measurement" in res) {
+                useAppStore.getState().updateMeasurement(res.measurement)
+            }
+
+        } catch (err) {
+            console.error("PATCH DESCRIPTION failed", err)
+        } finally {
+            clearUI()
+        }
     }
 
     function cancel() {

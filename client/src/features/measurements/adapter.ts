@@ -16,3 +16,11 @@ export function adaptMeasurements(
         description: m.description,
     }))
 }
+
+export function adaptMeasurement(m: ApiMeasurement): Measurement {
+    return {
+        id: m.measurement_id,
+        name: m.name,
+        description: m.description,
+    }
+}

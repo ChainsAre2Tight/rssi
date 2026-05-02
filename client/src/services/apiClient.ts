@@ -14,23 +14,33 @@ function buildQuery(params: Record<string, string | number | undefined | boolean
 }
 
 
-
 export async function apiFetch<T>(
     path: string,
     method: "GET" | "POST" | "DELETE" | "PATCH",
-    params?: Record<string, string | number | boolean | undefined>
+    options?: {
+        params?: Record<string, string | number | boolean | undefined>
+        body?: unknown
+    }
 ): Promise<T> {
 
     let url = `${API_BASE}${path}`
 
-    if (params) {
-        const query = buildQuery(params)
+    if (options?.params) {
+        const query = buildQuery(options.params)
         if (query) {
             url += `?${query}`
         }
     }
 
-    const res = await fetch(url, { method })
+    const res = await fetch(url, {
+        method,
+        headers: options?.body
+            ? { "Content-Type": "application/json" }
+            : undefined,
+        body: options?.body
+            ? JSON.stringify(options.body)
+            : undefined
+    })
 
     if (!res.ok) {
         const text = await res.text()

@@ -4,9 +4,9 @@ import { apiFetch } from "./apiClient"
 export async function fetchWhitelist(
     measurementId: number
 ): Promise<BackendWhitelist> {
-    return apiFetch("/whitelist", "GET", {
+    return apiFetch("/whitelist", "GET", {params: {
         measurement_id: measurementId
-    })
+    }})
 }
 
 export type WhitelistAction =
@@ -32,11 +32,11 @@ export async function addWhitelistPair(
     ssid: string,
     bssid: string
 ) {
-    return await apiFetch<WhitelistActionResponse>("/whitelist", "POST", {
+    return await apiFetch<WhitelistActionResponse>("/whitelist", "POST", {params: {
         measurement_id: measurementId,
         ssid,
         bssid
-    })
+    }})
 }
 
 // TODO: fix for hidden ssids
@@ -45,43 +45,31 @@ export async function removeWhitelistPair(
     ssid: string,
     bssid: string
 ) {
-    return apiFetch<WhitelistActionResponse>("/whitelist", "DELETE", {
+    return apiFetch<WhitelistActionResponse>("/whitelist", "DELETE", {params: {
         measurement_id: measurementId,
         ssid,
         bssid
-    })
+    }})
 }
 
 export async function addWhitelistSSID(
     measurementId: number,
     ssid: string
 ) {
-    return apiFetch<WhitelistActionResponse>("/whitelist", "POST", {
+    return apiFetch<WhitelistActionResponse>("/whitelist", "POST", {params: {
         measurement_id: measurementId,
         ssid
-    })
-}
-
-export async function addWhitelistBSSID(
-    measurementId: number,
-    ssid: string,
-    bssid: string
-) {
-    return apiFetch<WhitelistActionResponse>("/whitelist", "POST", {
-        measurement_id: measurementId,
-        ssid,
-        bssid
-    })
+    }})
 }
 
 export async function removeWhitelistSSID(
     measurementId: number,
     ssid: string
 ) {
-    return apiFetch<WhitelistActionResponse>("/whitelist", "DELETE", {
+    return apiFetch<WhitelistActionResponse>("/whitelist", "DELETE", {params: {
         measurement_id: measurementId,
         ssid
-    })
+    }})
 }
 
 export async function removeWhitelistBSSID(
@@ -90,12 +78,12 @@ export async function removeWhitelistBSSID(
     bssid: string,
     removeEmptySSID: boolean = true
 ) {
-    return apiFetch<WhitelistActionResponse>("/whitelist", "DELETE", {
+    return apiFetch<WhitelistActionResponse>("/whitelist", "DELETE", {params: {
         measurement_id: measurementId,
         ssid,
         bssid,
         remove_empty_ssid: removeEmptySSID
-    })
+    }})
 }
 
 export async function renameWhitelistSSID(
@@ -103,22 +91,9 @@ export async function renameWhitelistSSID(
     ssid: string,
     newSSID: string
 ) {
-    return apiFetch<WhitelistActionResponse>("/whitelist", "PATCH", {
+    return apiFetch<WhitelistActionResponse>("/whitelist", "PATCH", {params: {
         measurement_id: measurementId,
         ssid,
         new_ssid: newSSID
-    })
-}
-
-export async function runWhitelistAction(
-    action: () => Promise<WhitelistActionResponse>,
-    refetch: () => Promise<void>
-) {
-    const res = await action()
-
-    if (res.status === "ok") {
-        await refetch()
-    }
-
-    return res
+    }})
 }

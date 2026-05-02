@@ -44,13 +44,13 @@ export async function fetchLocalization(params: {
     bssid: string
     modality?: string
 }): Promise<LocalizationData> {
-    return apiFetch("/localizations", "GET", {
+    return apiFetch("/localizations", "GET", {params: {
         measurement_id: params.measurementId,
         start_time_us: params.startTimeUs,
         end_time_us: params.endTimeUs,
         bssid: params.bssid,
         modality: params.modality,
-    })
+    }})
 }
 
 // TODO: move to apiFetch
@@ -83,8 +83,8 @@ export async function requestLocalization(params: {
 }
 
 export async function fetchSensors(measurementId: number): Promise<Sensor[]> {
-    const response: SensorsResponse = await apiFetch("/sensors", "GET", {
+    const response: SensorsResponse = await apiFetch("/sensors", "GET", {params: {
         measurement_id: measurementId,
-    })
+    }})
     return response.sensors
 }

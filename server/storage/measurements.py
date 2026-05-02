@@ -145,7 +145,7 @@ def update_measurement(
     final_row = cursor.fetchone()
 
     measurement = {
-        "id": final_row[0],
+        "measurement_id": final_row[0],
         "name": final_row[1],
         "description": final_row[2],
     }
