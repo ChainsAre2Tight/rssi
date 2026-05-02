@@ -8,6 +8,7 @@ type WhitelistUIType =
     | "add-bssid"
     | "measurement-name"
     | "measurement-description"
+    | "measurement-detection"
     | null
 
 export interface AppState {

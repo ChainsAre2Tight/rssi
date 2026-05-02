@@ -112,13 +112,23 @@ export function MeasurementHeader() {
         clearUI()
     }
 
-    async function runResetDetection() {
+    const isConfirmDelete =
+        mode === "confirm-delete" &&
+        active.type === "measurement-detection"
+
+    async function submitResetDetection() {
         const response = await deleteDetection(measurement!.id)
         if (response && response.status && response.status == "ok") {
             setMessage("Detectors reset. Please wait and refetch the report")
         } else {
             setMessage("Error")
         }
+
+        setMode("idle")
+    }
+
+    function cancelResetDetection() {
+        clearUI()
     }
 
     useEffect(() => {
@@ -134,7 +144,7 @@ export function MeasurementHeader() {
     return (
         <div
             className={styles.row}
-            data-selected={(isNameActive || isDescActive) || undefined}
+            data-selected={(isNameActive || isDescActive || isConfirmDelete) || undefined}
         >
             {/* NAME */}
             <div
@@ -241,23 +251,48 @@ export function MeasurementHeader() {
 
             {/* RIGHT SIDE */}
             <div className={styles.headerRight}>
-                {message === "" ? (<button
-                    className={styles.btn}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        runResetDetection()
-                    }}
-                >
-                    Rerun detectors
-                </button>) : (<button
-                    className={styles.btn}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                    }}
-                    disabled={true}
-                >
-                    {message}
-                </button>)}
+                {isConfirmDelete ? (
+                    <div className={styles.actions}>
+                        <button
+                            className={`${styles.btn} ${styles.btnDanger}`}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                cancelResetDetection()
+                            }}
+                        >
+                            ✕
+                        </button>
+
+                        <button
+                            className={`${styles.btn} ${styles.btnConfirm}`}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                submitResetDetection()
+                            }}
+                        >
+                            ⟲
+                        </button>
+                    </div>
+                ) : message === "" ? (
+                    <button
+                        className={`${styles.btn} ${styles.btnDanger}`}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveForce({ type: "measurement-detection", ssid: null, bssid: null})
+                            setMode("confirm-delete")
+                        }}
+                    >
+                        Rerun detectors
+                    </button>) : (<button
+                        className={styles.btn}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                        }}
+                        disabled={true}
+                    >
+                        {message}
+                    </button>)
+                }
             </div>
         </div>
     )
