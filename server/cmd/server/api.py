@@ -9,6 +9,8 @@ from compute.whitelist import (
     remove_whitelist_entry,
     rename_whitelist_ssid,
 )
+from storage.detection_signals import delete_signals_for_measurement
+from storage.windows import reset_detection_for_measurement
 import storage
 from compute.modalities import LogicalModality
 from storage.devices import load_sensors_for_measurement
@@ -407,6 +409,25 @@ def update_measurement_api():
             "status": "ok" if changed else "noop",
             "action": action,
             "measurement": measurement,
+        })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
+
+@app.route("/api/v1/detection", methods=["DELETE"])
+def reset_detection():
+    try:
+        measurement_id = parse_int_param("measurement_id")
+
+        with storage.Session() as conn:
+            with storage.Transaction(conn) as t:
+                delete_signals_for_measurement(t, measurement_id)
+                reset_detection_for_measurement(t, measurement_id)
+
+        return jsonify({
+            "status": "ok",
         })
 
     except ValueError as e:

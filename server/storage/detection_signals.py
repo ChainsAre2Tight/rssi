@@ -82,3 +82,15 @@ def load_detection_signals_for_window(
         )
         for row in rows
     ]
+
+def delete_signals_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+    
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM detection_signals
+        WHERE measurement_id = ?
+    """, (measurement_id,))

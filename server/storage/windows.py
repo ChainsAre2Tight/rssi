@@ -248,3 +248,27 @@ def get_windows_with_observation_for_bssid(
     ).fetchall()
 
     return [row[0] for row in rows]
+
+def reset_detection_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+    
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE windows
+        SET
+            stage = ?,
+            status = ?
+        WHERE
+            stage > ?
+            AND measurement_id = ?
+            AND layer = ?
+    """, (
+        my_types.STAGES.AP_OBSERVATIONS,
+        "pending",
+        my_types.STAGES.AP_OBSERVATIONS,
+        measurement_id,
+        my_types.OBSERVATION_WINDOWS.layer
+    ))

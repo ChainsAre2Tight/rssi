@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react"
+import { deleteDetection } from "../../services/detectionApi"
 import { patchMeasurement } from "../../services/measurements"
 import { useAppStore } from "../../store/useAppStore"
 import styles from "./WhitelistView.module.css"
@@ -29,6 +31,9 @@ export function MeasurementHeader() {
     const isDescActive = active.type === "measurement-description"
     const isDescEditing = isDescActive && mode === "editing"
     const isDescDisabled = isBlockingMode && !isDescActive
+
+    // DETECTOT RERUN
+    const [message, setMessage] = useState<string>("")
 
     function startEditName() {
         setActiveForce({ type: "measurement-name", ssid: null, bssid: null })
@@ -106,6 +111,25 @@ export function MeasurementHeader() {
     function cancel() {
         clearUI()
     }
+
+    async function runResetDetection() {
+        const response = await deleteDetection(measurement!.id)
+        if (response && response.status && response.status == "ok") {
+            setMessage("Detectors reset. Please wait and refetch the report")
+        } else {
+            setMessage("Error")
+        }
+    }
+
+    useEffect(() => {
+        if (!message) return
+        const t = setTimeout(() => setMessage(""), 10_000)
+        return () => clearTimeout(t)
+    }, [message])
+
+    useEffect(() => {
+        setMessage("")
+    }, [measurement.id])
 
     return (
         <div
@@ -217,15 +241,23 @@ export function MeasurementHeader() {
 
             {/* RIGHT SIDE */}
             <div className={styles.headerRight}>
-                <button
+                {message === "" ? (<button
                     className={styles.btn}
                     onClick={(e) => {
                         e.stopPropagation()
-                        console.log("RERUN DETECTORS", measurement.id)
+                        runResetDetection()
                     }}
                 >
                     Rerun detectors
-                </button>
+                </button>) : (<button
+                    className={styles.btn}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                    }}
+                    disabled={true}
+                >
+                    {message}
+                </button>)}
             </div>
         </div>
     )
