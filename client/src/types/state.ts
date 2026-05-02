@@ -1,6 +1,15 @@
 import type { Incident, Modality, Measurement, Severity, Whitelist } from "./general"
 import type { LocalizationData, Sensor } from "../services/localizationApi"
 
+type WhitelistUIType =
+    | "ssid"
+    | "bssid"
+    | "add-ssid"
+    | "add-bssid"
+    | "measurement-name"
+    | "measurement-description"
+    | null
+
 export interface AppState {
     context: {
         measurementId: number | null
@@ -76,7 +85,7 @@ export interface AppState {
 
     whitelistUI: {
         active: {
-            type: "ssid" | "bssid" | "add-ssid" | "add-bssid" | null
+            type: WhitelistUIType
             ssid: string | null
             bssid: string | null
         }
@@ -89,6 +98,11 @@ export interface AppState {
             type: "add" | "rename" | null
             ssid?: string
             bssid?: string
+        } | null
+
+        measurementDraft: {
+            name: string
+            description: string
         } | null
     }
 
@@ -154,10 +168,12 @@ export interface AppState {
     setWhitelistDraft: (value: string) => void
     clearWhitelistUI: () => void
     setWhitelistLastAction: (action: AppState["whitelistUI"]["lastAction"]) => void
-
     reconcileWhitelistUI: (whitelist: Whitelist) => void
-
     hoverWhitelist: (
         payload: AppState["hover"]["whitelist"] | null
     ) => void
+
+    updateMeasurement: (measurement: Measurement) => void
+    getCurrentMeasurement: () => Measurement | null
+    setMeasurementDraft: (draft: { name: string; description: string } | null) => void
 }

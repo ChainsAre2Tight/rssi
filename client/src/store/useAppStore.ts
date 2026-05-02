@@ -13,7 +13,7 @@ const defaultLayout = {
 
 export const useAppStore = create<AppState>()(
 persist(
-(set) => ({
+(set, get) => ({
 
     context: {
         measurementId: null,
@@ -97,7 +97,8 @@ persist(
         },
         mode: "idle",
         draftValue: "",
-        lastAction: null
+        lastAction: null,
+        measurementDraft: null,
     },
 
     localization: {
@@ -399,7 +400,8 @@ persist(
                             bssid: null
                         },
                     mode: "idle",
-                    draftValue: ""
+                    draftValue: "",
+                    measurementDraft: null,
                 }
             }
         }),
@@ -475,7 +477,8 @@ persist(
                     bssid: null
                 },
                 mode: "idle",
-                draftValue: ""
+                draftValue: "",
+                measurementDraft: null,
             }
         })),
     setWhitelistLastAction: (action) =>
@@ -542,10 +545,37 @@ persist(
                             bssid: null
                         },
                     mode: "idle",
-                    draftValue: ""
+                    draftValue: "",
+                    measurementDraft: null,
                 }
             }
         }),
+    
+    updateMeasurement: (updated) =>
+        set((state) => ({
+            measurements: {
+                ...state.measurements,
+                items: state.measurements.items.map(m =>
+                    m.id === updated.id ? updated : m
+                )
+            }
+        })),
+    
+    getCurrentMeasurement: () => {
+        const state = get()
+        const id = state.context.measurementId
+        if (!id) return null
+
+        return state.measurements.items.find(m => m.id === id) ?? null
+    },
+
+    setMeasurementDraft: (draft) =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                measurementDraft: draft
+            }
+        })),
 }),
 {
     name: "app-store",
