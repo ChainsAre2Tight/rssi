@@ -292,6 +292,74 @@ def init_db():
                 ON localization_results(bssid, start_time_us)
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS csi_fingerprints (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    measurement_id INTEGER NOT NULL,
+                    window_id INTEGER NOT NULL,
+
+                    bssid TEXT NOT NULL,
+                    is_reference BOOLEAN NOT NULL DEFAULT 0,
+
+                    vector BLOB NOT NULL,
+
+                    sensor_names_json TEXT NOT NULL,
+                    metadata_json TEXT,
+
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                    FOREIGN KEY (measurement_id) REFERENCES measurements(id),
+                    FOREIGN KEY (window_id) REFERENCES windows(id),
+                    UNIQUE(window_id, bssid)
+                );
+            """)
+
+            cursor.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_reference_fingerprint
+                ON csi_fingerprints(bssid, measurement_id)
+                WHERE is_reference = 1;
+            """)
+
+            cursor.execute("""
+                CREATE TRIGGER IF NOT EXISTS enforce_single_reference
+                    BEFORE INSERT ON csi_fingerprints
+                    WHEN NEW.is_reference = 1
+                    BEGIN
+                        SELECT RAISE(ABORT, 'Reference fingerprint already exists for this BSSID and measurement')
+                        WHERE EXISTS (
+                            SELECT 1 FROM csi_fingerprints
+                            WHERE bssid = NEW.bssid
+                            AND measurement_id = NEW.measurement_id
+                            AND is_reference = 1
+                        );
+                    END;
+            """)
+
+            cursor.execute("""
+                CREATE TABLE csi_fingerprint_distances (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                    measurement_id INTEGER NOT NULL,
+                    window_id INTEGER NOT NULL,
+
+                    bssid TEXT NOT NULL,
+
+                    reference_fingerprint_id INTEGER NOT NULL,
+                    fingerprint_id INTEGER NOT NULL,
+
+                    euclidean_dist REAL NOT NULL,
+                    cosine_dist REAL NOT NULL,
+                           
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                    FOREIGN KEY (measurement_id) REFERENCES measurements(id),
+                    FOREIGN KEY (window_id) REFERENCES windows(id),
+
+                    FOREIGN KEY (reference_fingerprint_id) REFERENCES csi_fingerprints(id),
+                    FOREIGN KEY (fingerprint_id) REFERENCES csi_fingerprints(id)
+                );
+            """)
+
 
 
 if __name__ == "__main__":

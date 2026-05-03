@@ -380,3 +380,37 @@ class LocalizationResult:
     converged: bool
 
     metadata: dict[str, t.Any] | None = None
+
+@dataclass(slots=True)
+class CSIFingerprint:
+    id: int | None
+    measurement_id: int
+    window_id: int
+
+    bssid: str
+    is_reference: bool
+
+    vector: bytes
+
+    sensor_names: list[str]
+    metadata: dict
+
+@dataclass(slots=True)
+class FingerprintDistance:
+    id: int | None
+    measurement_id: int
+    window_id: int
+
+    bssid: str
+
+    reference_fingerprint_id: int
+    fingerprint_id: int
+
+    euclidean_dist: float
+    cosine_dist: float
+
+@dataclass(slots=True)
+class FingerprintReference:
+    id: int
+    bssid: str
+    measurement_id: int
