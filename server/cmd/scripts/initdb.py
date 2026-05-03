@@ -336,7 +336,7 @@ def init_db():
             """)
 
             cursor.execute("""
-                CREATE TABLE csi_fingerprint_distances (
+                CREATE TABLE IF NOT EXISTS csi_fingerprint_distances (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
                     measurement_id INTEGER NOT NULL,
@@ -358,6 +358,31 @@ def init_db():
                     FOREIGN KEY (reference_fingerprint_id) REFERENCES csi_fingerprints(id),
                     FOREIGN KEY (fingerprint_id) REFERENCES csi_fingerprints(id)
                 );
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS csi_signals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    measurement_id INTEGER NOT NULL,
+                    window_id INTEGER NOT NULL,
+                    start_time_us INTEGER NOT NULL,
+                    end_time_us INTEGER NOT NULL,
+                    bssid TEXT NOT NULL,
+                    severity TEXT NOT NULL,
+                    metadata_json TEXT,
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (measurement_id) REFERENCES measurements(id),
+                    FOREIGN KEY (window_id) REFERENCES windows(id)
+                );
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_csi_signals_window
+                ON csi_signals(window_id);
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_csi_signals_bssid
+                ON csi_signals(bssid);
             """)
 
 

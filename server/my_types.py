@@ -412,7 +412,9 @@ class FingerprintDistance:
     cosine_dist: float
 
 @dataclass(slots=True)
-class FingerprintReference:
-    id: int
-    bssid: str
+class CSISignal:
     measurement_id: int
+    window_id: int
+    bssid: str
+    importance: str
+    metadata_json: t.Optional[dict]
