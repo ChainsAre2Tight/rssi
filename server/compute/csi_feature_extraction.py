@@ -12,77 +12,105 @@ from storage.ap_observations import load_observations_in_timerange, load_observa
 from storage.packets import load_csi_packets
 
 
-def parse_csi(packed_csi: str) -> np.ndarray:
+def parse_csi(packed_csi: str, skip_meta: int = 4) -> np.ndarray:
+    if not isinstance(packed_csi, str):
+        return np.zeros(0, dtype=np.complex64)
+
+    try:
+        nums = np.fromstring(packed_csi, sep=",", dtype=np.int16)
+    except Exception:
+        return np.zeros(0, dtype=np.complex64)
+
+    if nums.size <= skip_meta:
+        return np.zeros(0, dtype=np.complex64)
+
+    data = nums[skip_meta:]
+
+    if data.size % 2 != 0:
+        data = data[:-1]
+
+    real = data[0::2]
+    imag = data[1::2]
+
+    return (real + 1j * imag).astype(np.complex64)
+
+def calibrate_phase(phase: np.ndarray) -> np.ndarray:
     """
-    Restores original CSI parsing logic:
-    interleaved real/imag → complex vector
+    Remove linear trend from phase.
     """
+    n = len(phase)
+    if n < 2:
+        return phase
 
-    values = np.fromstring(packed_csi, sep=",")
+    x = np.arange(n, dtype=np.float32)
+    A = np.vstack([x, np.ones(n)]).T
 
-    if values.size % 2 != 0:
-        logger.warning("Malformed CSI vector (odd length)")
-        values = values[:-1]
+    # Least squares fit: phase ≈ slope * x + intercept
+    slope, intercept = np.linalg.lstsq(A, phase, rcond=None)[0]
 
-    real = values[0::2]
-    imag = values[1::2]
+    return phase - (slope * x + intercept)
 
-    vec = real + 1j * imag
-    vec = vec.astype(np.complex64)
-
-    target = config.CSI_COMPLEX_COUNT
-
-    if vec.size == target:
-        return vec
-
-    if vec.size > target:
-        return vec[:target]
-
-    padded = np.zeros(target, dtype=np.complex64)
-    padded[:vec.size] = vec
-    return padded
 
 def extract_csi_features(csi_vec: np.ndarray) -> np.ndarray:
     """
-    CSIRecognizer-compatible feature extraction boundary.
+    Reproduces original CSIRecognizer feature extraction.
 
-    IMPORTANT:
-    We preserve raw structure (complex vector),
-    but this is the ONLY safe transformation layer.
+    Input:
+        complex CSI vector
+
+    Output:
+        8-dim float vector
     """
 
-    # Identity transform for now (matches original system behavior)
-    # Future-safe place for phase/amplitude transforms if needed
-    return csi_vec
+    if csi_vec.size == 0:
+        return np.zeros(8, dtype=np.float32)
+
+    # Amplitude
+    amp = np.abs(csi_vec)
+
+    # Phase
+    phase = np.angle(csi_vec)
+    phase_cal = calibrate_phase(phase)
+
+    # Stats
+    feats = np.array([
+        np.mean(amp),
+        np.std(amp),
+        np.max(amp),
+        np.min(amp),
+
+        np.mean(phase_cal),
+        np.std(phase_cal),
+        np.max(phase_cal),
+        np.min(phase_cal),
+    ], dtype=np.float32)
+
+    return feats
 
 
-def aggregate_sensor_features(features: List[np.ndarray]) -> np.ndarray:
+def aggregate_sensor_features(features: list[np.ndarray]) -> np.ndarray:
     """
-    Aggregate CSI features per sensor stream.
+    Aggregate per-sensor packet features → single 8-dim vector
     """
     if not features:
-        return np.zeros(config.CSI_COMPLEX_COUNT, dtype=np.complex64)
+        return np.zeros(8, dtype=np.float32)
 
     stacked = np.vstack(features)
-
     return np.mean(stacked, axis=0)
 
 
 def build_fingerprint_vector(
-    sensor_signatures: Dict[str, np.ndarray],
-    sensor_order: List[str]
+    sensor_signatures: dict[str, np.ndarray],
+    sensor_order: list[str]
 ) -> np.ndarray:
 
     vectors = []
 
     for sensor in sensor_order:
-
         if sensor in sensor_signatures:
             vectors.append(sensor_signatures[sensor])
         else:
-            vectors.append(
-                np.zeros(config.CSI_COMPLEX_COUNT, dtype=np.complex64)
-            )
+            vectors.append(np.zeros(8, dtype=np.float32))
 
     return np.concatenate(vectors)
 
