@@ -31,8 +31,8 @@ def csi_detection_processor(
 
     for distance in distances:
     
-        signal = CSIDetector(distance)
-        signals.append(signal)
+        detected = CSIDetector(distance)
+        signals.extend(detected)
 
     if not signals:
         logger.debug("No csi detection signals for window %d", window_id)

@@ -21,6 +21,8 @@ def insert_csi_signals(
             start_time_us,
             end_time_us,
             s.bssid,
+            s.detector,
+            s.signal,
             s.importance,
             s.metadata_json,
         )
@@ -35,10 +37,12 @@ def insert_csi_signals(
             start_time_us,
             end_time_us,
             bssid,
+            detector,
+            signal,
             severity,
             metadata_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         rows,
     )
@@ -54,6 +58,8 @@ def load_csi_signals_for_window(
     rows = cur.execute("""
         SELECT
             bssid,
+            detector,
+            signal,
             severity,
             metadata_json
         FROM csi_signals
@@ -65,8 +71,10 @@ def load_csi_signals_for_window(
             measurement_id=measurement_id,
             window_id=window_id,
             bssid=row[0],
-            importance=row[1],
-            metadata_json=row[2],
+            detector=row[1],
+            signal=row[2],
+            importance=row[3],
+            metadata_json=row[4],
         )
         for row in rows
     ]

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import typing as t
 
 from my_types import Importance
 
@@ -6,7 +7,7 @@ from my_types import Importance
 @dataclass(slots=True)
 class SignalSpec:
     name: str
-    importance: str
+    importance: t.Optional[str]
 
 @dataclass(slots=True)
 class DetectorSpec:
@@ -57,6 +58,11 @@ class SSIDSimilaritySignals:
     typosquat_ssid: SignalSpec
 
 @dataclass(slots=True)
+class CSIDetectorSignals:
+    euclidean_distance: SignalSpec
+    cosine_distance: SignalSpec
+
+@dataclass(slots=True)
 class DetectorDefinitions:
 
     test: DetectorSpec
@@ -68,6 +74,8 @@ class DetectorDefinitions:
     beacon_ratio: DetectorSpec
     ssid_similarity: DetectorSpec
     authorized_whitelist: DetectorSpec
+
+    csi_detector: DetectorSpec
 
 DETECTORS = DetectorDefinitions(
 
@@ -159,6 +167,20 @@ DETECTORS = DetectorDefinitions(
             authorized_ap=SignalSpec(
                 name="authorized_ap",
                 importance=Importance.WHITELIST,
+            )
+        ),
+    ),
+
+    csi_detector=DetectorSpec(
+        name="csi_detector",
+        signals=CSIDetectorSignals(
+            euclidean_distance=SignalSpec(
+                name="euclidean_distance",
+                importance=None, # can be any
+            ),
+            cosine_distance=SignalSpec(
+                name="cosine_distance",
+                importance=None, # can be any
             )
         ),
     ),

@@ -368,6 +368,8 @@ def init_db():
                     start_time_us INTEGER NOT NULL,
                     end_time_us INTEGER NOT NULL,
                     bssid TEXT NOT NULL,
+                    detector TEXT NOT NULL,
+                    signal TEXT NOT NULL,
                     severity TEXT NOT NULL,
                     metadata_json TEXT,
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

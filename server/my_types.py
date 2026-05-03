@@ -416,5 +416,9 @@ class CSISignal:
     measurement_id: int
     window_id: int
     bssid: str
+
+    detector: str
+    signal: str
     importance: str
+
     metadata_json: t.Optional[dict]
