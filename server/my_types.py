@@ -422,3 +422,20 @@ class CSISignal:
     importance: str
 
     metadata_json: t.Optional[dict]
+
+@dataclass(slots=True)
+class PhysicalSignal:
+    bssid: str
+    detector: str
+    signal: str
+    importance: str
+    metadata_json: str | None
+    start_time_us: int
+    end_time_us: int
+
+@dataclass(slots=True)
+class PhysicalIncidentGroup:
+    bssid: str
+    first_seen_us: int
+    last_seen_us: int
+    signal_count: int
