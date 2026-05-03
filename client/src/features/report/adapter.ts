@@ -10,6 +10,7 @@ export function adaptReport(api: BackendReport) {
     }
 
     let incidentCounter = 0
+    let warningCounter = 0
 
     for (const modalityKey in api.modalities) {
         const modality = modalityKey as Modality
@@ -31,16 +32,21 @@ export function adaptReport(api: BackendReport) {
 
                 identity: inc.identity ?? null,
 
-                warnings: inc.warnings.map((w) => ({
-                    type: w.signal,
-                    importance: w.importance,
-                    signal: w.signal,
-                    metadata: w.metadata,
-                    occurrences: w.occurrences.map((o) => ({
-                        startTimeUs: o.start_time_us,
-                        endTimeUs: o.end_time_us
-                    }))
-                }))
+                warnings: inc.warnings.map((w) => {
+                    warningCounter++
+                    
+                    return ({
+                        id:`${modality}-${warningCounter}`,
+                        type: w.signal,
+                        importance: w.importance,
+                        signal: w.signal,
+                        metadata: w.metadata,
+                        occurrences: w.occurrences.map((o) => ({
+                            startTimeUs: o.start_time_us,
+                            endTimeUs: o.end_time_us
+                        }))
+                    })
+                })
             }
         })
     }

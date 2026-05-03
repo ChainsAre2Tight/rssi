@@ -29,6 +29,7 @@ export interface Occurrence {
 }
 
 export interface Warning {
+    id: string
     signal: string
     type: string
     importance: Importance

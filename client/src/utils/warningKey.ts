@@ -1,5 +1,5 @@
 import type { Warning } from "../types/general"
 
 export function getWarningKey(w: Warning): string {
-    return `${w.signal}:${JSON.stringify(w.metadata)}`
+    return `${w.id}:${w.signal}:${w.importance}:${JSON.stringify(w.metadata)}`
 }
