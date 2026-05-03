@@ -14,6 +14,7 @@ from compute.csi_feature_extraction import (
 from storage.csi_fingerprints import (
     dumps,
     insert_csi_fingerprint,
+    reference_exists,
     serialize_vector
 )
 
@@ -77,10 +78,12 @@ def csi_fingerprinter_processor(
         fingerprints_to_store.append((bssid, fingerprint_vector, metadata))
 
 
-    with storage.Transaction(conn):
+    with storage.Transaction(conn, immediate=True):
 
         for bssid, vector, metadata in fingerprints_to_store:
 
+            # TODO: move this logic into an intermediate stage
+            is_reference = not reference_exists(conn, measurement_id, bssid)
             insert_csi_fingerprint(
                 conn,
                 measurement_id,
@@ -89,7 +92,7 @@ def csi_fingerprinter_processor(
                 serialize_vector(vector),
                 dumps(sensor_order),
                 dumps(metadata),
-                is_reference=False,
+                is_reference=is_reference,
             )
 
     logger.info("Csi fingerprinting completed for window %d", window_id)

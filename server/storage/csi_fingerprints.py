@@ -157,3 +157,18 @@ def list_fingerprints_for_bssid(
         )
         for r in rows
     ]
+
+def reference_exists(conn, measurement_id: int, bssid: str) -> bool:
+    row = conn.execute(
+        """
+        SELECT 1
+        FROM csi_fingerprints
+        WHERE measurement_id = ?
+          AND bssid = ?
+          AND is_reference = 1
+        LIMIT 1
+        """,
+        (measurement_id, bssid),
+    ).fetchone()
+
+    return row is not None
