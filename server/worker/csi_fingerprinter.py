@@ -3,7 +3,7 @@ import sqlite3
 import config
 from config import logger
 
-from storage.devices import load_sensors_for_measurement
+from storage.devices import get_all_devices, load_sensors_for_measurement
 import storage
 
 from compute.csi_feature_extraction import (
@@ -42,7 +42,8 @@ def csi_fingerprinter_processor(
         logger.info("No fingerprints computed for window %d", window_id)
         return
 
-    sensor_registry = load_sensors_for_measurement(conn, measurement_id)
+    # TODO: add per measurement and only csi sensors
+    sensor_registry = get_all_devices(conn)
     sensor_order = [s["name"] for s in sensor_registry]
 
     fingerprints_to_store = []
@@ -68,6 +69,7 @@ def csi_fingerprinter_processor(
 
         fingerprint_vector = build_fingerprint_vector(sensor_signatures, sensor_order)
 
+        # this is also plagued by all sensors, not only csi used
         completeness = len(sensor_signatures) / len(sensor_order) if sensor_order else 0.0
 
         metadata["total_packets"] = total_packets
@@ -81,6 +83,11 @@ def csi_fingerprinter_processor(
     with storage.Transaction(conn, immediate=True):
 
         for bssid, vector, metadata in fingerprints_to_store:
+
+            # stub plug to skip empty fingerprints
+            # TODO: maybe a better criteria?
+            if len(metadata["sensors"]) < 2:
+                continue
 
             # TODO: move this logic into an intermediate stage
             is_reference = not reference_exists(conn, measurement_id, bssid)
