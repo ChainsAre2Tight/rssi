@@ -17,7 +17,7 @@ export default function IncidentHeader() {
     if (!incident) {
         return (
             <div className={styles.root}>
-                No incident selected
+                No observation selected
             </div>
         )
     }

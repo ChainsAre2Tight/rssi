@@ -43,5 +43,5 @@ export default function IdentityLabel({
         )
     }
 
-    return <span>Incident</span>
+    return <span>Observation</span>
 }

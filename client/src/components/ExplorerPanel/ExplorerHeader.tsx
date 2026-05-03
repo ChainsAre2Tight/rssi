@@ -28,7 +28,7 @@ export default function ExplorerHeader({
 
             {/* LEFT */}
             <div className={styles.left}>
-                {shown} / {total} incidents
+                {shown} / {total} observations
             </div>
 
             {/* RIGHT */}

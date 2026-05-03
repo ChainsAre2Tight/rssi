@@ -26,7 +26,7 @@ export default function ExplorerPanel() {
     if (total === 0) {
         return (
             <div className={styles.empty}>
-                No incidents detected in this report.
+                No observations detected in this report.
             </div>
         )
     }
