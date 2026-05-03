@@ -43,5 +43,18 @@ export default function IdentityLabel({
         )
     }
 
+    if (modality === "physical") {
+
+        const bssid = identity?.bssid ?? ""
+
+        return (
+            <span
+                title={bssid}
+            >
+                {bssid}
+            </span>
+        )
+    }
+
     return <span>Observation</span>
 }

@@ -15,6 +15,16 @@ const mapping: WarningMapping = {
     "beacon_only_ap":           {name: "Beacon-only AP",        description: "AP sent only beacons, no data packets were observed"},
     "high_beacon_ratio":        {name: "High beacon ratio",     description: "AP sent an unusual beacon-to-data packet ratio"},
     "authorized_ap":            {name: "Authorized AP",         description: "This AP is authorized to broadcast this SSID"},
+
+    "euclidean_distance": {
+        name: "Euclidean distance",
+        description: "Euclidean distance mismatch is likely due to power or distance changes compared to expected values",
+    },
+
+    "cosine_distance": {
+        name: "Cosine distance",
+        description: "Cosine distance repsesent a change in ODFM structure, most likely from multipath structure changes",
+    },
 }
 
 export function prettifyWarnings(warning: string | null | undefined): PrettyWarning {
