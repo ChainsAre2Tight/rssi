@@ -45,8 +45,8 @@ export default function WarningDetails() {
                     {prettyWarning.name}
                 </span>
 
-                <span className={`${styles.severity} ${styles[warning.severity]}`}>
-                    {warning.severity.toUpperCase()}
+                <span className={`${styles.importance} ${styles[warning.importance]}`}>
+                    {warning.importance.toUpperCase()}
                 </span>
             </div>
 

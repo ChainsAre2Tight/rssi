@@ -60,12 +60,12 @@
     border-radius: 2px;
 }
 
-.durationBar.whitelist { background: var(--severity-whitelist); }
-.durationBar.info { background: var(--severity-info); }
-.durationBar.low { background: var(--severity-low); }
-.durationBar.medium { background: var(--severity-medium); }
-.durationBar.high { background: var(--severity-high); }
-.durationBar.critical { background: var(--severity-critical); }
+.durationBar.whitelist { background: var(--importance-whitelist); }
+.durationBar.info { background: var(--importance-info); }
+.durationBar.low { background: var(--importance-low); }
+.durationBar.medium { background: var(--importance-medium); }
+.durationBar.high { background: var(--importance-high); }
+.durationBar.critical { background: var(--importance-critical); }
 
 .row:hover .durationBar {
     filter: brightness(1.2);

@@ -35,9 +35,9 @@ export default function WarningExpandedDetails({ warning }: Props) {
             </div>
 
             <div className={styles.block}>
-                Severity:
-                <span className={`${styles.severity} ${styles[warning.severity]}`}>
-                    {warning.severity.toUpperCase()}
+                Importance:
+                <span className={`${styles.importance} ${styles[warning.importance]}`}>
+                    {warning.importance.toUpperCase()}
                 </span>
             </div>
 

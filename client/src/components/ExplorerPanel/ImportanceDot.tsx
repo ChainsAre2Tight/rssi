@@ -1,8 +1,8 @@
 type Props = {
-    severity: string
+    importance: string
 }
 
-export default function SeverityDot({ severity }: Props) {
+export default function ImportanceDot({ importance }: Props) {
 
     return (
         <div
@@ -10,7 +10,7 @@ export default function SeverityDot({ severity }: Props) {
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                background: `var(--severity-${severity})`
+                background: `var(--importance-${importance})`
             }}
         />
     )

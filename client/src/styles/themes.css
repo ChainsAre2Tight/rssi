@@ -29,27 +29,27 @@
     /* separators / dividers */
 
     --color-divider: #e3e5ea;
-    --color-input-valid: var(--severity-low);
-    --color-input-invalid: var(--severity-critical);
+    --color-input-valid: var(--importance-low);
+    --color-input-invalid: var(--importance-critical);
     --color-input-neutral: var(--color-border);
 
-    /* severity */
+    /* importance */
 
-    --severity-info: #3b82f6;
-    --severity-low: #22c55e;
-    --severity-medium: #f59e0b;
-    --severity-high: #f97316;
-    --severity-critical: #ef4444;
-    --severity-whitelist: #ffffff;
+    --importance-info: #3b82f6;
+    --importance-low: #22c55e;
+    --importance-medium: #f59e0b;
+    --importance-high: #f97316;
+    --importance-critical: #ef4444;
+    --importance-whitelist: #ffffff;
 
     /* optional soft backgrounds for pills */
 
-    --severity-info-bg: rgba(59,130,246,0.10);
-    --severity-low-bg: rgba(34,197,94,0.10);
-    --severity-medium-bg: rgba(245,158,11,0.12);
-    --severity-high-bg: rgba(249,115,22,0.12);
-    --severity-critical-bg: rgba(239,68,68,0.12);
-    --severity-whitelist-bg: rgba(236, 236, 236, 0.12);
+    --importance-info-bg: rgba(59,130,246,0.10);
+    --importance-low-bg: rgba(34,197,94,0.10);
+    --importance-medium-bg: rgba(245,158,11,0.12);
+    --importance-high-bg: rgba(249,115,22,0.12);
+    --importance-critical-bg: rgba(239,68,68,0.12);
+    --importance-whitelist-bg: rgba(236, 236, 236, 0.12);
 }
 
 
@@ -84,25 +84,25 @@
     /* separators */
 
     --color-divider: #2a2e35;
-    --color-input-valid: var(--severity-low);
-    --color-input-invalid: var(--severity-critical);
+    --color-input-valid: var(--importance-low);
+    --color-input-invalid: var(--importance-critical);
     --color-input-neutral: var(--color-border);
 
-    /* severity */
+    /* importance */
 
-    --severity-info: #60a5fa;
-    --severity-low: #4ade80;
-    --severity-medium: #facc15;
-    --severity-high: #fb923c;
-    --severity-critical: #f87171;
-    --severity-whitelist: #ffffff;
+    --importance-info: #60a5fa;
+    --importance-low: #4ade80;
+    --importance-medium: #facc15;
+    --importance-high: #fb923c;
+    --importance-critical: #f87171;
+    --importance-whitelist: #ffffff;
 
     /* soft backgrounds for pills */
 
-    --severity-info-bg: rgba(96,165,250,0.16);
-    --severity-low-bg: rgba(74,222,128,0.16);
-    --severity-medium-bg: rgba(250,204,21,0.18);
-    --severity-high-bg: rgba(251,146,60,0.18);
-    --severity-critical-bg: rgba(248,113,113,0.18);
-    --severity-whitelist-bg: rgba(236, 236, 236, 0.18);
+    --importance-info-bg: rgba(96,165,250,0.16);
+    --importance-low-bg: rgba(74,222,128,0.16);
+    --importance-medium-bg: rgba(250,204,21,0.18);
+    --importance-high-bg: rgba(251,146,60,0.18);
+    --importance-critical-bg: rgba(248,113,113,0.18);
+    --importance-whitelist-bg: rgba(236, 236, 236, 0.18);
 }

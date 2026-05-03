@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 import type { AppState } from "../types/state"
-import type { Severity } from "../types/general"
+import type { Importance } from "../types/general"
 
 const defaultLayout = {
     explorerWidth: 300,
@@ -254,13 +254,13 @@ persist(
                     : { ...state.layout, ...update }
         })),
     
-    toggleSeverity: (severity: Severity) =>
+    toggleImportance: (importance: Importance) =>
         set((state) => ({
             filters: {
                 ...state.filters,
                 severities: {
                     ...state.filters.severities,
-                    [severity]: !state.filters.severities[severity]
+                    [importance]: !state.filters.severities[importance]
                 }
             }
         })),

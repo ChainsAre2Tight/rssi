@@ -31,7 +31,7 @@
 
 .error {
     font-size: 11px;
-    color: var(--severity-critical);
+    color: var(--importance-critical);
     padding: 4px;
     white-space: nowrap;
 }

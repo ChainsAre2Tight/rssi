@@ -1,4 +1,4 @@
-import type { Severity } from "../types/general"
+import type { Importance } from "../types/general"
 
 export interface TimelineTrack {
     id: string
@@ -23,7 +23,7 @@ export interface TimelineItem {
 
     start: number
     end: number
-    severity: Severity
+    importance: Importance
 
     laneIndex?: number
 }

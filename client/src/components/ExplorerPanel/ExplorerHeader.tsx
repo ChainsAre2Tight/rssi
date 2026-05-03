@@ -12,7 +12,7 @@ export default function ExplorerHeader({
     filtered,
 }: Props) {
 
-    const toggleSeverity = useAppStore(s => s.toggleSeverity)
+    const toggleImportance = useAppStore(s => s.toggleImportance)
     const active = useAppStore(s => s.filters.severities)
 
     const total =
@@ -44,8 +44,8 @@ export default function ExplorerHeader({
                             key={sev}
                             className={styles.dot}
                             data-active={active[sev]}
-                            data-severity={sev}
-                            onClick={() => toggleSeverity(sev)}
+                            data-importance={sev}
+                            onClick={() => toggleImportance(sev)}
                             title={sev}
                         />
                     ))}

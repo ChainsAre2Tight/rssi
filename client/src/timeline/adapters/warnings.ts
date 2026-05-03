@@ -5,7 +5,7 @@ import type {
     TimelineAdapterResult
 } from "../types"
 
-import { SEVERITY_ORDER } from "../../types/general"
+import { IMPORTANCE_ORDER } from "../../types/general"
 import { getWarningKey } from "../../utils/warningKey"
 
 interface Params {
@@ -23,9 +23,9 @@ export function buildWarningAdapter({
     const trackId = "warnings"
     const trackIds = [trackId]
 
-    // 🔹 sort warnings by severity DESC
+    // 🔹 sort warnings by importance DESC
     const sortedWarnings = [...incident.warnings].sort(
-        (a, b) => SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity]
+        (a, b) => IMPORTANCE_ORDER[b.importance] - IMPORTANCE_ORDER[a.importance]
     )
 
     const lanes: TimelineItem[][] = []
@@ -45,7 +45,7 @@ export function buildWarningAdapter({
                 start: occ.startTimeUs / 1_000_000,
                 end: occ.endTimeUs / 1_000_000,
 
-                severity: warning.severity,
+                importance: warning.importance,
             }
 
             lane.push(item)

@@ -3,7 +3,7 @@ import type { RefObject } from "react"
 import type { TimelineAdapterResult, TimelineItem, TrackLayoutItem, Viewport } from "../types"
 import { createTimeMapper } from "../utils/mapping"
 import { RESIZE_HANDLE_GAP } from "../config"
-import { getSeverityColor } from "../../utils/severity"
+import { getImportanceColor } from "../../utils/importance"
 import { formatDateTime } from "../../utils/time"
 
 function adjustBrightness(color: string, brightness: number): string {
@@ -322,7 +322,7 @@ export function useTimelineRenderer({
                         const x = mapper.toX(item.start)
                         const w = mapper.toX(item.end) - x
 
-                        let color = getSeverityColor(item.severity, styles)
+                        let color = getImportanceColor(item.importance, styles)
 
                         // Apply brightness based on interaction state
                         if (item === hoveredItem) {

@@ -48,12 +48,12 @@
     flex-shrink: 0;
 }
 
-.low { background: var(--severity-low); }
-.medium { background: var(--severity-medium); }
-.high { background: var(--severity-high); }
-.critical { background: var(--severity-critical); }
-.info { background: var(--severity-info); }
-.whitelist { background: var(--severity-whitelist); }
+.low { background: var(--importance-low); }
+.medium { background: var(--importance-medium); }
+.high { background: var(--importance-high); }
+.critical { background: var(--importance-critical); }
+.info { background: var(--importance-info); }
+.whitelist { background: var(--importance-whitelist); }
 
 .separator {
     width: 1px;

@@ -3,7 +3,7 @@ import { useAppStore } from "../../store/useAppStore"
 import type { Incident, Modality } from "../../types/general"
 
 import IdentityLabel from "./IdentityLabel"
-import SeverityDot from "./SeverityDot"
+import ImportanceDot from "./ImportanceDot"
 
 import styles from "./ExplorerPanel.module.css"
 import { useEffect, useRef } from "react"
@@ -67,7 +67,7 @@ export default function IncidentRow({
             }
         >
 
-            <SeverityDot severity={incident.severity} />
+            <ImportanceDot importance={incident.importance} />
 
             <IdentityLabel
                 modality={modality}
@@ -76,7 +76,7 @@ export default function IncidentRow({
 
             <div className={styles.durationBarContainer}>
                 <div
-                    className={`${styles.durationBar} ${styles[incident.severity]}`}
+                    className={`${styles.durationBar} ${styles[incident.importance]}`}
                     style={{ width: `${ratio * 100}%` }}
                 />
             </div>

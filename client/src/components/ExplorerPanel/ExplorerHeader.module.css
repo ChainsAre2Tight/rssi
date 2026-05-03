@@ -49,11 +49,11 @@
     opacity: 1;
 }
 
-/* severity colors */
+/* importance colors */
 
-.dot[data-severity="critical"] { background: var(--severity-critical); }
-.dot[data-severity="high"] { background: var(--severity-high); }
-.dot[data-severity="medium"] { background: var(--severity-medium); }
-.dot[data-severity="low"] { background: var(--severity-low); }
-.dot[data-severity="info"] { background: var(--severity-info); }
-.dot[data-severity="whitelist"] { background: var(--severity-whitelist); }
+.dot[data-importance="critical"] { background: var(--importance-critical); }
+.dot[data-importance="high"] { background: var(--importance-high); }
+.dot[data-importance="medium"] { background: var(--importance-medium); }
+.dot[data-importance="low"] { background: var(--importance-low); }
+.dot[data-importance="info"] { background: var(--importance-info); }
+.dot[data-importance="whitelist"] { background: var(--importance-whitelist); }

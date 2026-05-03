@@ -45,7 +45,7 @@ export function WarningListItem({
             <div
                 className={styles.dot}
                 style={{
-                    background: `var(--severity-${warning.severity})`
+                    background: `var(--importance-${warning.importance})`
                 }}
             />
 
@@ -58,7 +58,7 @@ export function WarningListItem({
 
             <div className={styles.durationBarContainer}>
                 <div
-                    className={`${styles.durationBar} ${styles[warning.severity]}`}
+                    className={`${styles.durationBar} ${styles[warning.importance]}`}
                     style={{
                         width: `${Math.max(ratio * 100, 2)}%`
                     }}

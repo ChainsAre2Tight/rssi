@@ -99,30 +99,30 @@
     background: var(--color-accent);
 }
 
-/* severity colors */
+/* importance colors */
 
 .durationBar.info {
-    background: var(--severity-info);
+    background: var(--importance-info);
 }
 
 .durationBar.low {
-    background: var(--severity-low);
+    background: var(--importance-low);
 }
 
 .durationBar.medium {
-    background: var(--severity-medium);
+    background: var(--importance-medium);
 }
 
 .durationBar.high {
-    background: var(--severity-high);
+    background: var(--importance-high);
 }
 
 .durationBar.critical {
-    background: var(--severity-critical);
+    background: var(--importance-critical);
 }
 
 .durationBar.whitelist {
-    background: var(--severity-whitelist);
+    background: var(--importance-whitelist);
 }
 
 .row:hover .durationBar,

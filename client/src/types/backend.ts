@@ -1,4 +1,4 @@
-import type { Severity } from "./general"
+import type { Importance } from "./general"
 
 export interface BackendReport {
     start_time_us: number
@@ -11,14 +11,14 @@ export interface BackendIncident {
     start_time_us: number
     end_time_us: number
     modality: string
-    severity: Severity
+    importance: Importance
     identity: any
     warnings: BackendWarning[]
 }
 
 export interface BackendWarning {
     signal: string
-    severity: Severity
+    importance: Importance
     metadata: object
     occurrences: {
         start_time_us: number

@@ -42,7 +42,7 @@ export function buildIncidentAdapter({
                 start: inc.startTimeUs / 1_000_000,
                 end: inc.endTimeUs / 1_000_000,
 
-                severity: inc.severity,
+                importance: inc.importance,
             }
 
             byKey.set(event.key, event)

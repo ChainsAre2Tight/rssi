@@ -27,13 +27,13 @@ export function adaptReport(api: BackendReport) {
                 startTimeUs: inc.start_time_us,
                 endTimeUs: inc.end_time_us,
 
-                severity: inc.severity,
+                importance: inc.importance,
 
                 identity: inc.identity ?? null,
 
                 warnings: inc.warnings.map((w) => ({
                     type: w.signal,
-                    severity: w.severity,
+                    importance: w.importance,
                     signal: w.signal,
                     metadata: w.metadata,
                     occurrences: w.occurrences.map((o) => ({

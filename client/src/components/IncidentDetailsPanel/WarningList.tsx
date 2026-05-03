@@ -3,7 +3,7 @@ import { useAppStore } from "../../store/useAppStore"
 import styles from "./WarningList.module.css"
 import { WarningListItem } from "./WarningListItem"
 import { getWarningKey } from "../../utils/warningKey"
-import { SEVERITY_ORDER } from "../../types/general"
+import { IMPORTANCE_ORDER } from "../../types/general"
 
 export default function WarningList() {
 
@@ -39,8 +39,8 @@ export default function WarningList() {
             })
             .sort((a, b) => {
                 const sevDiff =
-                    SEVERITY_ORDER[b.warning.severity] -
-                    SEVERITY_ORDER[a.warning.severity]
+                    IMPORTANCE_ORDER[b.warning.importance] -
+                    IMPORTANCE_ORDER[a.warning.importance]
 
                 if (sevDiff !== 0) return sevDiff
 

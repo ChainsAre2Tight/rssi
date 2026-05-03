@@ -1,8 +1,8 @@
-import type { Incident, Modality, Severity } from "../types/general"
+import type { Incident, Modality, Importance } from "../types/general"
 
 export function filterIncidents(
     incidentsByModality: Record<Modality, Incident[]>,
-    severityFilter: Record<Severity, boolean>,
+    importanceFilter: Record<Importance, boolean>,
     query: string
 ) {
     const result: Record<Modality, Incident[]> = {
@@ -43,7 +43,7 @@ export function filterIncidents(
     for (const modality of Object.keys(incidentsByModality) as Modality[]) {
         result[modality] = incidentsByModality[modality].filter(
             (inc) =>
-                severityFilter[inc.severity] && matchesSearch(inc)
+                importanceFilter[inc.importance] && matchesSearch(inc)
         )
     }
 

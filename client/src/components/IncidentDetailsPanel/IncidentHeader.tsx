@@ -31,7 +31,7 @@ export default function IncidentHeader() {
         <div className={styles.root}>
 
             <div className={styles.left}>
-                <span className={`${styles.dot} ${styles[incident.severity]}`} />
+                <span className={`${styles.dot} ${styles[incident.importance]}`} />
                 <span className={styles.identity}>{identity}</span>
             </div>
 

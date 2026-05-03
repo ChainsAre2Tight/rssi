@@ -1,4 +1,4 @@
-import { SEVERITY_ORDER } from "../../types/general"
+import { IMPORTANCE_ORDER } from "../../types/general"
 import type { TimelineItem, TimelineLanes } from "../types"
 
 interface PackOptions {
@@ -11,9 +11,9 @@ export function packIntoLanes(
 ): TimelineLanes {
     if (events.length === 0) return []
 
-    // 1. sort by severity DESC, then start ASC
+    // 1. sort by importance DESC, then start ASC
     const sorted = [...events].sort((a, b) => {
-        const sevDiff = SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity]
+        const sevDiff = IMPORTANCE_ORDER[b.importance] - IMPORTANCE_ORDER[a.importance]
         if (sevDiff !== 0) return sevDiff
         return a.start - b.start
     })

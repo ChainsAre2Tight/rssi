@@ -11,9 +11,9 @@
     margin-left: var(--space-xs);
 }
 
-/* Severity pill */
+/* Importance pill */
 
-.severity {
+.importance {
     margin-left: var(--space-xs);
 
     padding: 2px 10px;
@@ -28,42 +28,42 @@
     border: var(--panel-border-width) solid transparent;
 }
 
-/* severity colors */
+/* importance colors */
 
-.severity.low {
-    background: var(--severity-low-bg);
-    border-color: var(--severity-low);
-    color: var(--severity-low);
+.importance.low {
+    background: var(--importance-low-bg);
+    border-color: var(--importance-low);
+    color: var(--importance-low);
 }
 
-.severity.medium {
-    background: var(--severity-medium-bg);
-    border-color: var(--severity-medium);
-    color: var(--severity-medium);
+.importance.medium {
+    background: var(--importance-medium-bg);
+    border-color: var(--importance-medium);
+    color: var(--importance-medium);
 }
 
-.severity.high {
-    background: var(--severity-high-bg);
-    border-color: var(--severity-high);
-    color: var(--severity-high);
+.importance.high {
+    background: var(--importance-high-bg);
+    border-color: var(--importance-high);
+    color: var(--importance-high);
 }
 
-.severity.critical {
-    background: var(--severity-critical-bg);
-    border-color: var(--severity-critical);
-    color: var(--severity-critical);
+.importance.critical {
+    background: var(--importance-critical-bg);
+    border-color: var(--importance-critical);
+    color: var(--importance-critical);
 }
 
-.severity.info {
-    background: var(--severity-info-bg);
-    border-color: var(--severity-info);
-    color: var(--severity-info);
+.importance.info {
+    background: var(--importance-info-bg);
+    border-color: var(--importance-info);
+    color: var(--importance-info);
 }
 
-.severity.whitelist {
-    background: var(--severity-whitelist-bg);
-    border-color: var(--severity-whitelist);
-    color: var(--severity-whitelist);
+.importance.whitelist {
+    background: var(--importance-whitelist-bg);
+    border-color: var(--importance-whitelist);
+    color: var(--importance-whitelist);
 }
 
 /* metadata */

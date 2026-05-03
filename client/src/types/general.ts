@@ -6,7 +6,7 @@ export interface Measurement {
 
 export type Modality = "logical" | "physical"
 
-export type Severity =
+export type Importance =
     | "info"
     | "low"
     | "medium"
@@ -14,7 +14,7 @@ export type Severity =
     | "critical"
     | "whitelist"
 
-export const SEVERITIES: Severity[] = [
+export const SEVERITIES: Importance[] = [
   "whitelist",
   "info",
   "low",
@@ -31,7 +31,7 @@ export interface Occurrence {
 export interface Warning {
     signal: string
     type: string
-    severity: Severity
+    importance: Importance
     occurrences: Occurrence[]
     metadata: object
 }
@@ -41,7 +41,7 @@ export interface Incident {
     modality: Modality
     startTimeUs: number
     endTimeUs: number
-    severity: Severity
+    importance: Importance
     identity: IncidentIdentity | null
     warnings: Warning[]
 }
@@ -58,7 +58,7 @@ export type TimeMapper = {
     fromGlobalUs(timeUs: number): number
 }
 
-export const SEVERITY_ORDER: Record<Severity, number> = {
+export const IMPORTANCE_ORDER: Record<Importance, number> = {
     critical: 5,
     high: 4,
     medium: 3,

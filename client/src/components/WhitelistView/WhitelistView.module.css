@@ -124,13 +124,13 @@
 }
 
 .btnConfirm {
-    border-color: var(--severity-low);
-    color: var(--severity-low);
+    border-color: var(--importance-low);
+    color: var(--importance-low);
 }
 
 .btnConfirm:hover {
-    background: var(--severity-low-bg);
-    color: var(--severity-low);
+    background: var(--importance-low-bg);
+    color: var(--importance-low);
 }
 
 .btnConfirm:disabled {
@@ -140,13 +140,13 @@
 }
 
 .btnDanger {
-    border-color: var(--severity-critical);
-    color: var(--severity-critical);
+    border-color: var(--importance-critical);
+    color: var(--importance-critical);
 }
 
 .btnDanger:hover {
-    background: var(--severity-critical-bg);
-    color: var(--severity-critical);
+    background: var(--importance-critical-bg);
+    color: var(--importance-critical);
 }
 
 .btn {

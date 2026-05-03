@@ -1,4 +1,4 @@
-import type { Incident, Modality, Measurement, Severity, Whitelist } from "./general"
+import type { Incident, Modality, Measurement, Importance, Whitelist } from "./general"
 import type { LocalizationData, Sensor } from "../services/localizationApi"
 
 type WhitelistUIType =
@@ -61,7 +61,7 @@ export interface AppState {
     }
 
     filters: {
-        severities: Record<Severity, boolean>
+        severities: Record<Importance, boolean>
         query: string
     }
 
@@ -145,7 +145,7 @@ export interface AppState {
             | ((prev: AppState["layout"]) => AppState["layout"])
     ) => void
 
-    toggleSeverity: (severity: Severity) => void
+    toggleImportance: (importance: Importance) => void
 
     setLocalizationMode: (mode: "timeline" | "map" | "whitelist") => void
     setLocalizationData: (incidentKey: string, data: LocalizationData) => void

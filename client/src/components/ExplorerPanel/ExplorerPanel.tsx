@@ -10,12 +10,12 @@ export default function ExplorerPanel() {
         (s) => s.report.incidentsByModality
     )
 
-    const severityFilter = useAppStore(s => s.filters.severities)
+    const importanceFilter = useAppStore(s => s.filters.severities)
     const query = useAppStore(s => s.filters.query)
 
     const filtered = filterIncidents(
         incidentsByModality,
-        severityFilter,
+        importanceFilter,
         query,
     )
 
