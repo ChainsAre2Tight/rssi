@@ -2,7 +2,7 @@ from worker.window_worker import run_window_worker
 from worker.csi_fingerprinter import csi_fingerprinter_processor
 
 from config import logger
-from my_types import STAGES, AGGREGATION_WINDOWS, AGGREGATION_STAGES
+from my_types import AGGREGATION_WINDOWS, AGGREGATION_STAGES
 
 if __name__ == "__main__":
     logger.info("Starting fingerprinting worker")

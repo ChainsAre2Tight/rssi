@@ -27,6 +27,10 @@ WORKERS: List[WorkerSpec] = [
         module="cmd.workers.csi_fingerprint",
     ),
     WorkerSpec(
+        name="csi_distance",
+        module="cmd.workers.csi_distance",
+    ),
+    WorkerSpec(
         name="localization trigger",
         module="cmd.workers.localization_trigger",
     ),
