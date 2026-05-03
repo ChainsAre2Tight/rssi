@@ -98,7 +98,7 @@ class SSIDSimilarityDetector:
                                 ssid=observed,
                                 detector=detector_name,
                                 signal=typo_spec.name,
-                                severity=typo_spec.severity,
+                                importance=typo_spec.importance,
                                 metadata_json=metadata,
                             )
                         )
@@ -120,7 +120,7 @@ class SSIDSimilarityDetector:
                                 ssid=observed,
                                 detector=detector_name,
                                 signal=similar_spec.name,
-                                severity=similar_spec.severity,
+                                importance=similar_spec.importance,
                                 metadata_json=metadata,
                             )
                         )
@@ -148,7 +148,7 @@ class SSIDSimilarityDetector:
                                 ssid=observed,
                                 detector=detector_name,
                                 signal=similar_spec.name,
-                                severity=similar_spec.severity,
+                                importance=similar_spec.importance,
                                 metadata_json=metadata,
                             )
                         )

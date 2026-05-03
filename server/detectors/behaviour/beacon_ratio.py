@@ -69,7 +69,7 @@ class BeaconRatioDetector:
                         ssid=None,
                         detector=detector_name,
                         signal=beacon_only_spec.name,
-                        severity=beacon_only_spec.severity,
+                        importance=beacon_only_spec.importance,
                         metadata_json=metadata,
                     )
                 )
@@ -94,7 +94,7 @@ class BeaconRatioDetector:
                         ssid=None,
                         detector=detector_name,
                         signal=high_ratio_spec.name,
-                        severity=high_ratio_spec.severity,
+                        importance=high_ratio_spec.importance,
                         metadata_json=metadata,
                     )
                 )

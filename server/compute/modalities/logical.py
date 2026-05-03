@@ -10,8 +10,8 @@ from storage.logical_incidents import load_logical_incident_groups, load_signals
 from storage.windows import get_windows_in_range, get_windows_with_observation_for_bssid
 
 
-def aggregate_severity(signals: list[my_types.LogicalSignal]) -> my_types.Severity:
-    severities = [my_types.Severity.from_str(s.severity) for s in signals]
+def aggregate_importance(signals: list[my_types.LogicalSignal]) -> my_types.Importance:
+    severities = [my_types.Importance.from_str(s.importance) for s in signals]
     return max(severities, key=lambda s: s.rank)
 
 
@@ -47,12 +47,12 @@ class LogicalModality(my_types.Modality):
                 group.ssid,
             )
 
-            severity = self._compute_severity(signals)
+            importance = self._compute_importance(signals)
 
             incident = self._build_incident(
                 group,
                 signals,
-                severity,
+                importance,
             )
 
             incidents.append(incident)
@@ -91,12 +91,12 @@ class LogicalModality(my_types.Modality):
             ssid,
         )
 
-    def _compute_severity(
+    def _compute_importance(
         self,
         signals: list[my_types.LogicalSignal],
-    ) -> my_types.Severity:
+    ) -> my_types.Importance:
 
-        return aggregate_severity(signals)
+        return aggregate_importance(signals)
     
     def _merge_intervals(
         self,
@@ -141,14 +141,14 @@ class LogicalModality(my_types.Modality):
         groups: dict[tuple[str, str, str, str], list[my_types.LogicalSignal]] = {}
 
         for s in signals:
-            key = (s.detector, s.signal, s.severity, s.metadata_json)
+            key = (s.detector, s.signal, s.importance, s.metadata_json)
             groups.setdefault(key, []).append(s)
 
         warnings: list[my_types.LogicalWarning] = []
 
-        for (detector, signal, severity_str, metadata_json), group_signals in groups.items():
+        for (detector, signal, importance_str, metadata_json), group_signals in groups.items():
 
-            severity = my_types.Severity.from_str(severity_str)
+            importance = my_types.Importance.from_str(importance_str)
 
             occurrences = self._merge_intervals(group_signals)
 
@@ -156,7 +156,7 @@ class LogicalModality(my_types.Modality):
                 my_types.LogicalWarning(
                     detector=detector,
                     signal=signal,
-                    severity=severity,
+                    importance=importance,
                     occurrences=occurrences,
                     metadata=json.loads(metadata_json),
                 )
@@ -168,7 +168,7 @@ class LogicalModality(my_types.Modality):
         self,
         group: my_types.LogicalIncidentGroup,
         signals: list[my_types.LogicalSignal],
-        severity: my_types.Severity,
+        importance: my_types.Importance,
     ) -> my_types.LogicalIncident:
 
         warnings = self._build_warnings(signals)
@@ -176,7 +176,7 @@ class LogicalModality(my_types.Modality):
         return my_types.LogicalIncident(
             bssid=group.bssid,
             ssid=group.ssid,
-            severity=severity,
+            importance=importance,
             start_time_us=group.first_seen_us,
             end_time_us=group.last_seen_us,
             warnings=warnings,

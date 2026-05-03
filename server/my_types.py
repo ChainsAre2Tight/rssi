@@ -72,7 +72,7 @@ class DetectionSignal:
 
     detector: str
     signal: str
-    severity: str # maybe enum?
+    importance: str # maybe enum?
 
     metadata_json: t.Optional[str]
 
@@ -93,7 +93,7 @@ class DetectionContext:
     whitelist: dict
 
 
-class Severity(str, Enum):
+class Importance(str, Enum):
 
     INFO = "info"
     LOW = "low"
@@ -104,25 +104,25 @@ class Severity(str, Enum):
 
     @property
     def rank(self) -> int:
-        return _SEVERITY_RANK[self]
+        return _IMPORTANCE_RANK[self]
 
     @classmethod
-    def from_str(cls, value: str) -> "Severity":
+    def from_str(cls, value: str) -> "Importance":
         try:
             return cls(value)
         except ValueError:
-            raise ValueError(f"Unknown severity: {value}")
+            raise ValueError(f"Unknown importance: {value}")
 
-_SEVERITY_RANK = {
-    Severity.WHITELIST: -1,
-    Severity.INFO: 0,
-    Severity.LOW: 1,
-    Severity.MEDIUM: 2,
-    Severity.HIGH: 3,
-    Severity.CRITICAL: 4,
+_IMPORTANCE_RANK = {
+    Importance.WHITELIST: -1,
+    Importance.INFO: 0,
+    Importance.LOW: 1,
+    Importance.MEDIUM: 2,
+    Importance.HIGH: 3,
+    Importance.CRITICAL: 4,
 }
 
-def max_severity(values):
+def max_importance(values):
     return max(values, key=lambda v: v.rank)
 
 @dataclass(slots=True)
@@ -300,7 +300,7 @@ class LogicalWarningOccurrence:
 class LogicalWarning:
     detector: str
     signal: str
-    severity: Severity
+    importance: Importance
     metadata: t.Dict[str, t.Any]
     occurrences: list[LogicalWarningOccurrence]
 
@@ -318,7 +318,7 @@ class LogicalIncident(Incident):
     bssid: str
     ssid: t.Optional[str]
 
-    severity: Severity
+    importance: Importance
 
     start_time_us: int
     end_time_us: int
@@ -333,14 +333,14 @@ class LogicalIncident(Incident):
                 "bssid": self.bssid,
                 "ssid": self.ssid,
             },
-            "severity": self.severity.value,
+            "importance": self.importance.value,
             "start_time_us": self.start_time_us,
             "end_time_us": self.end_time_us,
             "warnings": [
                 {
                     "detector": w.detector,
                     "signal": w.signal,
-                    "severity": w.severity.value,
+                    "importance": w.importance.value,
                     "occurrences": [asdict(o) for o in w.occurrences],
                     "metadata": w.metadata,
                 }

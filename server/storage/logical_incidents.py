@@ -114,7 +114,7 @@ def load_signals_for_identity(
                 ssid=row[2],
                 detector=row[3],
                 signal=row[4],
-                severity=row[5],
+                importance=row[5],
                 metadata_json=row[6],
                 start_time_us=row[7],
                 end_time_us=row[8],

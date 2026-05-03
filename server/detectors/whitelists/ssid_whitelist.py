@@ -35,7 +35,7 @@ class SSIDWhitelistDetector:
                         ssid=ssid,
                         detector=DETECTORS.ssid_whitelist.name,
                         signal=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.name,
-                        severity=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.severity,
+                        importance=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.importance,
                         metadata_json=json.dumps({
                             "ssid": ssid
                         }),

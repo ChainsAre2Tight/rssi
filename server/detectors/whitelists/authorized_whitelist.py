@@ -44,7 +44,7 @@ class AuthorizedWhitelistDetector:
                         ssid=ssid,
                         detector=detector_name,
                         signal=spec.name,
-                        severity=spec.severity,
+                        importance=spec.importance,
                         metadata_json=json.dumps({
                             "ssid": ssid,
                             "authorized_bssids": allowed_bssids,

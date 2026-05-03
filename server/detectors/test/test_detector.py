@@ -30,7 +30,7 @@ class TestDetector:
                             ssid=ssid,
                             detector=DETECTORS.test.name,
                             signal=DETECTORS.test.signals.test_signal.name,
-                            severity=DETECTORS.test.signals.test_signal.severity,
+                            importance=DETECTORS.test.signals.test_signal.importance,
                             metadata_json=json.dumps(
                                 {"test": "test123321"}
                             ),
@@ -46,7 +46,7 @@ class TestDetector:
                             ssid=ssid,
                             detector=DETECTORS.test.name,
                             signal=DETECTORS.test.signals.test_signal.name,
-                            severity=DETECTORS.test.signals.test_signal.severity,
+                            importance=DETECTORS.test.signals.test_signal.importance,
                             metadata_json=json.dumps(
                                 {"test": "mooooooooooooo"}
                             ),

@@ -24,7 +24,7 @@ def insert_detection_signals(
             s.ssid,
             s.detector,
             s.signal,
-            s.severity,
+            s.importance,
             s.metadata_json,
         )
         for s in signals
@@ -77,7 +77,7 @@ def load_detection_signals_for_window(
             ssid=row[2],
             detector=row[3],
             signal=row[4],
-            severity=row[5],
+            importance=row[5],
             metadata_json=row[6],
         )
         for row in rows

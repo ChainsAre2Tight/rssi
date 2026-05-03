@@ -11,13 +11,13 @@ from storage.localization_jobs import insert_localization_jobs
 
 def select_bssids_for_localization(
     signals: list[my_types.DetectionSignal],
-    threshold: my_types.Severity,
+    threshold: my_types.Importance,
 ) -> list[str]:
 
-    by_bssid: dict[str, list[my_types.Severity]] = {}
+    by_bssid: dict[str, list[my_types.Importance]] = {}
 
     for s in signals:
-        sev = my_types.Severity.from_str(s.severity)
+        sev = my_types.Importance.from_str(s.importance)
         by_bssid.setdefault(s.bssid, []).append(sev)
 
     selected: list[str] = []
@@ -44,7 +44,7 @@ def localization_trigger_processor(
         logger.debug("No signals in window %d", window_id)
         return
 
-    threshold = my_types.Severity.HIGH
+    threshold = my_types.Importance.HIGH
 
     bssids = select_bssids_for_localization(signals, threshold)
 

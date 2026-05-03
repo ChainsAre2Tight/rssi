@@ -54,7 +54,7 @@ class HiddenSSIDDetector:
                         ssid=None,
                         detector=detector_name,
                         signal=persistent_spec.name,
-                        severity=persistent_spec.severity,
+                        importance=persistent_spec.importance,
                         metadata_json=metadata,
                     )
                 )
@@ -69,7 +69,7 @@ class HiddenSSIDDetector:
                         ssid=None,
                         detector=detector_name,
                         signal=hidden_spec.name,
-                        severity=hidden_spec.severity,
+                        importance=hidden_spec.importance,
                         metadata_json=metadata,
                     )
                 )

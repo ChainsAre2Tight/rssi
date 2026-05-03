@@ -57,7 +57,7 @@ class AuthorizedAPWrongSSIDDetector:
                         ssid=ssid,
                         detector=detector_name,
                         signal=spec.name,
-                        severity=spec.severity,
+                        importance=spec.importance,
                         metadata_json=json.dumps({
                             "ssid": ssid,
                             "allowed_ssids": list(allowed_ssids),

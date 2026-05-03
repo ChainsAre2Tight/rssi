@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from my_types import Severity
+from my_types import Importance
 
 
 @dataclass(slots=True)
 class SignalSpec:
     name: str
-    severity: str
+    importance: str
 
 @dataclass(slots=True)
 class DetectorSpec:
@@ -76,7 +76,7 @@ DETECTORS = DetectorDefinitions(
         signals=TestSignals(
             test_signal=SignalSpec(
                 name="test_signal",
-                severity=Severity.INFO,
+                importance=Importance.INFO,
             )
         ),
     ),
@@ -86,7 +86,7 @@ DETECTORS = DetectorDefinitions(
         signals=SSIDWhitelistSignals(
             unauthorized_ssid=SignalSpec(
                 name="unauthorized_ssid",
-                severity=Severity.LOW,
+                importance=Importance.LOW,
             )
         ),
     ),
@@ -96,7 +96,7 @@ DETECTORS = DetectorDefinitions(
         signals=BSSIDWhitelistSignals(
             unauthorized_bssid=SignalSpec(
                 name="unauthorized_bssid",
-                severity=Severity.HIGH,
+                importance=Importance.HIGH,
             )
         ),
     ),
@@ -106,7 +106,7 @@ DETECTORS = DetectorDefinitions(
         signals=AuthorizedAPWrongSSIDSignals(
             wrong_ssid=SignalSpec(
                 name="wrong_ssid",
-                severity=Severity.HIGH,
+                importance=Importance.HIGH,
             )
         ),
     ),
@@ -116,11 +116,11 @@ DETECTORS = DetectorDefinitions(
         signals=HiddenSSIDSignals(
             hidden_ssid=SignalSpec(
                 name="hidden_ssid",
-                severity="info",
+                importance="info",
             ),
             persistent_hidden_ssid=SignalSpec(
                 name="persistent_hidden_ssid",
-                severity=Severity.MEDIUM,
+                importance=Importance.MEDIUM,
             ),
         ),
     ),
@@ -130,11 +130,11 @@ DETECTORS = DetectorDefinitions(
         signals=BeaconRatioSignals(
             beacon_only_ap=SignalSpec(
                 name="beacon_only_ap",
-                severity="info",
+                importance="info",
             ),
             high_beacon_ratio=SignalSpec(
                 name="high_beacon_ratio",
-                severity=Severity.MEDIUM,
+                importance=Importance.MEDIUM,
             ),
         ),
     ),
@@ -144,11 +144,11 @@ DETECTORS = DetectorDefinitions(
         signals=SSIDSimilaritySignals(
             similar_ssid=SignalSpec(
                 name="similar_ssid",
-                severity=Severity.HIGH,
+                importance=Importance.HIGH,
             ),
             typosquat_ssid=SignalSpec(
                 name="typosquat_ssid",
-                severity=Severity.CRITICAL,
+                importance=Importance.CRITICAL,
             ),
         ),
     ),
@@ -158,7 +158,7 @@ DETECTORS = DetectorDefinitions(
         signals=AuthorizedWhitelistSignals(
             authorized_ap=SignalSpec(
                 name="authorized_ap",
-                severity=Severity.WHITELIST,
+                importance=Importance.WHITELIST,
             )
         ),
     ),
