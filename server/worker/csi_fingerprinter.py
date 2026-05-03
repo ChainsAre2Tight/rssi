@@ -3,6 +3,7 @@ import sqlite3
 import config
 from config import logger
 
+from storage.devices import load_sensors_for_measurement
 import storage
 
 from compute.csi_feature_extraction import (
@@ -11,7 +12,9 @@ from compute.csi_feature_extraction import (
     build_fingerprint_vector
 )
 from storage.csi_fingerprints import (
-    insert_csi_fingerprint
+    dumps,
+    insert_csi_fingerprint,
+    serialize_vector
 )
 
 
@@ -38,9 +41,8 @@ def csi_fingerprinter_processor(
         logger.info("No fingerprints computed for window %d", window_id)
         return
 
-    sensor_order = sorted(
-        {sensor for bssid_map in grouped.values() for sensor in bssid_map.keys()}
-    )
+    sensor_registry = load_sensors_for_measurement(conn, measurement_id)
+    sensor_order = [s["name"] for s in sensor_registry]
 
     fingerprints_to_store = []
     for bssid, sensors in grouped.items():
@@ -69,6 +71,8 @@ def csi_fingerprinter_processor(
 
         metadata["total_packets"] = total_packets
         metadata["completeness"] = completeness
+        metadata["feature_version"] = 1
+        metadata["sensor_order"] = sensor_order
 
         fingerprints_to_store.append((bssid, fingerprint_vector, metadata))
 
@@ -82,9 +86,9 @@ def csi_fingerprinter_processor(
                 measurement_id,
                 window_id,
                 bssid,
-                vector.tobytes(),
+                serialize_vector(vector),
                 sensor_order,
-                metadata,
+                dumps(metadata),
                 is_reference=False,
             )
 

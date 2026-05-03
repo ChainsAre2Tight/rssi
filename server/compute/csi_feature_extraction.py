@@ -113,7 +113,7 @@ def build_csi_fingerprints(
     )
 
     if not observations:
-        return {}
+        return {}, {}
 
     observation_bssid = {
         obs.observation_id: obs.bssid
@@ -122,7 +122,7 @@ def build_csi_fingerprints(
     }
 
     if not observation_bssid:
-        return {}
+        return {}, {}
 
     # CSI links
     links = load_observation_csi_links(
@@ -131,7 +131,7 @@ def build_csi_fingerprints(
     )
 
     if not links:
-        return {}
+        return {}, {}
 
     packet_to_bssid = {}
     packet_ids = set()
