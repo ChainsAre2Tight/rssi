@@ -151,7 +151,43 @@ services:
     env_file:
       - server/.env.docker
     environment:
-      - WORKER_NAME=dataset_builder
+      - WORKER_NAME=csi_fingerprint
+    volumes:
+      - ./database:/database
+      - ./server:/app
+    deploy:
+      replicas: 1
+    
+  csi_distance_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    profiles:
+      - core
+    restart: unless-stopped
+    command: python -m cmd.workers.csi_distance
+    env_file:
+      - server/.env.docker
+    environment:
+      - WORKER_NAME=csi_distance
+    volumes:
+      - ./database:/database
+      - ./server:/app
+    deploy:
+      replicas: 1
+  
+  csi_detection_worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    profiles:
+      - core
+    restart: unless-stopped
+    command: python -m cmd.workers.csi_detector
+    env_file:
+      - server/.env.docker
+    environment:
+      - WORKER_NAME=csi_detector
     volumes:
       - ./database:/database
       - ./server:/app

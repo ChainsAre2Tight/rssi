@@ -12,5 +12,5 @@ if __name__ == "__main__":
         required_stage=AGGREGATION_STAGES.NONE,
         completed_stage=AGGREGATION_STAGES.FINGERPRINTING,
         processor=csi_fingerprinter_processor,
-        sleep_seconds=30,
+        sleep_seconds=5,
     )

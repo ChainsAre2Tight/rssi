@@ -12,5 +12,5 @@ if __name__ == "__main__":
         required_stage=AGGREGATION_STAGES.FINGERPRINTING,
         completed_stage=AGGREGATION_STAGES.DISTANCE_CALCULATION,
         processor=csi_distance_processor,
-        sleep_seconds=30,
+        sleep_seconds=5,
     )

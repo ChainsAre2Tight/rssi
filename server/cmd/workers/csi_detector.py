@@ -12,5 +12,5 @@ if __name__ == "__main__":
         required_stage=AGGREGATION_STAGES.DISTANCE_CALCULATION,
         completed_stage=AGGREGATION_STAGES.DECISIONS,
         processor=csi_detection_processor,
-        sleep_seconds=30,
+        sleep_seconds=5,
     )
