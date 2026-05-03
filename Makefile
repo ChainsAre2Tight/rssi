@@ -7,7 +7,6 @@ PROFILES_INGEST = --profile ingestion
 PROFILES_NTP = --profile ntp
 PROFILES_CORE = --profile core
 PROFILES_LOCALIZATION = --profile localization
-PROFILES_DATASET = --profile dataset
 
 dc-api:
 	$(DC) \
@@ -25,7 +24,6 @@ dc-workers:
 	$(DC) \
 	$(PROFILES_CORE) \
 	$(PROFILES_LOCALIZATION) \
-	$(PROFILES_DATASET) \
 	up $(ARGS)
 
 dc-all:
@@ -36,7 +34,6 @@ dc-all:
 	$(PROFILES_NTP) \
 	$(PROFILES_CORE) \
 	$(PROFILES_LOCALIZATION) \
-	$(PROFILES_DATASET) \
 	up $(ARGS)
 
 dc-down:
@@ -47,7 +44,6 @@ dc-down:
 	$(PROFILES_NTP) \
 	$(PROFILES_CORE) \
 	$(PROFILES_LOCALIZATION) \
-	$(PROFILES_DATASET) \
 	down --remove-orphans
 
 dc-build:
@@ -58,7 +54,6 @@ dc-build:
 	$(PROFILES_NTP) \
 	$(PROFILES_CORE) \
 	$(PROFILES_LOCALIZATION) \
-	$(PROFILES_DATASET) \
 	build
 
 dc-logs:

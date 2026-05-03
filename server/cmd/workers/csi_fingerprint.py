@@ -5,12 +5,12 @@ from config import logger
 from my_types import STAGES, AGGREGATION_WINDOWS, AGGREGATION_STAGES
 
 if __name__ == "__main__":
-    logger.info("Starting dataset construction worker")
+    logger.info("Starting fingerprinting worker")
 
     run_window_worker(
         layer_config=AGGREGATION_WINDOWS,
         required_stage=AGGREGATION_STAGES.NONE,
-        completed_stage=AGGREGATION_STAGES.DATASET_BUILT,
+        completed_stage=AGGREGATION_STAGES.FINGERPRINTING,
         processor=csi_fingerprinter_processor,
         sleep_seconds=30,
     )

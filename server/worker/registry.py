@@ -23,8 +23,8 @@ WORKERS: List[WorkerSpec] = [
         module="cmd.workers.detection",
     ),
     WorkerSpec(
-        name="dataset_builder",
-        module="cmd.workers.dataset",
+        name="csi_fingerprinting",
+        module="cmd.workers.csi_fingerprint",
     ),
     WorkerSpec(
         name="localization trigger",

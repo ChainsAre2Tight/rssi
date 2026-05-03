@@ -140,21 +140,20 @@ services:
     deploy:
       replicas: 2
   
-  dataset_builder_worker:
+  csi_fingerprint_worker:
     build:
       context: .
       dockerfile: server/Dockerfile
     profiles:
-      - dataset
+      - core
     restart: unless-stopped
-    command: python -m cmd.workers.dataset
+    command: python -m cmd.workers.csi_fingerprint
     env_file:
       - server/.env.docker
     environment:
       - WORKER_NAME=dataset_builder
     volumes:
       - ./database:/database
-      - ./datasets:/datasets
       - ./server:/app
     deploy:
       replicas: 1

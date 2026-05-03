@@ -87,7 +87,7 @@ def csi_fingerprinter_processor(
                 window_id,
                 bssid,
                 serialize_vector(vector),
-                sensor_order,
+                dumps(sensor_order),
                 dumps(metadata),
                 is_reference=False,
             )

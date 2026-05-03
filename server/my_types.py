@@ -61,7 +61,9 @@ class STAGES:
 
 class AGGREGATION_STAGES:
     NONE = None
-    DATASET_BUILT = 1
+    FINGERPRINTING = 1
+    DISTANCE_CALCULATION = 2
+    DECISIONS = 3
 
 @dataclass(slots=True)
 class DetectionSignal:
