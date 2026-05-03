@@ -12,7 +12,7 @@ from compute.whitelist import (
 from storage.detection_signals import delete_signals_for_measurement
 from storage.windows import reset_detection_for_measurement
 import storage
-from compute.modalities import LogicalModality
+from compute.modalities import LogicalModality, PhysicalModality
 from storage.devices import load_sensors_for_measurement
 from storage.measurements import list_measurements, load_measurement_whitelist, update_measurement
 
@@ -22,6 +22,7 @@ app = Flask(__name__)
 
 MODALITIES = {
     LogicalModality().name: LogicalModality(),
+    PhysicalModality().name: PhysicalModality(),
 }
 
 DEFAULT_ACTIVE_OFFSET_S = 300

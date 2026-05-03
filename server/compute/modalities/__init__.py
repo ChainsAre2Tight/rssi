@@ -1,1 +1,2 @@
 from compute.modalities.logical import LogicalModality
+from compute.modalities.physical import PhysicalModality
