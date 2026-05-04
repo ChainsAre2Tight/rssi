@@ -20,7 +20,7 @@ export default function MapView() {
     const measurementId = useAppStore(s => s.context.measurementId)
     const incidentId = useAppStore(s => s.selection.incidentId)
     const { cache, sensors } = useAppStore(s => s.localization)
-    const { setSensors } = useAppStore()
+    const setSensors = useAppStore((s) => s.setSensors)
 
     const localizationData = incidentId ? cache[incidentId] : null
 

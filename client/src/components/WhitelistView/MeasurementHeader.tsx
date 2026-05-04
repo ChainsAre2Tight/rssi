@@ -134,7 +134,7 @@ export function MeasurementHeader() {
                 setMessageDetectors("Error")
             }
         } catch (e) {
-            setMessageCSI((e as Error).message)
+            setMessageDetectors((e as Error).message)
         }
 
         setMode("idle")
@@ -186,7 +186,7 @@ export function MeasurementHeader() {
                 setMessageLocalizations("Error")
             }
         } catch (e) {
-            setMessageCSI((e as Error).message)
+            setMessageLocalizations((e as Error).message)
         }
 
         setMode("idle")

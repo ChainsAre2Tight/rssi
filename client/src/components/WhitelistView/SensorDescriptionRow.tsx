@@ -1,4 +1,5 @@
-import type { Sensor } from "../../services/localizationApi"
+import { fetchSensors, type Sensor } from "../../services/localizationApi"
+import { patchSensorDescription } from "../../services/sensorApi"
 import { useAppStore } from "../../store/useAppStore"
 import { IRail, TRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
@@ -22,6 +23,9 @@ export function SensorDescriptionRow({
     const setActiveForce = useAppStore(s => s.setWhitelistActiveForce)
     const setMode = useAppStore(s => s.setWhitelistMode)
     const clearUI = useAppStore(s => s.clearWhitelistUI)
+
+    const measurementId = useAppStore.getState().context.measurementId
+    const setSensors = useAppStore((s) => s.setSensors)
 
     const isEditing =
         mode === "editing" &&
@@ -47,10 +51,26 @@ export function SensorDescriptionRow({
         setMode("editing")
     }
 
-    function submit() {
+    async function submit() {
         if (!draft) return
+        
+        const value = draft.description.trim()
 
-        console.log("PATCH SENSOR DESCRIPTION", sensor.name, draft.description)
+        if (!value || value === sensor.description) {
+            clearUI()
+            return
+        }
+
+        const response = await patchSensorDescription({
+            measurementId: measurementId!,
+            device: sensor.name,
+            description: value,
+        })
+
+        if (response && response.status && response.status == "ok") {
+            const sensors = await fetchSensors(measurementId!)
+            setSensors(measurementId!, sensors)
+        }
 
         clearUI()
     }
@@ -90,6 +110,9 @@ export function SensorDescriptionRow({
                         onChange={e =>
                             setDraft({ ...draft!, description: e.target.value })
                         }
+                        onClick={(e) => {
+                            e.stopPropagation()
+                        }}
                     />
                 ) : (
                     <span title={sensor.description}>{sensor.description || "No description"}</span>

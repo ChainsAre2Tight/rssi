@@ -105,7 +105,8 @@ export function AddBSSIDRow({ ssid }: { ssid: string }) {
                 setActive({
                     type: "add-bssid",
                     ssid,
-                    bssid: null
+                    bssid: null,
+                    sensor: null,
                 })
 
                 setDraft("")

@@ -69,7 +69,8 @@ export function AddSSIDRow() {
                 setActive({
                     type: "add-ssid",
                     ssid: null,
-                    bssid: null
+                    bssid: null,
+                    sensor: null,
                 })
 
                 setDraft("")
