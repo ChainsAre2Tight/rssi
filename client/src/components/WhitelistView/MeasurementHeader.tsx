@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { deleteDetection } from "../../services/detectionApi"
+import { resetCSI, resetDetection } from "../../services/resetApi"
 import { patchMeasurement } from "../../services/measurements"
 import { useAppStore } from "../../store/useAppStore"
 import styles from "./WhitelistView.module.css"
@@ -32,8 +32,10 @@ export function MeasurementHeader() {
     const isDescEditing = isDescActive && mode === "editing"
     const isDescDisabled = isBlockingMode && !isDescActive
 
-    // DETECTOT RERUN
-    const [message, setMessage] = useState<string>("")
+    // reset buttons
+    const [messageDetectors, setMessageDetectors] = useState<string>("")
+    const [messageCSI, setMessageCSI] = useState<string>("")
+    const [messageLocalizations, setMessageLocalizations] = useState<string>("")
 
     function startEditName() {
         setActiveForce({ type: "measurement-name", ssid: null, bssid: null })
@@ -112,16 +114,28 @@ export function MeasurementHeader() {
         clearUI()
     }
 
-    const isConfirmDelete =
+    const isConfirmDeleteDetection =
         mode === "confirm-delete" &&
         active.type === "measurement-detection"
+    
+    const isConfirmDeleteCSI =
+        mode === "confirm-delete" &&
+        active.type === "measurement-csi"
+    
+    const isConfirmDeleteLocalization =
+        mode === "confirm-delete" &&
+        active.type === "measurement-localization"
 
     async function submitResetDetection() {
-        const response = await deleteDetection(measurement!.id)
-        if (response && response.status && response.status == "ok") {
-            setMessage("Detectors reset. Please wait and refetch the report")
-        } else {
-            setMessage("Error")
+        try {
+            const response = await resetDetection(measurement!.id)
+            if (response && response.status && response.status == "ok") {
+                setMessageDetectors("Detectors reset. Please wait and refetch the report")
+            } else {
+                setMessageDetectors("Error")
+            }
+        } catch (e) {
+            setMessageCSI((e as Error).message)
         }
 
         setMode("idle")
@@ -132,19 +146,63 @@ export function MeasurementHeader() {
     }
 
     useEffect(() => {
-        if (!message) return
-        const t = setTimeout(() => setMessage(""), 10_000)
+        if (!messageDetectors) return
+        const t = setTimeout(() => setMessageDetectors(""), 10_000)
         return () => clearTimeout(t)
-    }, [message])
+    }, [messageDetectors])
 
     useEffect(() => {
-        setMessage("")
+        setMessageDetectors("")
+        setMessageCSI("")
+        setMessageLocalizations("")
     }, [measurement.id])
+
+    async function submitResetCSI() {
+        try {
+            const response = await resetCSI(measurement!.id)
+            if (response && response.status && response.status == "ok") {
+                setMessageCSI("CSI reset. Please wait and refetch the report")
+            } else {
+                setMessageCSI("Error")
+            }
+        } catch (e) {
+            setMessageCSI((e as Error).message)
+        }
+
+        setMode("idle")
+    }
+
+    useEffect(() => {
+        if (!messageCSI) return
+        const t = setTimeout(() => setMessageCSI(""), 10_000)
+        return () => clearTimeout(t)
+    }, [messageCSI])
+
+    async function submitResetLocalizations() {
+        try {
+            const response = await resetDetection(measurement!.id)
+            if (response && response.status && response.status == "ok") {
+                setMessageLocalizations("Localizations reset. Please wait and refetch localization results")
+            } else {
+                setMessageLocalizations("Error")
+            }
+        } catch (e) {
+            setMessageCSI((e as Error).message)
+        }
+
+        setMode("idle")
+    }
+
+    useEffect(() => {
+        if (!messageDetectors) return
+        const t = setTimeout(() => setMessageLocalizations(""), 10_000)
+        return () => clearTimeout(t)
+    }, [messageLocalizations])
 
     return (
         <div
             className={styles.row}
-            data-selected={(isNameActive || isDescActive || isConfirmDelete) || undefined}
+            data-selected={(isNameActive || isDescActive || isConfirmDeleteDetection || isConfirmDeleteCSI || isConfirmDeleteLocalization) || undefined}
         >
             {/* NAME */}
             <div
@@ -251,7 +309,7 @@ export function MeasurementHeader() {
 
             {/* RIGHT SIDE */}
             <div className={styles.headerRight}>
-                {isConfirmDelete ? (
+                {isConfirmDeleteDetection ? (
                     <div className={styles.actions}>
                         <button
                             className={`${styles.btn} ${styles.btnDanger}`}
@@ -273,7 +331,7 @@ export function MeasurementHeader() {
                             ⟲
                         </button>
                     </div>
-                ) : message === "" ? (
+                ) : messageDetectors === "" ? (
                     <button
                         className={`${styles.btn} ${styles.btnDanger}`}
                         onClick={(e) => {
@@ -281,6 +339,7 @@ export function MeasurementHeader() {
                             setActiveForce({ type: "measurement-detection", ssid: null, bssid: null})
                             setMode("confirm-delete")
                         }}
+                        disabled={isConfirmDeleteCSI || isConfirmDeleteLocalization}
                     >
                         Rerun detectors
                     </button>) : (<button
@@ -290,7 +349,99 @@ export function MeasurementHeader() {
                         }}
                         disabled={true}
                     >
-                        {message}
+                        {messageDetectors}
+                    </button>)
+                }
+
+                <div className={styles.separator} />
+
+                {isConfirmDeleteCSI ? (
+                    <div className={styles.actions}>
+                        <button
+                            className={`${styles.btn} ${styles.btnDanger}`}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                cancelResetDetection()
+                            }}
+                        >
+                            ✕
+                        </button>
+
+                        <button
+                            className={`${styles.btn} ${styles.btnConfirm}`}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                submitResetCSI()
+                            }}
+                        >
+                            ⟲
+                        </button>
+                    </div>
+                ) : messageCSI === "" ? (
+                    <button
+                        className={`${styles.btn} ${styles.btnDanger}`}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveForce({ type: "measurement-csi", ssid: null, bssid: null})
+                            setMode("confirm-delete")
+                        }}
+                        disabled={isConfirmDeleteLocalization || isConfirmDeleteDetection}
+                    >
+                        Reset CSI
+                    </button>) : (<button
+                        className={styles.btn}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                        }}
+                        disabled={true}
+                    >
+                        {messageCSI}
+                    </button>)
+                }
+
+                <div className={styles.separator} />
+
+                {isConfirmDeleteLocalization ? (
+                    <div className={styles.actions}>
+                        <button
+                            className={`${styles.btn} ${styles.btnDanger}`}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                cancelResetDetection()
+                            }}
+                        >
+                            ✕
+                        </button>
+
+                        <button
+                            className={`${styles.btn} ${styles.btnConfirm}`}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                submitResetLocalizations()
+                            }}
+                        >
+                            ⟲
+                        </button>
+                    </div>
+                ) : messageLocalizations === "" ? (
+                    <button
+                        className={`${styles.btn} ${styles.btnDanger}`}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveForce({ type: "measurement-localization", ssid: null, bssid: null})
+                            setMode("confirm-delete")
+                        }}
+                        disabled={isConfirmDeleteCSI || isConfirmDeleteDetection}
+                    >
+                        Reset localization
+                    </button>) : (<button
+                        className={styles.btn}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                        }}
+                        disabled={true}
+                    >
+                        {messageLocalizations}
                     </button>)
                 }
             </div>

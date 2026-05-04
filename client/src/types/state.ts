@@ -9,6 +9,8 @@ type WhitelistUIType =
     | "measurement-name"
     | "measurement-description"
     | "measurement-detection"
+    | "measurement-csi"
+    | "measurement-localization"
     | null
 
 export interface AppState {

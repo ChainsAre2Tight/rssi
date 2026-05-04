@@ -139,6 +139,12 @@
     color: var(--color-text-secondary);
 }
 
+.btn:disabled {
+    opacity: 0.4;
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+}
+
 .btnDanger {
     border-color: var(--importance-critical);
     color: var(--importance-critical);
@@ -237,6 +243,8 @@
 
 .headerRight {
     margin-left: auto;
+    display: flex;
+    flex-direction: row;
 }
 
 /* DESCRIPTION (non-edit mode) */

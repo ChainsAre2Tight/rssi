@@ -309,7 +309,7 @@ def reset_csi_measurement(
             stage = NULL,
             status = "pending"
         WHERE
-            AND measurement_id = ?
+            measurement_id = ?
             AND layer = ?
     """, (
         measurement_id,
