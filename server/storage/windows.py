@@ -272,3 +272,23 @@ def reset_detection_for_measurement(
         measurement_id,
         my_types.OBSERVATION_WINDOWS.layer
     ))
+
+def reset_csi_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+    
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE windows
+        SET
+            stage = NULL,
+            status = "pending"
+        WHERE
+            AND measurement_id = ?
+            AND layer = ?
+    """, (
+        measurement_id,
+        my_types.AGGREGATION_WINDOWS.layer
+    ))

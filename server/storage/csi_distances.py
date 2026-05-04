@@ -102,3 +102,13 @@ def get_distances_by_bssid(
         )
         for r in rows
     ]
+
+def reset_distances_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+
+    conn.execute("""
+        DELETE FROM csi_fingerprint_distances
+        WHERE measurement_id = ?
+    """, (measurement_id,))

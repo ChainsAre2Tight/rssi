@@ -172,3 +172,13 @@ def reference_exists(conn, measurement_id: int, bssid: str) -> bool:
     ).fetchone()
 
     return row is not None
+
+def reset_fingerprints_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+
+    conn.execute("""
+        DELETE FROM csi_fingerprints
+        WHERE measurement_id = ?
+    """, (measurement_id,))

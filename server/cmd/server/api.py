@@ -10,11 +10,14 @@ from compute.whitelist import (
     rename_whitelist_ssid,
 )
 from storage.detection_signals import delete_signals_for_measurement
-from storage.windows import reset_detection_for_measurement
+from storage.windows import reset_detection_for_measurement, reset_csi_measurement
 import storage
 from compute.modalities import LogicalModality, PhysicalModality
 from storage.devices import load_sensors_for_measurement
 from storage.measurements import list_measurements, load_measurement_whitelist, update_measurement
+from storage.csi_fingerprints import reset_fingerprints_for_measurement
+from storage.csi_distances import reset_distances_for_measurement
+from storage.csi_signals import delete_csi_signals_for_measurement
 
 import my_types
 
@@ -426,6 +429,27 @@ def reset_detection():
             with storage.Transaction(conn) as t:
                 delete_signals_for_measurement(t, measurement_id)
                 reset_detection_for_measurement(t, measurement_id)
+
+        return jsonify({
+            "status": "ok",
+        })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
+
+@app.route("/api/v1/csi", methods=["DELETE"])
+def reset_csi_detection():
+    try:
+        measurement_id = parse_int_param("measurement_id")
+
+        with storage.Session() as conn:
+            with storage.Transaction(conn) as t:
+                reset_fingerprints_for_measurement(t, measurement_id)
+                reset_distances_for_measurement(t, measurement_id)
+                delete_csi_signals_for_measurement(t, measurement_id)
+                reset_csi_measurement(t, measurement_id)
 
         return jsonify({
             "status": "ok",
