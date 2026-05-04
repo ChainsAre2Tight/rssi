@@ -1,6 +1,6 @@
 ## 1 - сборка образа
 ```bash
-docker compose --profile frontend --profile api --profile ingestion --profile ntp --profile core --profile localization --profile dataset build
+docker compose --profile frontend --profile api --profile ingestion --profile ntp --profile core --profile localization
 ```
 ## 2 - запуск фронт+апи (локализация выключена)
 ```bash
@@ -12,9 +12,9 @@ docker compose --profile frontend --profile api --profile localization up --forc
 ```
 ## 4 - выключение
 ```bash
-docker compose --profile frontend --profile api --profile ingestion --profile ntp --profile core --profile localization --profile dataset down --remove-orphans
+docker compose --profile frontend --profile api --profile ingestion --profile ntp --profile core --profile localization down --remove-orphans
 ```
 ## запуск (все воркеры)
 ```bash
-docker compose --profile frontend --profile api --profile ingestion --profile ntp --profile core --profile localization --profile dataset up --force-recreate
+docker compose --profile frontend --profile api --profile ingestion --profile ntp --profile core --profile localization up --force-recreate
 ```
