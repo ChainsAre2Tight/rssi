@@ -40,9 +40,10 @@ class HiddenSSIDDetector:
             bssid = ctx.bssid_by_observation[obs_id]
             events = ctx.events_by_observation.get(obs_id, [])
 
-            metadata = json.dumps({
-                "event_count": len(events),
-            })
+            # metadata = json.dumps({
+            #     "event_count": len(events),
+            # })
+            metadata = json.dumps({})
 
             # persistent hidden SSID
             if len(events) >= PERSISTENCE_EVENT_THRESHOLD:

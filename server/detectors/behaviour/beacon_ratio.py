@@ -57,10 +57,12 @@ class BeaconRatioDetector:
             # Case 1: beacon-only AP
             if data_count == 0:
 
-                metadata = json.dumps({
-                    "beacon_count": beacon_count,
-                    "data_count": data_count,
-                })
+                # metadata = json.dumps({
+                #     "beacon_count": beacon_count,
+                #     "data_count": data_count,
+                # })
+
+                metadata = json.dumps({})
 
                 signals.append(
                     my_types.DetectionSignal(
@@ -81,11 +83,13 @@ class BeaconRatioDetector:
             # Case 2: suspicious ratio
             if ratio >= RATIO_THRESHOLD:
 
-                metadata = json.dumps({
-                    "beacon_count": beacon_count,
-                    "data_count": data_count,
-                    "ratio": ratio,
-                })
+                # metadata = json.dumps({
+                #     "beacon_count": beacon_count,
+                #     "data_count": data_count,
+                #     "ratio": ratio,
+                # })
+
+                metadata = json.dumps({})
 
                 signals.append(
                     my_types.DetectionSignal(

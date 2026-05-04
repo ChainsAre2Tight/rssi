@@ -47,7 +47,8 @@ def CSIDetector(
     euclidean_spec = DETECTORS.csi_detector.signals.euclidean_distance # pyright: ignore[reportAttributeAccessIssue]
     cosine_spec = DETECTORS.csi_detector.signals.cosine_distance # pyright: ignore[reportAttributeAccessIssue]
 
-    metadata = json.dumps({"TODO": "add metadata"})
+    # metadata = json.dumps({"TODO": "add metadata"})
+    metadata = json.dumps({})
     
     euclidean = my_types.CSISignal(
         measurement_id=distance.measurement_id,
