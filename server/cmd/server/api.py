@@ -9,6 +9,10 @@ from compute.whitelist import (
     remove_whitelist_entry,
     rename_whitelist_ssid,
 )
+from storage.positions import (
+    update_device_description,
+    update_device_position,
+)
 from storage.detection_signals import delete_signals_for_measurement
 from storage.windows import (
     reset_detection_for_measurement,
@@ -363,6 +367,50 @@ def sensors():
             "measurement_id": measurement_id,
             "sensors": sensors,
         })
+
+    except ValueError as e:
+        return api_error(str(e))
+    except Exception as e:
+        return api_error(str(e), 500)
+
+@app.route("/api/v1/sensors", methods=["PATCH"])
+def patch_sensors():
+    try:
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
+        sensor: str = parse_str_param("device") # type: ignore
+        description: str = parse_str_param("description", required=False) # type: ignore
+        x: int = parse_int_param("x", required=False) # type: ignore
+        y: int = parse_int_param("y", required=False) # type: ignore
+        z: int = parse_int_param("z", required=False) # type: ignore
+
+        res = {}
+
+        with storage.Session() as conn:
+            with storage.Transaction(conn) as t:
+                if description is not None:
+                    update_device_description(
+                        t,
+                        measurement_id,
+                        sensor,
+                        description,
+                    )
+                    res["updated_description"] = True
+
+                if x is not None and y is not None and z is not None:
+                    update_device_position(
+                        t,
+                        measurement_id,
+                        sensor,
+                        x, y, z,
+                    )
+                    res["updated_positions"] = True
+            
+        if len(res.keys()) > 0:
+            res["status"] = "ok"
+        else:
+            res["status"] = "noop"
+        
+        return jsonify(res)
 
     except ValueError as e:
         return api_error(str(e))

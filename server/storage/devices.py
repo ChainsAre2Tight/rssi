@@ -48,7 +48,7 @@ def load_sensors_for_measurement(
         SELECT
             d.name,
             d.mac,
-            d.description,
+            p.description,
             p.x,
             p.y,
             p.z
