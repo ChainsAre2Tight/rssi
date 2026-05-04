@@ -1,5 +1,5 @@
 import time
-from typing import Dict
+from typing import Dict, List
 
 import sqlite3
 from flask import Flask, request, jsonify
@@ -29,7 +29,7 @@ import my_types
 
 app = Flask(__name__)
 
-MODALITIES = {
+MODALITIES: dict[str, my_types.Modality] = {
     LogicalModality().name: LogicalModality(),
     PhysicalModality().name: PhysicalModality(),
 }
@@ -41,7 +41,7 @@ def api_error(message: str, code: int = 400):
     return jsonify({"error": "invalid_request", "message": message}), code
 
 
-def parse_int_param(name: str, required: bool = True):
+def parse_int_param(name: str, required: bool = True) -> None | int:
     value = request.args.get(name)
     if value is None:
         if required:
@@ -61,7 +61,7 @@ def parse_str_param(name: str, required: bool = True) -> str | None:
     return value.strip()
 
 
-def resolve_modalities(param: str | None):
+def resolve_modalities(param: str | None) -> list[my_types.Modality]:
     if not param:
         return list(MODALITIES.values())
 
@@ -92,7 +92,7 @@ def generate_report(
     measurement_id: int,
     start_time_us: int,
     end_time_us: int,
-    modalities: Dict[str, my_types.Modality]
+    modalities: List[my_types.Modality]
 ) -> Dict:
     result = {}
 
@@ -118,9 +118,9 @@ def generate_report(
 @app.route("/api/v1/reports", methods=["GET"])
 def reports():
     try:
-        measurement_id = parse_int_param("measurement_id")
-        start_time_us = parse_int_param("start_time_us")
-        end_time_us = parse_int_param("end_time_us")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
+        start_time_us: int = parse_int_param("start_time_us") # type: ignore
+        end_time_us: int = parse_int_param("end_time_us") # type: ignore
 
         if start_time_us >= end_time_us:
             return api_error("start_time_us must be less than end_time_us")
@@ -144,7 +144,7 @@ def reports():
 @app.route("/api/v1/active", methods=["GET"])
 def active():
     try:
-        measurement_id = parse_int_param("measurement_id")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
         offset_s = parse_int_param("offset_s", required=False)
 
         if offset_s is None:
@@ -173,7 +173,7 @@ def active():
 @app.route("/api/v1/whitelist", methods=["GET"])
 def whitelist():
     try:
-        measurement_id = parse_int_param("measurement_id")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
 
         with storage.Session() as conn:
             whitelist = load_measurement_whitelist(conn, measurement_id)
@@ -192,8 +192,8 @@ def whitelist():
 @app.route("/api/v1/whitelist", methods=["POST"])
 def whitelist_add():
     try:
-        measurement_id = parse_int_param("measurement_id")
-        ssid = parse_str_param("ssid")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
+        ssid: str = parse_str_param("ssid") # type: ignore
         bssid = parse_str_param("bssid", required=False)
 
         with storage.Session() as conn:
@@ -218,8 +218,8 @@ def whitelist_add():
 @app.route("/api/v1/whitelist", methods=["DELETE"])
 def whitelist_remove():
     try:
-        measurement_id = parse_int_param("measurement_id")
-        ssid = parse_str_param("ssid")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
+        ssid: str = parse_str_param("ssid") # type: ignore
         bssid = parse_str_param("bssid", required=False)
 
         remove_empty_ssid = request.args.get("remove_empty_ssid", "true").lower() == "true"
@@ -247,9 +247,9 @@ def whitelist_remove():
 @app.route("/api/v1/whitelist", methods=["PATCH"])
 def whitelist_rename():
     try:
-        measurement_id = parse_int_param("measurement_id")
-        ssid = parse_str_param("ssid")
-        new_ssid = parse_str_param("new_ssid")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
+        ssid: str = parse_str_param("ssid") # type: ignore
+        new_ssid: str = parse_str_param("new_ssid") # type: ignore
 
         with storage.Session() as conn:
             changed, action = rename_whitelist_ssid(
@@ -273,10 +273,10 @@ def whitelist_rename():
 @app.route("/api/v1/localize", methods=["POST"])
 def localize():
     try:
-        measurement_id = parse_int_param("measurement_id")
-        start_time_us = parse_int_param("start_time_us")
-        end_time_us = parse_int_param("end_time_us")
-        bssid = parse_str_param("bssid")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
+        start_time_us: int = parse_int_param("start_time_us") # type: ignore
+        end_time_us: int = parse_int_param("end_time_us") # type: ignore
+        bssid: str = parse_str_param("bssid") # type: ignore
 
         if start_time_us >= end_time_us:
             return api_error("start_time_us must be less than end_time_us")
@@ -302,10 +302,10 @@ def localize():
 @app.route("/api/v1/localizations", methods=["GET"])
 def localizations():
     try:
-        measurement_id = parse_int_param("measurement_id")
-        start_time_us = parse_int_param("start_time_us")
-        end_time_us = parse_int_param("end_time_us")
-        bssid = parse_str_param("bssid")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
+        start_time_us:int = parse_int_param("start_time_us") # type: ignore
+        end_time_us:int = parse_int_param("end_time_us") # type: ignore
+        bssid: str = parse_str_param("bssid") # type: ignore
 
         if start_time_us >= end_time_us:
             return api_error("start_time_us must be less than end_time_us")
@@ -328,9 +328,9 @@ def localizations():
         return api_error(str(e))
 
 @app.route("/api/v1/localizations", methods=["DELETE"])
-def reset_csi_detection():
+def reset_localizations():
     try:
-        measurement_id = parse_int_param("measurement_id")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
 
         with storage.Session() as conn:
             with storage.Transaction(conn) as t:
@@ -351,7 +351,7 @@ def reset_csi_detection():
 @app.route("/api/v1/sensors", methods=["GET"])
 def sensors():
     try:
-        measurement_id = parse_int_param("measurement_id")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
 
         with storage.Session() as conn:
             sensors = load_sensors_for_measurement(
@@ -407,7 +407,7 @@ def validate_measurement_description(description: str | None) -> str | None:
 @app.route("/api/v1/measurements", methods=["PATCH"])
 def update_measurement_api():
     try:
-        measurement_id = parse_int_param("measurement_id")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
 
         name = parse_str_param("name", required=False)
         description = parse_str_param("description", required=False)
@@ -449,7 +449,7 @@ def update_measurement_api():
 @app.route("/api/v1/detection", methods=["DELETE"])
 def reset_detection():
     try:
-        measurement_id = parse_int_param("measurement_id")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
 
         with storage.Session() as conn:
             with storage.Transaction(conn) as t:
@@ -468,7 +468,7 @@ def reset_detection():
 @app.route("/api/v1/csi", methods=["DELETE"])
 def reset_csi_detection():
     try:
-        measurement_id = parse_int_param("measurement_id")
+        measurement_id: int = parse_int_param("measurement_id") # type: ignore
 
         with storage.Session() as conn:
             with storage.Transaction(conn) as t:

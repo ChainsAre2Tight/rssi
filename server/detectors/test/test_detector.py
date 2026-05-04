@@ -29,8 +29,8 @@ class TestDetector:
                             bssid=bssid,
                             ssid=ssid,
                             detector=DETECTORS.test.name,
-                            signal=DETECTORS.test.signals.test_signal.name,
-                            importance=DETECTORS.test.signals.test_signal.importance,
+                            signal=DETECTORS.test.signals.test_signal.name, # pyright: ignore[reportAttributeAccessIssue]
+                            importance=DETECTORS.test.signals.test_signal.importance, # pyright: ignore[reportAttributeAccessIssue]
                             metadata_json=json.dumps(
                                 {"test": "test123321"}
                             ),
@@ -45,8 +45,8 @@ class TestDetector:
                             bssid=bssid,
                             ssid=ssid,
                             detector=DETECTORS.test.name,
-                            signal=DETECTORS.test.signals.test_signal.name,
-                            importance=DETECTORS.test.signals.test_signal.importance,
+                            signal=DETECTORS.test.signals.test_signal.name, # pyright: ignore[reportAttributeAccessIssue]
+                            importance=DETECTORS.test.signals.test_signal.importance, # pyright: ignore[reportAttributeAccessIssue]
                             metadata_json=json.dumps(
                                 {"test": "mooooooooooooo"}
                             ),

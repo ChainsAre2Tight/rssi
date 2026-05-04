@@ -21,8 +21,8 @@ class HiddenSSIDDetector:
         signals: List[my_types.DetectionSignal] = []
 
         detector_name = DETECTORS.hidden_ssid.name
-        hidden_spec = DETECTORS.hidden_ssid.signals.hidden_ssid
-        persistent_spec = DETECTORS.hidden_ssid.signals.persistent_hidden_ssid
+        hidden_spec = DETECTORS.hidden_ssid.signals.hidden_ssid # pyright: ignore[reportAttributeAccessIssue]
+        persistent_spec = DETECTORS.hidden_ssid.signals.persistent_hidden_ssid # pyright: ignore[reportAttributeAccessIssue]
 
         for obs_id in ctx.observation_ids:
 

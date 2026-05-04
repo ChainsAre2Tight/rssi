@@ -3,7 +3,7 @@ from abc import ABC
 import numpy as np
 
 class ScalerInterface(ABC):
-    def transform(self, x: np.ndarray) -> np.ndarray:
+    def transform(self, x: np.ndarray) -> np.ndarray: # type: ignore
         pass
 
 class IdentityScaler(ScalerInterface):

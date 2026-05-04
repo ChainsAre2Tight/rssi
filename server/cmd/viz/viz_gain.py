@@ -26,7 +26,7 @@ def plot_devices_with_gain(model, scale_gain=0.1, base_position=(0, 0, 0)):
     # рисуем устройства
     for dev in devices:
         pos = np.array(model["GainModels"][dev].positions) if hasattr(model["GainModels"][dev], "positions") else np.zeros(3)
-        ax.scatter(*pos, color='red', s=80)
+        ax.scatter(*pos, color='red', s=80) # type: ignore
         ax.text(pos[0], pos[1], pos[2],
                 f"{dev}\nPt={Pt_dict[dev]:.1f} dB",
                 color='black')
@@ -48,7 +48,7 @@ def plot_devices_with_gain(model, scale_gain=0.1, base_position=(0, 0, 0)):
             vec_scaled = vec / np.linalg.norm(vec) * G_lin * scale_gain
             ax.quiver(pos_i[0], pos_i[1], pos_i[2],
                       vec[0], vec[1], vec[2],
-                      length=np.linalg.norm(vec_scaled), normalize=True, color='blue')
+                      length=np.linalg.norm(vec_scaled), normalize=True, color='blue') # type: ignore
             # mid = pos_i + 0.5 * vec * scale_gain
             mid = pos_i + 0.5 * vec_scaled
             ax.text(mid[0], mid[1], mid[2], f"{gain_val:.1f} dB", color='blue')
@@ -59,7 +59,7 @@ def plot_devices_with_gain(model, scale_gain=0.1, base_position=(0, 0, 0)):
         vec_scaled = vec / np.linalg.norm(vec) * G_lin * scale_gain
         ax.quiver(pos_i[0], pos_i[1], pos_i[2],
                     vec[0], vec[1], vec[2],
-                    length=np.linalg.norm(vec_scaled), normalize=True, color='green')
+                    length=np.linalg.norm(vec_scaled), normalize=True, color='green') # type: ignore
         # mid = pos_i + 0.5 * vec * scale_gain
         mid = pos_i + 0.5 * vec_scaled
         ax.text(mid[0], mid[1], mid[2], f"{gain_val:.1f} dB", color='green')

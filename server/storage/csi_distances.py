@@ -37,7 +37,7 @@ def insert_fingerprint_distance(
         ),
     )
 
-    return cur.lastrowid
+    return cur.lastrowid if cur.lastrowid else -1
 
 def get_distances_by_window(
     conn: sqlite3.Connection,

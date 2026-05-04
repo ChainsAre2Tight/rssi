@@ -19,7 +19,7 @@ class BSSIDWhitelistDetector:
         if not whitelist:
             return signals
 
-        spec = DETECTORS.bssid_whitelist.signals.unauthorized_bssid
+        spec = DETECTORS.bssid_whitelist.signals.unauthorized_bssid # pyright: ignore[reportAttributeAccessIssue]
         detector_name = DETECTORS.bssid_whitelist.name
 
         for obs_id in ctx.observation_ids:

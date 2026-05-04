@@ -73,7 +73,7 @@ for index in range(len(points)):
     distance = np.linalg.norm(base_position - point)
     gain = int(optimize_gain(-55, distance, rssi))
     print(index+1, gain)
-    rssi_values[index] += gain
+    rssi_values[index] += gain # type: ignore
     
 
 # ---------- 3. Функции ----------
@@ -83,7 +83,7 @@ def compute_radii(P0):
 
 def compute_radius(pt):
     """Рассчитывает радиусы по формуле из RSSI"""
-    return np.array([10 ** ((pt - np.mean(arr)) / (10 * n)) for arr in rssi_values])
+    return np.array([10 ** ((pt - np.mean(arr)) / (10 * n)) for arr in rssi_values]) # type: ignore
 
 # def trilaterate(P0):
     е
@@ -169,7 +169,7 @@ for (x, y, z), r, name in zip(points, radii_mean, names):
     ax.text(x, y, z, name, color='k', fontsize=9, ha='center', va='bottom')
 
 # Точки трилатерации
-ax.scatter(positions[:,0], positions[:,1], positions[:,2], color='g', s=40, label='Трилатерация')
+ax.scatter(positions[:,0], positions[:,1], positions[:,2], color='g', s=40, label='Трилатерация') # type: ignore
 
 # Прямая
 t = np.linspace(-20, 20, 100)
@@ -181,8 +181,8 @@ if intersection_points:
     p_in, p_out = intersection_points
     ax.scatter(*p_in, color='m', s=80, label='Пересечение (вход)')
     ax.scatter(*p_out, color='c', s=80, label='Пересечение (выход)')
-    ax.text(*p_in, "IN", color='m', fontsize=9, ha='right')
-    ax.text(*p_out, "OUT", color='c', fontsize=9, ha='left')
+    ax.text(*p_in, "IN", color='m', fontsize=9, ha='right') # type: ignore
+    ax.text(*p_out, "OUT", color='c', fontsize=9, ha='left') # type: ignore
 
 # Настройки осей и куба
 ax.set_xlim(bounds[0])

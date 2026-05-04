@@ -59,7 +59,7 @@ def insert_csi_fingerprint(
         ),
     )
 
-    return cur.lastrowid
+    return cur.lastrowid if cur.lastrowid else -1
 
 def get_reference_fingerprint(
     conn: sqlite3.Connection,

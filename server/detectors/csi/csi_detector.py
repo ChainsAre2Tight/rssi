@@ -44,8 +44,8 @@ def CSIDetector(
 ) -> List[my_types.CSISignal]:
 
     detector_name = DETECTORS.csi_detector.name
-    euclidean_spec = DETECTORS.csi_detector.signals.euclidean_distance
-    cosine_spec = DETECTORS.csi_detector.signals.cosine_distance
+    euclidean_spec = DETECTORS.csi_detector.signals.euclidean_distance # pyright: ignore[reportAttributeAccessIssue]
+    cosine_spec = DETECTORS.csi_detector.signals.cosine_distance # pyright: ignore[reportAttributeAccessIssue]
 
     metadata = json.dumps({"TODO": "add metadata"})
     
@@ -58,7 +58,7 @@ def CSIDetector(
         importance=rank_csi_importance_euclidean(
             euclidean=distance.euclidean_dist,
         ),
-        metadata_json=metadata,
+        metadata_json=str(metadata),
     )
     
     cosine = my_types.CSISignal(

@@ -19,7 +19,7 @@ class AuthorizedAPWrongSSIDDetector:
         if not whitelist:
             return signals
 
-        spec = DETECTORS.authorized_ap_wrong_ssid.signals.wrong_ssid
+        spec = DETECTORS.authorized_ap_wrong_ssid.signals.wrong_ssid # pyright: ignore[reportAttributeAccessIssue]
         detector_name = DETECTORS.authorized_ap_wrong_ssid.name
 
         # build reverse whitelist: bssid -> allowed ssids

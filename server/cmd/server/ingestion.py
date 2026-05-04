@@ -10,7 +10,7 @@ import my_types
 
 app = Flask(config.NAME)
 
-@app.errorhandler(Exception)
+@app.errorhandler(Exception) # type: ignore
 def handle_uncaught_exception(e):
     raw_data = request.get_data(as_text=True)
 

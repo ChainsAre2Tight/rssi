@@ -24,8 +24,8 @@ class BeaconRatioDetector:
         signals: t.List[my_types.DetectionSignal] = []
 
         detector_name = DETECTORS.beacon_ratio.name
-        beacon_only_spec = DETECTORS.beacon_ratio.signals.beacon_only_ap
-        high_ratio_spec = DETECTORS.beacon_ratio.signals.high_beacon_ratio
+        beacon_only_spec = DETECTORS.beacon_ratio.signals.beacon_only_ap # pyright: ignore[reportAttributeAccessIssue]
+        high_ratio_spec = DETECTORS.beacon_ratio.signals.high_beacon_ratio # pyright: ignore[reportAttributeAccessIssue]
 
         for obs_id in ctx.observation_ids:
 

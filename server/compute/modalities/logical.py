@@ -141,7 +141,7 @@ class LogicalModality(my_types.Modality):
         groups: dict[tuple[str, str, str, str], list[my_types.LogicalSignal]] = {}
 
         for s in signals:
-            key = (s.detector, s.signal, s.importance, s.metadata_json)
+            key = (s.detector, s.signal, s.importance, str(s.metadata_json))
             groups.setdefault(key, []).append(s)
 
         warnings: list[my_types.LogicalWarning] = []

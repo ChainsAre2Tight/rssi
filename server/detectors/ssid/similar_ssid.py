@@ -55,8 +55,8 @@ class SSIDSimilarityDetector:
         whitelist_ssids = list(whitelist.keys())
 
         detector_name = DETECTORS.ssid_similarity.name
-        similar_spec = DETECTORS.ssid_similarity.signals.similar_ssid
-        typo_spec = DETECTORS.ssid_similarity.signals.typosquat_ssid
+        similar_spec = DETECTORS.ssid_similarity.signals.similar_ssid # pyright: ignore[reportAttributeAccessIssue]
+        typo_spec = DETECTORS.ssid_similarity.signals.typosquat_ssid # pyright: ignore[reportAttributeAccessIssue]
 
         for obs_id in ctx.observation_ids:
 

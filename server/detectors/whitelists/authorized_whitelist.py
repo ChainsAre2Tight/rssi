@@ -19,7 +19,7 @@ class AuthorizedWhitelistDetector:
         if not whitelist:
             return signals
 
-        spec = DETECTORS.authorized_whitelist.signals.authorized_ap
+        spec = DETECTORS.authorized_whitelist.signals.authorized_ap # pyright: ignore[reportAttributeAccessIssue]
         detector_name = DETECTORS.authorized_whitelist.name
 
         for obs_id in ctx.observation_ids:

@@ -157,7 +157,7 @@ class GainIDW:
         W = 1.0 / np.maximum(D, self.eps) ** self.power
         W /= np.sum(W, axis=1, keepdims=True)  # нормализация
 
-        return self.G0 + W @ (self.gains - self.G0)
+        return self.G0 + W @ (self.gains - self.G0) # type: ignore
 
     def gain(self, direction_vec):
         """Возвращает усиление в направлении (x,y,z)"""

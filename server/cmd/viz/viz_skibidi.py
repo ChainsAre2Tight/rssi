@@ -159,7 +159,7 @@ class RSSILocalizer:
         res = least_squares(
             fun,
             x0=params0,
-            jac=jac,
+            jac=jac, # type: ignore
             bounds=(lower_bounds, upper_bounds),
             ftol=self.config.tol,
             xtol=self.config.tol,
@@ -236,7 +236,7 @@ def plot_rssi_localization(positions: dict, result: dict, true_pos: tuple[float,
     ax.set_title(title, fontsize=12)
 
     # --- Датчики (красные)
-    ax.scatter(pos_array[:, 0], pos_array[:, 1], pos_array[:, 2],
+    ax.scatter(pos_array[:, 0], pos_array[:, 1], pos_array[:, 2], # type: ignore
                color='red', s=50, label='Devices')
 
     # Подписи устройств
@@ -255,7 +255,7 @@ def plot_rssi_localization(positions: dict, result: dict, true_pos: tuple[float,
     ax.quiver(
         *true_pos,
         *vec,
-        length=np.linalg.norm(vec),
+        length=np.linalg.norm(vec), # type: ignore
         normalize=True,
         color='orange'
     )
@@ -268,7 +268,7 @@ def plot_rssi_localization(positions: dict, result: dict, true_pos: tuple[float,
                color='green', s=80, label='Estimated Source', edgecolor='black')
 
     # Реальная позиция
-    ax.scatter(*true_pos, color="yellow", s=50, label="True pos")
+    ax.scatter(*true_pos, color="yellow", s=50, label="True pos") # type: ignore
 
     
     # Настройки осей

@@ -6,10 +6,10 @@ test = 3
 
 
 for device in storage.packets.index_devices_by_ssid(test, "dmitry-moosetop"):
-    a = storage.packets.index_rssi(test, device[0], "dmitry-moosetop")
-    rssi = np.array(a) + device[1]
+    a = storage.packets.index_rssi(test, device[0], "dmitry-moosetop") # type: ignore
+    rssi = np.array(a) + device[1] # type: ignore
     # print(rssi)
-    print(device[0])
+    print(device[0]) # type: ignore
     print("Mean:\t", np.mean(rssi))
     print("Avg:\t", np.average(rssi))
     print("Var:\t:", np.var(rssi))

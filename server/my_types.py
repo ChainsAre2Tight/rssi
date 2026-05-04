@@ -188,8 +188,8 @@ class Modality(ABC):
         self,
         conn: sqlite3.Connection,
         measurement_id: int,
-        start_time: int,
-        end_time: int,
+        start_time_us: int,
+        end_time_us: int,
     ) -> t.List[Incident]:
         pass
 
@@ -200,6 +200,7 @@ class Modality(ABC):
         measurement_id: int,
         start_time_us: int,
         end_time_us: int,
+        bssid: str,
     ) -> dict:
         pass
 
@@ -210,6 +211,7 @@ class Modality(ABC):
         measurement_id: int,
         start_time_us: int,
         end_time_us: int,
+        bssid: str,
     ) -> dict:
         pass
 
@@ -347,7 +349,7 @@ class CSISignal:
     signal: str
     importance: str
 
-    metadata_json: t.Optional[dict]
+    metadata_json: t.Optional[str]
 
 @dataclass(slots=True)
 class PhysicalSignal:

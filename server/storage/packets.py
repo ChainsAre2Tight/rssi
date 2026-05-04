@@ -279,7 +279,7 @@ def index_devices_by_ssid(
                 "name": row[0],
                 "description": row[1],
                 "mac": row[2],
-            } for row in rows]
+            } for row in rows] # type: ignore
         return []
 
 def index_other_devices_by_device(
@@ -308,7 +308,7 @@ def index_other_devices_by_device(
                 "name": row[0],
                 "description": row[1],
                 "mac": row[2],
-            } for row in rows]
+            } for row in rows] # type: ignore
         return []
 
 def index_rssi_by_device_and_mac(

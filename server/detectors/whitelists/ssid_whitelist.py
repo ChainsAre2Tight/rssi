@@ -34,8 +34,8 @@ class SSIDWhitelistDetector:
                         bssid=bssid,
                         ssid=ssid,
                         detector=DETECTORS.ssid_whitelist.name,
-                        signal=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.name,
-                        importance=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.importance,
+                        signal=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.name, # pyright: ignore[reportAttributeAccessIssue]
+                        importance=DETECTORS.ssid_whitelist.signals.unauthorized_ssid.importance, # pyright: ignore[reportAttributeAccessIssue]
                         metadata_json=json.dumps({
                             "ssid": ssid
                         }),
