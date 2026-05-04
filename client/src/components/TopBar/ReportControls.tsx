@@ -3,6 +3,7 @@ import { useAppStore } from "../../store/useAppStore"
 import { loadReport } from "../../features/report/loadReport"
 import styles from "./TopBar.module.css"
 import { loadWhitelist } from "../../features/whitelist/loadWhitelist"
+import { fetchSensors } from "../../services/localizationApi"
 
 function nowUs() {
     return Date.now() * 1000
@@ -23,6 +24,7 @@ export default function ReportControls() {
     const setReport = useAppStore((s) => s.setReport)
     const setReportLoading = useAppStore((s) => s.setReportLoading)
     const setWhitelist = useAppStore((s) => s.setWhitelist)
+    const setSensors = useAppStore((s) => s.setSensors)
 
     const [start, setStart] = useState("")
     const [end, setEnd] = useState("")
@@ -91,6 +93,9 @@ export default function ReportControls() {
 
             const whitelist = await loadWhitelist(measurementId)
             setWhitelist(measurementId, whitelist)
+
+            const sensors = await fetchSensors(measurementId!)
+            setSensors(measurementId!, sensors)
 
         } finally {
             setReportLoading(false)

@@ -2,6 +2,7 @@ import { useAppStore } from "../../store/useAppStore"
 import { loadReport } from "../../features/report/loadReport"
 import styles from "./TopBar.module.css"
 import { loadWhitelist } from "../../features/whitelist/loadWhitelist"
+import { fetchSensors } from "../../services/localizationApi"
 
 export default function ActiveControls() {
 
@@ -12,6 +13,7 @@ export default function ActiveControls() {
     const setReport = useAppStore(s => s.setReport)
     const setLoading = useAppStore(s => s.setReportLoading)
     const setWhitelist = useAppStore((s) => s.setWhitelist)
+    const setSensors = useAppStore((s) => s.setSensors)
 
     async function handleLoad() {
         if (measurementId === null) return
@@ -32,6 +34,9 @@ export default function ActiveControls() {
 
             const whitelist = await loadWhitelist(measurementId)
             setWhitelist(measurementId, whitelist)
+
+            const sensors = await fetchSensors(measurementId!)
+            setSensors(measurementId!, sensors)
 
         } finally {
             setLoading(false)

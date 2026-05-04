@@ -66,7 +66,7 @@ export default function WhitelistView() {
                 <VerticalResizer onDrag={resize} />
 
                 <div className={styles.sensorEditor}>
-                    {sensors ? sensors.map(sensor => (
+                    {sensors && sensors.length > 0 ? sensors.map(sensor => (
                         <SensorBlock
                             key={sensor.name}
                             sensor={sensor}

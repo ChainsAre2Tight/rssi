@@ -56,6 +56,17 @@ def parse_int_param(name: str, required: bool = True) -> None | int:
     except ValueError:
         raise ValueError(f"invalid integer parameter: {name}")
 
+def parse_float_param(name: str, required: bool = True) -> None | float:
+    value = request.args.get(name)
+    if value is None:
+        if required:
+            raise ValueError(f"missing parameter: {name}")
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        raise ValueError(f"invalid float parameter: {name}")
+
 def parse_str_param(name: str, required: bool = True) -> str | None:
     value = request.args.get(name)
     if value is None or value.strip() == "":
@@ -379,9 +390,9 @@ def patch_sensors():
         measurement_id: int = parse_int_param("measurement_id") # type: ignore
         sensor: str = parse_str_param("device") # type: ignore
         description: str = parse_str_param("description", required=False) # type: ignore
-        x: int = parse_int_param("x", required=False) # type: ignore
-        y: int = parse_int_param("y", required=False) # type: ignore
-        z: int = parse_int_param("z", required=False) # type: ignore
+        x: int = parse_float_param("x", required=False) # type: ignore
+        y: int = parse_float_param("y", required=False) # type: ignore
+        z: int = parse_float_param("z", required=False) # type: ignore
 
         res = {}
 

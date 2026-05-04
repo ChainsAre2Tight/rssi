@@ -1,4 +1,5 @@
-import type { Sensor } from "../../services/localizationApi"
+import { fetchSensors, type Sensor } from "../../services/localizationApi"
+import { patchSensorPosition } from "../../services/sensorApi"
 import { useAppStore } from "../../store/useAppStore"
 import { IRail, LRail } from "./Rail"
 import styles from "./WhitelistView.module.css"
@@ -23,6 +24,9 @@ export function SensorPositionRow({
     const setMode = useAppStore(s => s.setWhitelistMode)
     const clearUI = useAppStore(s => s.clearWhitelistUI)
 
+    const measurementId = useAppStore.getState().context.measurementId
+    const setSensors = useAppStore((s) => s.setSensors)
+
     const isEditing =
         mode === "editing" &&
         active.type === "sensor-pos" &&
@@ -46,10 +50,32 @@ export function SensorPositionRow({
         setMode("editing")
     }
 
-    function submit() {
+    async function submit() {
         if (!draft) return
+        
+        const valueX = parseFloat(draft.x.trim())
+        const valueY = parseFloat(draft.y.trim())
+        const valueZ = parseFloat(draft.z.trim())
 
-        console.log("PATCH SENSOR POSITION", sensor.name, draft)
+        if (!valueX || !valueY || !valueZ || (
+            valueX === sensor.x && valueY === sensor.y && valueZ === sensor.z
+        )) {
+            clearUI()
+            return
+        }
+
+        const response = await patchSensorPosition({
+            measurementId: measurementId!,
+            device: sensor.name,
+            x: valueX,
+            y: valueY,
+            z: valueZ,
+        })
+
+        if (response && response.status && response.status == "ok") {
+            const sensors = await fetchSensors(measurementId!)
+            setSensors(measurementId!, sensors)
+        }
 
         clearUI()
     }
@@ -86,14 +112,17 @@ export function SensorPositionRow({
                     <input className={`${styles.input} ${styles.inputShort}`}
                         value={draft!.x}
                         onChange={e => setDraft({ ...draft!, x: e.target.value })}
+                        onClick={(e) => {e.stopPropagation()}}
                     />
                     <input className={`${styles.input} ${styles.inputShort}`}
                         value={draft!.y}
                         onChange={e => setDraft({ ...draft!, y: e.target.value })}
+                        onClick={(e) => {e.stopPropagation()}}
                     />
                     <input className={`${styles.input} ${styles.inputShort}`}
                         value={draft!.z}
                         onChange={e => setDraft({ ...draft!, z: e.target.value })}
+                        onClick={(e) => {e.stopPropagation()}}
                     />
                 </>
             ) : (
