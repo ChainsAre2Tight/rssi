@@ -5,6 +5,8 @@ type WhitelistUIType =
     | "ssid"
     | "bssid"
     | "sensor"
+    | "sensor-desc"
+    | "sensor-pos"
     | "add-ssid"
     | "add-bssid"
     | "measurement-name"

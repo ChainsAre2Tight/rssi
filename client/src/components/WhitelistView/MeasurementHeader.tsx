@@ -72,7 +72,6 @@ export function MeasurementHeader() {
             })
 
             if ("measurement" in res) {
-                console.log(123, res.measurement)
                 useAppStore.getState().updateMeasurement(res.measurement)
             }
 

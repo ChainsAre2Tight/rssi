@@ -4,7 +4,7 @@ import { AddBSSIDRow } from "./AddBSSIDRow"
 import { AddSSIDRow } from "./AddSSIDRow"
 import { BSSIDRow } from "./BSSIDRow"
 import { MeasurementHeader } from "./MeasurementHeader"
-import { SensorRow } from "./SensorRow"
+import { SensorBlock } from "./SensorBlock"
 import { SSIDRow } from "./SSIDRow"
 import styles from "./WhitelistView.module.css"
 
@@ -67,7 +67,7 @@ export default function WhitelistView() {
 
                 <div className={styles.sensorEditor}>
                     {sensors ? sensors.map(sensor => (
-                        <SensorRow
+                        <SensorBlock
                             key={sensor.name}
                             sensor={sensor}
                         />

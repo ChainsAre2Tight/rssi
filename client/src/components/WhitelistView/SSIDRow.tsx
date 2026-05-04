@@ -166,7 +166,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                         }}
                     />
                 ) : (
-                    <span title={ssid}>{ssid}</span>
+                    <strong title={ssid}>{ssid}</strong>
                 )}
             </div>
 

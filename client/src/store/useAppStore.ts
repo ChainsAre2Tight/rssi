@@ -425,7 +425,8 @@ persist(
             const isSame =
                 state.whitelistUI.active.type === payload.type &&
                 state.whitelistUI.active.ssid === payload.ssid &&
-                state.whitelistUI.active.bssid === payload.bssid
+                state.whitelistUI.active.bssid === payload.bssid &&
+                state.whitelistUI.active.sensor === payload.sensor
 
             if (isSame) {
                 return {
