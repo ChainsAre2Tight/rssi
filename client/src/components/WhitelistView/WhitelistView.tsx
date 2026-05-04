@@ -66,12 +66,14 @@ export default function WhitelistView() {
                 <VerticalResizer onDrag={resize} />
 
                 <div className={styles.sensorEditor}>
-                    {sensors.map(sensor => (
+                    {sensors ? sensors.map(sensor => (
                         <SensorRow
                             key={sensor.name}
                             sensor={sensor}
                         />
-                    ))}
+                    )) : (<div>
+                        No sensors loaded
+                    </div>)}
                 </div>
             </div>
         </div>

@@ -85,6 +85,7 @@ persist(
             type: null,
             ssid: null,
             bssid: null,
+            sensor: null,
         },
     },
 
@@ -94,12 +95,14 @@ persist(
         active: {
             type: null,
             ssid: null,
-            bssid: null
+            bssid: null,
+            sensor: null,
         },
         mode: "idle",
         draftValue: "",
         lastAction: null,
         measurementDraft: null,
+        positionDraft: null,
     },
 
     localization: {
@@ -398,7 +401,8 @@ persist(
                         : {
                             type: null,
                             ssid: null,
-                            bssid: null
+                            bssid: null,
+                            sensor: null,
                         },
                     mode: "idle",
                     draftValue: "",
@@ -430,7 +434,8 @@ persist(
                         active: {
                             type: null,
                             ssid: null,
-                            bssid: null
+                            bssid: null,
+                            sensor: null,
                         },
                         mode: "idle",
                         draftValue: ""
@@ -475,7 +480,8 @@ persist(
                 active: {
                     type: null,
                     ssid: null,
-                    bssid: null
+                    bssid: null,
+                    sensor: null,
                 },
                 mode: "idle",
                 draftValue: "",
@@ -496,7 +502,8 @@ persist(
                 whitelist: payload ?? {
                     type: null,
                     ssid: null,
-                    bssid: null
+                    bssid: null,
+                    sensor: null,
                 }
             }
         })),
@@ -543,7 +550,8 @@ persist(
                         : {
                             type: null,
                             ssid: null,
-                            bssid: null
+                            bssid: null,
+                            sensor: null,
                         },
                     mode: "idle",
                     draftValue: "",
@@ -575,6 +583,14 @@ persist(
             whitelistUI: {
                 ...state.whitelistUI,
                 measurementDraft: draft
+            }
+        })),
+
+    setPositionDraft: (draft) =>
+        set((state) => ({
+            whitelistUI: {
+                ...state.whitelistUI,
+                positionDraft: draft,
             }
         })),
 }),

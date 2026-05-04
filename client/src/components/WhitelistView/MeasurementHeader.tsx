@@ -38,7 +38,7 @@ export function MeasurementHeader() {
     const [messageLocalizations, setMessageLocalizations] = useState<string>("")
 
     function startEditName() {
-        setActiveForce({ type: "measurement-name", ssid: null, bssid: null })
+        setActiveForce({ type: "measurement-name", ssid: null, bssid: null, sensor: null })
         setMeasurementDraft({
             name: measurement!.name,
             description: measurement!.description
@@ -47,7 +47,7 @@ export function MeasurementHeader() {
     }
 
     function startEditDescription() {
-        setActiveForce({ type: "measurement-description", ssid: null, bssid: null })
+        setActiveForce({ type: "measurement-description", ssid: null, bssid: null, sensor: null })
         setMeasurementDraft({
             name: measurement!.name,
             description: measurement!.description
@@ -210,7 +210,7 @@ export function MeasurementHeader() {
                 data-disabled={isNameDisabled || undefined}
                 onClick={() => {
                     if (isNameDisabled) return
-                    setActive({ type: "measurement-name", ssid: null, bssid: null })
+                    setActive({ type: "measurement-name", ssid: null, bssid: null, sensor: null })
                 }}
             >
                 <div className={styles.label}>
@@ -262,7 +262,7 @@ export function MeasurementHeader() {
                 data-disabled={isDescDisabled || undefined}
                 onClick={() => {
                     if (isDescDisabled) return
-                    setActive({ type: "measurement-description", ssid: null, bssid: null })
+                    setActive({ type: "measurement-description", ssid: null, bssid: null, sensor: null })
                 }}
             >
                 <div className={styles.description}>
@@ -336,7 +336,7 @@ export function MeasurementHeader() {
                         className={`${styles.btn} ${styles.btnDanger}`}
                         onClick={(e) => {
                             e.stopPropagation()
-                            setActiveForce({ type: "measurement-detection", ssid: null, bssid: null})
+                            setActiveForce({ type: "measurement-detection", ssid: null, bssid: null, sensor: null })
                             setMode("confirm-delete")
                         }}
                         disabled={isConfirmDeleteCSI || isConfirmDeleteLocalization}
@@ -382,7 +382,7 @@ export function MeasurementHeader() {
                         className={`${styles.btn} ${styles.btnDanger}`}
                         onClick={(e) => {
                             e.stopPropagation()
-                            setActiveForce({ type: "measurement-csi", ssid: null, bssid: null})
+                            setActiveForce({ type: "measurement-csi", ssid: null, bssid: null, sensor: null })
                             setMode("confirm-delete")
                         }}
                         disabled={isConfirmDeleteLocalization || isConfirmDeleteDetection}
@@ -428,7 +428,7 @@ export function MeasurementHeader() {
                         className={`${styles.btn} ${styles.btnDanger}`}
                         onClick={(e) => {
                             e.stopPropagation()
-                            setActiveForce({ type: "measurement-localization", ssid: null, bssid: null})
+                            setActiveForce({ type: "measurement-localization", ssid: null, bssid: null, sensor: null })
                             setMode("confirm-delete")
                         }}
                         disabled={isConfirmDeleteCSI || isConfirmDeleteDetection}

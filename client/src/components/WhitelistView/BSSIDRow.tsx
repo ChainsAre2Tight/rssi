@@ -101,7 +101,8 @@ export function BSSIDRow({
                 setActive({
                     type: "bssid",
                     ssid,
-                    bssid
+                    bssid,
+                    sensor: null,
                 })
             }}
             onKeyDown={(e) => {
@@ -116,7 +117,8 @@ export function BSSIDRow({
                 hoverWhitelist({
                     type: "bssid",
                     ssid,
-                    bssid
+                    bssid,
+                    sensor: null,
                 })
             }
             onMouseLeave={() => hoverWhitelist(null)}
@@ -160,7 +162,8 @@ export function BSSIDRow({
                             setActiveForce({
                                 type: "bssid",
                                 ssid,
-                                bssid
+                                bssid,
+                                sensor: null,
                             })
 
                             setMode("confirm-delete")

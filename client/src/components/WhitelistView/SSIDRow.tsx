@@ -116,7 +116,8 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                 setActive({
                     type: "ssid",
                     ssid,
-                    bssid: null
+                    bssid: null,
+                    sensor: null,
                 })
             }}
             onKeyDown={(e) => {
@@ -137,7 +138,8 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                 hoverWhitelist({
                     type: "ssid",
                     ssid,
-                    bssid: null
+                    bssid: null,
+                    sensor: null,
                 })
             }
             onMouseLeave={() => hoverWhitelist(null)}
@@ -206,7 +208,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                             className={styles.btn}
                             onClick={(e) => {
                                 e.stopPropagation()
-                                setActiveForce({ type: "ssid", ssid, bssid: null })
+                                setActiveForce({ type: "ssid", ssid, bssid: null, sensor: null })
                                 setDraft(ssid)
                                 setMode("editing")
                             }}
@@ -219,7 +221,7 @@ export function SSIDRow({ ssid }: { ssid: string }) {
                             onClick={(e) => {
                                 e.stopPropagation()
 
-                                setActiveForce({ type: "ssid", ssid, bssid: null })
+                                setActiveForce({ type: "ssid", ssid, bssid: null, sensor: null })
                                 setMode("confirm-delete")
                             }}
                         >

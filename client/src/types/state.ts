@@ -4,6 +4,7 @@ import type { LocalizationData, Sensor } from "../services/localizationApi"
 type WhitelistUIType =
     | "ssid"
     | "bssid"
+    | "sensor"
     | "add-ssid"
     | "add-bssid"
     | "measurement-name"
@@ -73,9 +74,10 @@ export interface AppState {
         timelineTimeUs: number | null
 
         whitelist: {
-            type: "ssid" | "bssid" | null
+            type: "ssid" | "bssid" | "sensor" | null
             ssid: string | null
             bssid: string | null
+            sensor: string | null
         }
     }
 
@@ -92,6 +94,7 @@ export interface AppState {
             type: WhitelistUIType
             ssid: string | null
             bssid: string | null
+            sensor: string | null
         }
 
         mode: "idle" | "editing" | "confirm-delete"
@@ -107,6 +110,12 @@ export interface AppState {
         measurementDraft: {
             name: string
             description: string
+        } | null
+
+        positionDraft: {
+            x: string
+            y: string
+            z: string
         } | null
     }
 
@@ -180,4 +189,5 @@ export interface AppState {
     updateMeasurement: (measurement: Measurement) => void
     getCurrentMeasurement: () => Measurement | null
     setMeasurementDraft: (draft: { name: string; description: string } | null) => void
+    setPositionDraft: (draft: { x: string, y: string, z: string } | null) => void
 }
