@@ -284,7 +284,7 @@ def reset_localization_for_measurement(
         UPDATE windows
         SET
             stage = ?,
-            status = "pending",
+            status = "pending"
         WHERE
             stage > ?
             AND measurement_id = ?

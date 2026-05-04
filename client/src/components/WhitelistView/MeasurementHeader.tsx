@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { resetCSI, resetDetection } from "../../services/resetApi"
+import { resetCSI, resetDetection, resetLocalization } from "../../services/resetApi"
 import { patchMeasurement } from "../../services/measurements"
 import { useAppStore } from "../../store/useAppStore"
 import styles from "./WhitelistView.module.css"
@@ -179,7 +179,7 @@ export function MeasurementHeader() {
 
     async function submitResetLocalizations() {
         try {
-            const response = await resetDetection(measurement!.id)
+            const response = await resetLocalization(measurement!.id)
             if (response && response.status && response.status == "ok") {
                 setMessageLocalizations("Localizations reset. Please wait and refetch localization results")
             } else {
