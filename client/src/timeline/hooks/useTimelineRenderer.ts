@@ -91,11 +91,9 @@ export function useTimelineRenderer({
 
             const styles = getComputedStyle(document.documentElement)
 
-            // --- CLEAR ---
             ctx.fillStyle = styles.getPropertyValue("--color-bg")
             ctx.fillRect(0, 0, width, height)
 
-            // --- GRID ---
             const duration = viewport.end - viewport.start
             const scale = width / duration
 
@@ -120,13 +118,11 @@ export function useTimelineRenderer({
             const firstMajor = Math.floor(viewport.start / majorStep) * majorStep
             const firstMinor = Math.floor(viewport.start / minorStep) * minorStep
 
-            // styles
             ctx.lineWidth = 1
 
             const gridColor = styles.getPropertyValue("--color-border")
             const textColor = styles.getPropertyValue("--color-text-muted") || "#888"
 
-            // --- MINOR GRID ---
             ctx.strokeStyle = gridColor
             ctx.globalAlpha = 0.2
 
@@ -139,12 +135,11 @@ export function useTimelineRenderer({
                 ctx.lineTo(x, height)
                 ctx.stroke()
 
-                if (++minorCount > 300) break // safety cap
+                if (++minorCount > 300) break
             }
 
             ctx.globalAlpha = 1
 
-            // --- MAJOR GRID + LABELS ---
             const GRID_LABEL_Y = height - 4
             const BOUNDS_LABEL_Y = height - 18
 
@@ -168,22 +163,10 @@ export function useTimelineRenderer({
                 const mm = d.getMinutes().toString().padStart(2, "0")
                 const ss = d.getSeconds().toString().padStart(2, "0")
 
-                if (majorStep < 60) {
-                    return `${hh}:${mm}:${ss}`
-                }
-
-                if (majorStep < 3600) {
-                    return `${day} ${hh}:${mm}`
-                }
-
-                if (majorStep < 86400) {
-                    return `${month} ${day} ${hh}:00`
-                }
-
-                if (majorStep < 86400 * 30) {
-                    return `${month} ${day}`
-                }
-
+                if (majorStep < 60) return `${hh}:${mm}:${ss}`
+                if (majorStep < 3600) return `${day} ${hh}:${mm}`
+                if (majorStep < 86400) return `${month} ${day} ${hh}:00`
+                if (majorStep < 86400 * 30) return `${month} ${day}`
                 return `${year} ${month}`
             }
 
@@ -192,25 +175,22 @@ export function useTimelineRenderer({
             for (let t = firstMajor; t < viewport.end; t += majorStep) {
                 const x = Math.round((t - viewport.start) * scale) + 0.5
 
-                // line
                 ctx.beginPath()
                 ctx.moveTo(x, 0)
                 ctx.lineTo(x, height)
                 ctx.stroke()
 
-                // label (collision safe)
                 if (x - lastLabelX > 60) {
                     const label = formatTime(t)
                     ctx.fillText(label, x + 4, GRID_LABEL_Y)
                     lastLabelX = x
                 }
 
-                if (++majorCount > 200) break // safety cap
+                if (++majorCount > 200) break
             }
 
             ctx.globalAlpha = 1
 
-            // --- INITIAL BOUNDS MARKERS ---
             const boundsStartS = adapter.bounds.start / 1_000_000
             const boundsEndS = adapter.bounds.end / 1_000_000
 
@@ -224,7 +204,6 @@ export function useTimelineRenderer({
             ctx.globalAlpha = 0.6
             ctx.setLineDash([6, 4])
 
-            // vertical lines
             ctx.beginPath()
             ctx.moveTo(xStart, 0)
             ctx.lineTo(xStart, height)
@@ -235,7 +214,6 @@ export function useTimelineRenderer({
             ctx.setLineDash([])
             ctx.globalAlpha = 1
 
-            // --- LABELS (BOTTOM, ABOVE GRID LABELS) ---
             ctx.font = "11px sans-serif"
             ctx.fillStyle = styles.getPropertyValue("--color-accent")
             ctx.textBaseline = "bottom"
@@ -243,19 +221,16 @@ export function useTimelineRenderer({
             const startLabel = formatDateTime(adapter.bounds.start)
             const endLabel = formatDateTime(adapter.bounds.end)
 
-            // clamp helper
             function clampX(x: number, textWidth: number) {
                 return Math.max(4, Math.min(width - textWidth - 4, x))
             }
 
-            // START label
             if (xStart >= -50 && xStart <= width + 50) {
                 const w = ctx.measureText(startLabel).width
                 const x = clampX(xStart + 4, w)
                 ctx.fillText(startLabel, x, BOUNDS_LABEL_Y)
             }
 
-            // END label
             if (xEnd >= -50 && xEnd <= width + 50) {
                 const w = ctx.measureText(endLabel).width
                 const x = clampX(xEnd - w - 4, w)
@@ -264,19 +239,20 @@ export function useTimelineRenderer({
 
             ctx.restore()
 
-
-            // --- TRACKS ---
             ctx.strokeStyle = styles.getPropertyValue("--color-border")
             ctx.lineWidth = 3
             ctx.setLineDash([20, 20])
 
             for (let i = 0; tracks.length > 0 && i < tracks.length; i++) {
-                const y = Math.round(tracks[i].y+tracks[i].height) + 0.5
+                const y = Math.round(tracks[i].y + tracks[i].height) + 0.5
                 ctx.beginPath()
                 ctx.moveTo(0, y)
                 ctx.lineTo(width, y)
                 ctx.stroke()
             }
+
+            const hoveredKey = hoveredItem?.key ?? null
+            const selectedKey = selectedItem?.key ?? null
 
             for (const t of tracks) {
                 if (t.contentHeight <= 0) continue
@@ -303,12 +279,8 @@ export function useTimelineRenderer({
                         (laneIndex * t.laneHeight - t.scrollY)
                     const laneBottom = laneTop + t.laneHeight
 
-                    if (laneTop >= t.contentY + t.contentHeight) {
-                        break
-                    }
-                    if (laneBottom <= t.contentY) {
-                        continue
-                    }
+                    if (laneTop >= t.contentY + t.contentHeight) break
+                    if (laneBottom <= t.contentY) continue
 
                     const y = laneTop + 2
                     const h = t.laneHeight - 4
@@ -324,10 +296,9 @@ export function useTimelineRenderer({
 
                         let color = getImportanceColor(item.importance, styles)
 
-                        // Apply brightness based on interaction state
-                        if (item === hoveredItem) {
+                        if (hoveredKey && item.key === hoveredKey) {
                             color = adjustBrightness(color, 1.2)
-                        } else if (item === selectedItem) {
+                        } else if (selectedKey && item.key === selectedKey) {
                             color = adjustBrightness(color, 1.15)
                         } else {
                             color = adjustBrightness(color, 0.8)
@@ -336,7 +307,7 @@ export function useTimelineRenderer({
                         ctx.fillStyle = color
                         ctx.beginPath()
                         ctx.roundRect(x, y, Math.max(w, 4), h, 4)
-                        ctx.fill()                     
+                        ctx.fill()
                     }
                 }
 
@@ -345,50 +316,70 @@ export function useTimelineRenderer({
 
             ctx.setLineDash([])
 
-            if (hoveredItem) {
-                const x1 = mapper.toX(hoveredItem.start)
-                const x2 = mapper.toX(hoveredItem.end)
+            if (hoveredKey) {
+                for (const t of tracks) {
+                    const lanes = adapter.itemsByTrack[t.id]
+                    if (!lanes) continue
 
-                ctx.globalAlpha = 0.5
-                ctx.setLineDash([8, 8])
-                ctx.strokeStyle = styles.getPropertyValue("--color-accent")
+                    for (const lane of lanes) {
+                        for (const item of lane) {
+                            if (item.key !== hoveredKey) continue
 
-                ctx.beginPath()
-                ctx.moveTo(x1, 0)
-                ctx.lineTo(x1, height)
-                ctx.moveTo(x2, 0)
-                ctx.lineTo(x2, height)
-                ctx.stroke()
+                            const x1 = mapper.toX(item.start)
+                            const x2 = mapper.toX(item.end)
+
+                            ctx.globalAlpha = 0.5
+                            ctx.setLineDash([8, 8])
+                            ctx.strokeStyle = styles.getPropertyValue("--color-accent")
+
+                            ctx.beginPath()
+                            ctx.moveTo(x1, 0)
+                            ctx.lineTo(x1, height)
+                            ctx.moveTo(x2, 0)
+                            ctx.lineTo(x2, height)
+                            ctx.stroke()
+                        }
+                    }
+                }
 
                 ctx.setLineDash([])
                 ctx.globalAlpha = 1
             }
 
-            if (selected) {
-                const x1 = mapper.toX(selected.start)
-                const x2 = mapper.toX(selected.end)
+            if (selectedKey) {
+                for (const t of tracks) {
+                    const lanes = adapter.itemsByTrack[t.id]
+                    if (!lanes) continue
 
-                ctx.globalAlpha = 0.05
-                ctx.fillStyle = styles.getPropertyValue("--color-accent")
-                ctx.fillRect(x1, 0, x2 - x1, height)
+                    for (const lane of lanes) {
+                        for (const item of lane) {
+                            if (item.key !== selectedKey) continue
 
-                ctx.globalAlpha = 1
-                ctx.strokeStyle = styles.getPropertyValue("--color-accent")
-                ctx.lineWidth = 2
+                            const x1 = mapper.toX(item.start)
+                            const x2 = mapper.toX(item.end)
 
-                ctx.beginPath()
-                ctx.moveTo(x1, 0)
-                ctx.lineTo(x1, height)
+                            ctx.globalAlpha = 0.05
+                            ctx.fillStyle = styles.getPropertyValue("--color-accent")
+                            ctx.fillRect(x1, 0, x2 - x1, height)
 
-                ctx.moveTo(x2, 0)
-                ctx.lineTo(x2, height)
+                            ctx.globalAlpha = 1
+                            ctx.strokeStyle = styles.getPropertyValue("--color-accent")
+                            ctx.lineWidth = 2
 
-                ctx.stroke()
+                            ctx.beginPath()
+                            ctx.moveTo(x1, 0)
+                            ctx.lineTo(x1, height)
+
+                            ctx.moveTo(x2, 0)
+                            ctx.lineTo(x2, height)
+
+                            ctx.stroke()
+                        }
+                    }
+                }
             }
 
             if (externalCursorTimeUs !== null) {
-                
-                // idk why that works...
                 const mapper = createTimeMapper(viewport, width, 0)
                 const x = mapper.toX(
                     mapper.fromGlobalUs(externalCursorTimeUs!)
@@ -407,7 +398,6 @@ export function useTimelineRenderer({
                 ctx.globalAlpha = 1
             }
 
-            // --- CURSOR / ANCHOR ---
             if (isZooming.current && zoomAnchorX.current !== null) {
                 const x = Math.round(zoomAnchorX.current) + 0.5
 
@@ -432,6 +422,7 @@ export function useTimelineRenderer({
 
             frameId = requestAnimationFrame(render)
         }
+
         frameId = requestAnimationFrame(render)
 
         return () => cancelAnimationFrame(frameId)
