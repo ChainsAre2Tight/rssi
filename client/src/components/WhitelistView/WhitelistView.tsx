@@ -4,7 +4,7 @@ import { AddBSSIDRow } from "./AddBSSIDRow"
 import { AddSSIDRow } from "./AddSSIDRow"
 import { BSSIDRow } from "./BSSIDRow"
 import { MeasurementHeader } from "./MeasurementHeader"
-import { SensorEditor } from "./SensorEditor"
+import { SensorRow } from "./SensorRow"
 import { SSIDRow } from "./SSIDRow"
 import styles from "./WhitelistView.module.css"
 
@@ -13,6 +13,7 @@ export default function WhitelistView() {
     const whitelist = useAppStore(s =>
         measurementId ? s.whitelist.byMeasurement[measurementId] : undefined
     )
+    const sensors = useAppStore(s => s.localization.sensors[String(measurementId)])
 
     const whitelistWidth = useAppStore(
         (s) => s.layout.whitelistWidth
@@ -65,7 +66,12 @@ export default function WhitelistView() {
                 <VerticalResizer onDrag={resize} />
 
                 <div className={styles.sensorEditor}>
-                    <SensorEditor />
+                    {sensors.map(sensor => (
+                        <SensorRow
+                            key={sensor.name}
+                            sensor={sensor}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
