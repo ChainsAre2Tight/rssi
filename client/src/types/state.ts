@@ -112,7 +112,8 @@ export interface AppState {
             description: string
         } | null
 
-        positionDraft: {
+        sensorDraft: {
+            description: string
             x: string
             y: string
             z: string
@@ -189,5 +190,12 @@ export interface AppState {
     updateMeasurement: (measurement: Measurement) => void
     getCurrentMeasurement: () => Measurement | null
     setMeasurementDraft: (draft: { name: string; description: string } | null) => void
-    setPositionDraft: (draft: { x: string, y: string, z: string } | null) => void
+    setSensorDraft: (
+        draft: {
+            description: string
+            x: string
+            y: string
+            z: string
+        } | null
+    ) => void
 }

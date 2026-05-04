@@ -102,7 +102,7 @@ persist(
         draftValue: "",
         lastAction: null,
         measurementDraft: null,
-        positionDraft: null,
+        sensorDraft: null,
     },
 
     localization: {
@@ -486,6 +486,7 @@ persist(
                 mode: "idle",
                 draftValue: "",
                 measurementDraft: null,
+                sensorDraft: null,
             }
         })),
     setWhitelistLastAction: (action) =>
@@ -586,11 +587,11 @@ persist(
             }
         })),
 
-    setPositionDraft: (draft) =>
+    setSensorDraft: (draft) =>
         set((state) => ({
             whitelistUI: {
                 ...state.whitelistUI,
-                positionDraft: draft,
+                sensorDraft: draft,
             }
         })),
 }),
