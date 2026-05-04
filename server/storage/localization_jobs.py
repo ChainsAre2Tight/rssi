@@ -131,3 +131,12 @@ def count_localization_jobs(
         result[status] = count
 
     return result
+
+def delete_localization_jobs_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+    conn.execute("""
+        DELETE FROM localization_jobs
+        WHERE measurement_id = ?
+    """, (measurement_id,))

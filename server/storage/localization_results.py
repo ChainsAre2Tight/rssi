@@ -108,3 +108,12 @@ def load_localization_results(
         )
 
     return results
+
+def delete_localization_results_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+    conn.execute("""
+        DELETE FROM localization_results
+        WHERE measurement_id = ?
+    """, (measurement_id,))

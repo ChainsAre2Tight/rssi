@@ -273,6 +273,29 @@ def reset_detection_for_measurement(
         my_types.OBSERVATION_WINDOWS.layer
     ))
 
+def reset_localization_for_measurement(
+    conn: sqlite3.Connection,
+    measurement_id: int,
+) -> None:
+    
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE windows
+        SET
+            stage = ?,
+            status = "pending",
+        WHERE
+            stage > ?
+            AND measurement_id = ?
+            AND layer = ?
+    """, (
+        my_types.STAGES.DETECTION,
+        my_types.STAGES.DETECTION,
+        measurement_id,
+        my_types.OBSERVATION_WINDOWS.layer
+    ))
+
 def reset_csi_measurement(
     conn: sqlite3.Connection,
     measurement_id: int,
