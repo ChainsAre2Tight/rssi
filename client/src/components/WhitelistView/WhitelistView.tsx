@@ -1,8 +1,10 @@
 import { useAppStore } from "../../store/useAppStore"
+import VerticalResizer from "../Layout/VerticalResizer"
 import { AddBSSIDRow } from "./AddBSSIDRow"
 import { AddSSIDRow } from "./AddSSIDRow"
 import { BSSIDRow } from "./BSSIDRow"
 import { MeasurementHeader } from "./MeasurementHeader"
+import { SensorEditor } from "./SensorEditor"
 import { SSIDRow } from "./SSIDRow"
 import styles from "./WhitelistView.module.css"
 
@@ -11,6 +13,22 @@ export default function WhitelistView() {
     const whitelist = useAppStore(s =>
         measurementId ? s.whitelist.byMeasurement[measurementId] : undefined
     )
+
+    const whitelistWidth = useAppStore(
+        (s) => s.layout.whitelistWidth
+    )
+
+    const setLayout = useAppStore((s) => s.setLayout)
+
+    function resize(delta: number) {
+        setLayout((prev) => ({
+            ...prev,
+            whitelistWidth: Math.max(
+                200,
+                prev.whitelistWidth + delta
+            )
+        }))
+    }
 
     if (!measurementId) {
         return <div className={styles.empty}>No measurement selected</div>
@@ -30,17 +48,25 @@ export default function WhitelistView() {
                 <MeasurementHeader />
             </div>
 
-            {/* Tree */}
-            <div className={styles.tree}>
-                {ssids.map(ssid => (
-                    <SSIDGroup
-                        key={ssid}
-                        ssid={ssid}
-                        bssids={Object.keys(whitelist[ssid] || {})}
-                    />
-                ))}
+            <div className={styles.horizontalContainer}>
 
-                <AddSSIDRow />
+                {/* Tree */}
+                <div className={styles.tree} style={{width: whitelistWidth}}>
+                    {ssids.map(ssid => (
+                        <SSIDGroup
+                            key={ssid}
+                            ssid={ssid}
+                            bssids={Object.keys(whitelist[ssid] || {})}
+                        />
+                    ))}
+                    <AddSSIDRow />
+                </div>
+
+                <VerticalResizer onDrag={resize} />
+
+                <div className={styles.sensorEditor}>
+                    <SensorEditor />
+                </div>
             </div>
         </div>
     )

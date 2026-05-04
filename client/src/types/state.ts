@@ -84,6 +84,7 @@ export interface AppState {
         globalTimelineHeight: number
         warningTimelineHeight: number
         warningListWidth: number
+        whitelistWidth: number
     }
 
     whitelistUI: {

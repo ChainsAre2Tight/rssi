@@ -9,6 +9,7 @@ const defaultLayout = {
     globalTimelineHeight: 300,
     warningTimelineHeight: 400,
     warningListWidth: 300,
+    whitelistWidth: 1000,
 }
 
 export const useAppStore = create<AppState>()(
