@@ -87,6 +87,47 @@ def extract_csi_features(csi_vec: np.ndarray) -> np.ndarray:
 
     return feats
 
+def aggregate_amplitude_profile(amps_list: list[np.ndarray]) -> np.ndarray:
+    if not amps_list:
+        return np.array([], dtype=np.float32)
+
+    min_len = min(len(a) for a in amps_list)
+    trimmed = np.array([a[:min_len] for a in amps_list])
+    return np.mean(trimmed, axis=0).astype(np.float32)
+
+
+def compute_cross_correlations(
+    amp_profiles_by_sensor: dict[str, np.ndarray],
+    sensor_order: list[str]
+) -> list[float]:
+
+    correlations = []
+    sensors_present = [s for s in sensor_order if s in amp_profiles_by_sensor]
+
+    for i in range(len(sensors_present)):
+        for j in range(i + 1, len(sensors_present)):
+            s_i = sensors_present[i]
+            s_j = sensors_present[j]
+
+            prof_i = amp_profiles_by_sensor[s_i]
+            prof_j = amp_profiles_by_sensor[s_j]
+
+            if prof_i.size == 0 or prof_j.size == 0:
+                correlations.append(0.0)
+                continue
+
+            min_len = min(len(prof_i), len(prof_j))
+            if min_len < 2:
+                correlations.append(0.0)
+                continue
+
+            corr = np.corrcoef(prof_i[:min_len], prof_j[:min_len])[0, 1]
+            if np.isnan(corr):
+                correlations.append(0.0)
+            else:
+                correlations.append(float(corr))
+
+    return correlations
 
 def aggregate_sensor_features(features: list[np.ndarray]) -> np.ndarray:
     """
@@ -123,7 +164,7 @@ def build_csi_fingerprints(
     end_time_us: int,
 ):
 
-    logger.info("Fingerprint build for window %d", window_id)
+    logger.info("Fingerprint building for window %d", window_id)
 
     whitelist = load_measurement_whitelist(conn, measurement_id)
     allowed_bssids = {
@@ -141,7 +182,7 @@ def build_csi_fingerprints(
     )
 
     if not observations:
-        return {}, {}
+        return {}, {}, {}
 
     observation_bssid = {
         obs.observation_id: obs.bssid
@@ -150,16 +191,15 @@ def build_csi_fingerprints(
     }
 
     if not observation_bssid:
-        return {}, {}
+        return {}, {}, {}
 
-    # CSI links
     links = load_observation_csi_links(
         conn,
         list(observation_bssid.keys()),
     )
 
     if not links:
-        return {}, {}
+        return {}, {}, {}
 
     packet_to_bssid = {}
     packet_ids = set()
@@ -177,19 +217,24 @@ def build_csi_fingerprints(
 
     packets = load_csi_packets(conn, list(packet_ids))
 
-    grouped = defaultdict(lambda: defaultdict(list))
+    feature_groups = defaultdict(lambda: defaultdict(list))      # bssid -> device -> list of 8-dim vectors
+    amplitude_groups = defaultdict(lambda: defaultdict(list))    # bssid -> device -> list of amplitude arrays
     sensor_usage = defaultdict(lambda: defaultdict(int))
 
     for p in packets:
-
         bssid = packet_to_bssid.get(p.id)
         if not bssid:
             continue
 
         csi_vec = parse_csi(p.csi)
-        feature = extract_csi_features(csi_vec)
+        if csi_vec.size == 0:
+            continue
 
-        grouped[bssid][p.device].append(feature)
+        feature = extract_csi_features(csi_vec)          # 8 признаков
+        amp_profile = np.abs(csi_vec).astype(np.float32) # амплитуды по поднесущим
+
+        feature_groups[bssid][p.device].append(feature)
+        amplitude_groups[bssid][p.device].append(amp_profile)
         sensor_usage[bssid][p.device] += 1
 
-    return grouped, sensor_usage
+    return feature_groups, amplitude_groups, sensor_usage
