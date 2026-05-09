@@ -94,7 +94,7 @@ DETECTORS = DetectorDefinitions(
         signals=SSIDWhitelistSignals(
             unauthorized_ssid=SignalSpec(
                 name="unauthorized_ssid",
-                importance=Importance.LOW,
+                importance=Importance.MEDIUM,
             )
         ),
     ),
@@ -104,7 +104,7 @@ DETECTORS = DetectorDefinitions(
         signals=BSSIDWhitelistSignals(
             unauthorized_bssid=SignalSpec(
                 name="unauthorized_bssid",
-                importance=Importance.HIGH,
+                importance=Importance.CRITICAL,
             )
         ),
     ),
@@ -128,7 +128,7 @@ DETECTORS = DetectorDefinitions(
             ),
             persistent_hidden_ssid=SignalSpec(
                 name="persistent_hidden_ssid",
-                importance=Importance.MEDIUM,
+                importance=Importance.LOW,
             ),
         ),
     ),
@@ -138,11 +138,11 @@ DETECTORS = DetectorDefinitions(
         signals=BeaconRatioSignals(
             beacon_only_ap=SignalSpec(
                 name="beacon_only_ap",
-                importance="info",
+                importance=Importance.INFO,
             ),
             high_beacon_ratio=SignalSpec(
                 name="high_beacon_ratio",
-                importance=Importance.MEDIUM,
+                importance=Importance.INFO,
             ),
         ),
     ),
@@ -152,7 +152,7 @@ DETECTORS = DetectorDefinitions(
         signals=SSIDSimilaritySignals(
             similar_ssid=SignalSpec(
                 name="similar_ssid",
-                importance=Importance.HIGH,
+                importance=Importance.CRITICAL,
             ),
             typosquat_ssid=SignalSpec(
                 name="typosquat_ssid",

@@ -202,5 +202,7 @@ services:
       - ingestion
     ports:
       - "123:123/udp"
-    environment:
-      - NTP_SERVERS=0.pool.ntp.org,1.pool.ntp.org
+    cap_add:
+      - SYS_TIME
+    volumes:
+      - ./ntp/:/etc/chrony/:ro

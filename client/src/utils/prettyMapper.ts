@@ -10,6 +10,7 @@ const mapping: WarningMapping = {
     "similar_ssid":             {name: "Similar SSID",          description: "SSID uses a prefix/postfix to look like a whitelisted one"},
     "wrong_ssid":               {name: "Wrong SSID",            description: "Authorized AP broadcasts unauthorized SSID"},
     "unauthorized_ssid":        {name: "Unauthorized SSID",     description: "Broadcastes non-whitelisted SSID"},
+    "unauthorized_bssid":       {name: "Unauthorized BSSID",    description: "A whitelisted SSID is broadcasted by an unauthorizeed AP. High probablitity of a misconfig or an evil twin attack."},
     "hidden_ssid":              {name: "Hidden SSID",           description: "AP broadcasts hidden SSID, low activity"},
     "persistent_hidden_ssid":   {name: "Persistent hidden SSID",description: "AP broadcasts hidden SSID, high activity"},
     "beacon_only_ap":           {name: "Beacon-only AP",        description: "AP sent only beacons, no data packets were observed"},
