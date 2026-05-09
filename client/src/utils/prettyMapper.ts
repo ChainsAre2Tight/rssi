@@ -19,13 +19,18 @@ const mapping: WarningMapping = {
 
     "euclidean_distance": {
         name: "Euclidean distance",
-        description: "Euclidean distance mismatch is likely due to power or distance changes compared to expected values",
+        description: "Euclidean distance represents a general change in power levels across subcarriers, more prone to temporary path obstructions influencing power levels",
     },
 
     "cosine_distance": {
         name: "Cosine distance",
-        description: "Cosine distance repsesent a change in ODFM structure, most likely from multipath structure changes",
+        description: "Cosine distance repsesent a change in ODFM power distribution structure, indicates a possible transmitter subsituition",
     },
+
+    "power_ratio": {
+        name: "Power ratio",
+        description: "Represents a general change in recieved power disregarding distribution across subcarriers",
+    }
 }
 
 export function prettifyWarnings(warning: string | null | undefined): PrettyWarning {

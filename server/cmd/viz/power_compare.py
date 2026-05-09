@@ -2,7 +2,8 @@
 """
 CSI Fingerprint Comparator
 
-Plots per‑sensor amplitude profiles from two fingerprints (different BSSIDs or windows).
+Plots per‑sensor amplitude profiles from two fingerprints (different BSSIDs or windows),
+skipping sensors with zero amplitude in both fingerprints.
 
 Usage:
     python compare_csi_fingerprints.py --measurement_id 1 \
@@ -56,6 +57,11 @@ def get_fingerprint_by_window_id(conn, window_id: int, bssid: str):
     }
 
 
+def has_data(profile: np.ndarray, threshold: float = 1e-6) -> bool:
+    """Return True if profile contains any value above threshold."""
+    return np.any(profile > threshold)
+
+
 def main():
     args = parse_args()
     with storage.Session() as conn:
@@ -73,13 +79,12 @@ def main():
     meta1 = fp1["metadata"]
     meta2 = fp2["metadata"]
 
-    # Sensor order – may differ; we'll create a union of sensor names
     sensor_order1 = meta1.get("sensor_order", fp1["sensor_names"])
     sensor_order2 = meta2.get("sensor_order", fp2["sensor_names"])
-    # Keep the order of the first fingerprint, but include any extra from second
-    all_sensors = list(dict.fromkeys(sensor_order1 + sensor_order2))  # preserve order, remove duplicates
+    # Union of all sensors (preserve order from first, then append any from second not already present)
+    all_sensors = list(dict.fromkeys(sensor_order1 + sensor_order2))
 
-    # Number of subcarriers – must be identical
+    # Number of subcarriers
     n_subcarriers = meta1.get("n_subcarriers")
     if not n_subcarriers:
         vec_len = len(np.frombuffer(fp1["vector"], dtype=np.complex64))
@@ -87,7 +92,6 @@ def main():
     n_subcarriers2 = meta2.get("n_subcarriers")
     if n_subcarriers2 and n_subcarriers2 != n_subcarriers:
         print(f"Warning: Subcarrier count mismatch: {n_subcarriers} vs {n_subcarriers2}. Using {n_subcarriers}.")
-    # Fallback infer for second if needed
     if not n_subcarriers2:
         vec_len2 = len(np.frombuffer(fp2["vector"], dtype=np.complex64))
         n_subcarriers2 = vec_len2 // len(sensor_order2)
@@ -98,7 +102,6 @@ def main():
     vec1 = np.frombuffer(fp1["vector"], dtype=np.complex64).real
     vec2 = np.frombuffer(fp2["vector"], dtype=np.complex64).real
 
-    # Build mapping from sensor to its profile (vector slice)
     def get_profile_map(vec, sensor_order, n_sc):
         profile_map = {}
         for idx, sensor in enumerate(sensor_order):
@@ -110,12 +113,24 @@ def main():
     profiles1 = get_profile_map(vec1, sensor_order1, n_subcarriers)
     profiles2 = get_profile_map(vec2, sensor_order2, n_subcarriers)
 
-    # Create subplots
-    n_sensors = len(all_sensors)
-    if n_sensors == 0:
-        print("No sensors to plot.")
+    # Keep only sensors that have data in at least one fingerprint
+    sensors_to_plot = []
+    profiles1_filtered = []
+    profiles2_filtered = []
+    for sensor in all_sensors:
+        prof1 = profiles1.get(sensor, np.zeros(n_subcarriers))
+        prof2 = profiles2.get(sensor, np.zeros(n_subcarriers))
+        if has_data(prof1) or has_data(prof2):
+            sensors_to_plot.append(sensor)
+            profiles1_filtered.append(prof1)
+            profiles2_filtered.append(prof2)
+
+    if not sensors_to_plot:
+        print("No sensors with data to plot.")
         sys.exit(1)
 
+    # Create subplots
+    n_sensors = len(sensors_to_plot)
     fig, axes = plt.subplots(n_sensors, 1, figsize=(12, 3 * n_sensors), sharex=True)
     if n_sensors == 1:
         axes = [axes]
@@ -123,17 +138,15 @@ def main():
     subcarrier_indices = np.arange(n_subcarriers)
     width = 0.35
 
-    for idx, sensor in enumerate(all_sensors):
+    for idx, sensor in enumerate(sensors_to_plot):
         ax = axes[idx]
-        prof1 = profiles1.get(sensor, np.zeros(n_subcarriers))
-        prof2 = profiles2.get(sensor, np.zeros(n_subcarriers))
+        prof1 = profiles1_filtered[idx]
+        prof2 = profiles2_filtered[idx]
 
-        # Bar pairs: first in green, second in blue
-        x = subcarrier_indices
-        ax.bar(x - width/2, prof1, width,
+        ax.bar(subcarrier_indices - width/2, prof1, width,
                label=f"First: {fp1['bssid']} (win {fp1['window_id']})",
                color='green', alpha=0.7)
-        ax.bar(x + width/2, prof2, width,
+        ax.bar(subcarrier_indices + width/2, prof2, width,
                label=f"Second: {fp2['bssid']} (win {fp2['window_id']})",
                color='blue', alpha=0.7)
 
