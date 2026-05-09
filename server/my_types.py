@@ -338,6 +338,7 @@ class FingerprintDistance:
 
     euclidean_dist: float
     cosine_dist: float
+    power_ratio_db: float
 
 @dataclass(slots=True)
 class CSISignal:

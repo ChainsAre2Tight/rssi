@@ -61,6 +61,7 @@ class SSIDSimilaritySignals:
 class CSIDetectorSignals:
     euclidean_distance: SignalSpec
     cosine_distance: SignalSpec
+    power_ratio: SignalSpec
 
 @dataclass(slots=True)
 class DetectorDefinitions:
@@ -180,6 +181,10 @@ DETECTORS = DetectorDefinitions(
             ),
             cosine_distance=SignalSpec(
                 name="cosine_distance",
+                importance=None, # can be any
+            ),
+            power_ratio=SignalSpec(
+                name="power_ratio",
                 importance=None, # can be any
             )
         ),

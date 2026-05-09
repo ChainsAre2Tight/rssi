@@ -11,6 +11,7 @@ def insert_fingerprint_distance(
     fingerprint_id: int,
     euclidean_dist: float,
     cosine_dist: float,
+    power_ratio_db: float,   # new
 ) -> int:
 
     cur = conn.execute(
@@ -22,9 +23,10 @@ def insert_fingerprint_distance(
             reference_fingerprint_id,
             fingerprint_id,
             euclidean_dist,
-            cosine_dist
+            cosine_dist,
+            power_ratio_db
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             measurement_id,
@@ -34,6 +36,7 @@ def insert_fingerprint_distance(
             fingerprint_id,
             euclidean_dist,
             cosine_dist,
+            power_ratio_db,
         ),
     )
 
@@ -48,7 +51,7 @@ def get_distances_by_window(
         """
         SELECT id, measurement_id, window_id, bssid,
                reference_fingerprint_id, fingerprint_id,
-               euclidean_dist, cosine_dist
+               euclidean_dist, cosine_dist, power_ratio_db
         FROM csi_fingerprint_distances
         WHERE window_id = ?
         ORDER BY bssid
@@ -66,6 +69,7 @@ def get_distances_by_window(
             fingerprint_id=r[5],
             euclidean_dist=r[6],
             cosine_dist=r[7],
+            power_ratio_db=r[8],
         )
         for r in rows
     ]
@@ -80,7 +84,7 @@ def get_distances_by_bssid(
         """
         SELECT id, measurement_id, window_id, bssid,
                reference_fingerprint_id, fingerprint_id,
-               euclidean_dist, cosine_dist
+               euclidean_dist, cosine_dist, power_ratio_db
         FROM csi_fingerprint_distances
         WHERE measurement_id = ?
           AND bssid = ?
@@ -99,6 +103,7 @@ def get_distances_by_bssid(
             fingerprint_id=r[5],
             euclidean_dist=r[6],
             cosine_dist=r[7],
+            power_ratio_db=r[8],
         )
         for r in rows
     ]

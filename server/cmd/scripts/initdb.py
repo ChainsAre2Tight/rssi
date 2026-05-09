@@ -349,6 +349,7 @@ def init_db():
 
                     euclidean_dist REAL NOT NULL,
                     cosine_dist REAL NOT NULL,
+                    power_ratio_db REAL NOT NULL,
                            
                     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

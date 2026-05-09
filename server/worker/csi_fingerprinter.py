@@ -3,21 +3,17 @@ import numpy as np
 
 import config
 from config import logger
-
-from storage.devices import get_all_devices, load_sensors_for_measurement
+from storage.devices import get_all_devices
 import storage
-
 from compute.csi_feature_extraction import (
-    aggregate_amplitude_profile,
     build_csi_fingerprints,
-    aggregate_sensor_features,
-    build_fingerprint_vector,
+    aggregate_amplitude_profile,
     compute_cross_correlations
 )
 from storage.csi_fingerprints import (
-    dumps,
     insert_csi_fingerprint,
     reference_exists,
+    dumps,
     serialize_vector
 )
 
@@ -28,88 +24,75 @@ def csi_fingerprinter_processor(
     start_time_us: int,
     end_time_us: int,
 ):
-
     logger.info("Running CSI Stage fingerprinting for window %d", window_id)
-
     measurement_id = config.MEASUREMENT_ID
 
-    feature_groups, amplitude_groups, sensor_usage = build_csi_fingerprints(
-        conn,
-        measurement_id,
-        window_id,
-        start_time_us,
-        end_time_us,
+    # Build raw amplitude groups (bssid -> sensor -> list of amplitude arrays)
+    _, amplitude_groups, sensor_usage = build_csi_fingerprints(
+        conn, measurement_id, window_id, start_time_us, end_time_us
     )
 
-    if not feature_groups:   # достаточно проверить по признакам
-        logger.info("No fingerprints computed for window %d", window_id)
+    if not amplitude_groups:
+        logger.info("No amplitude data for window %d", window_id)
         return
 
+    # Fixed sensor order (all known sensors, in canonical order)
     sensor_registry = get_all_devices(conn)
-    sensor_order = [s["name"] for s in sensor_registry]  # все возможные сенсоры
+    sensor_order = [s["name"] for s in sensor_registry]
+    target_len = config.TARGET_CSI_SUBCARRIERS
 
     fingerprints_to_store = []
 
-    for bssid, sensors in feature_groups.items():
+    for bssid, sensors_amps in amplitude_groups.items():
+        # 1. Build amplitude profile for each sensor present in this window
+        amp_profiles = {}
+        overall_powers = {}
+        for sensor, amps_list in sensors_amps.items():
+            profile = aggregate_amplitude_profile(amps_list, target_len=target_len)
+            amp_profiles[sensor] = profile
+            overall_powers[sensor] = float(np.mean(profile))
 
-        sensor_signatures = {}
-        amp_profiles_by_sensor = {}
+        # 2. Build fingerprint vector: concatenate resampled profiles in sensor_order
+        fingerprint_parts = []
+        for sensor in sensor_order:
+            if sensor in amp_profiles:
+                fingerprint_parts.append(amp_profiles[sensor])
+            else:
+                fingerprint_parts.append(np.zeros(target_len, dtype=np.float32))
+        fingerprint_vector = np.concatenate(fingerprint_parts)
+
+        # 3. Compute cross‑correlations (on the resampled profiles, using only sensors with data)
+        cross_corrs = compute_cross_correlations(amp_profiles, sensor_order)
+
+        # 4. Metadata
         metadata = {
-            "sensors": {},
-            "total_packets": 0,
-            "completeness": 0.0,
+            "sensors": sensor_usage[bssid],
+            "overall_power_per_sensor": overall_powers,
+            "cross_correlations": cross_corrs,
+            "total_packets": sum(sensor_usage[bssid].values()),
+            "feature_version": 4,
+            "n_subcarriers": target_len,
+            "sensor_order": sensor_order
         }
 
-        total_packets = 0
+        # Store as complex64 (imag=0) for compatibility
+        vector_blob = serialize_vector(fingerprint_vector.astype(np.complex64))
 
-        # Агрегируем 8-мерные признаки
-        for sensor, feats in sensors.items():
-            agg = aggregate_sensor_features(feats)   # усреднение по пакетам
-            sensor_signatures[sensor] = agg
-            count = sensor_usage[bssid][sensor]
-            metadata["sensors"][sensor] = count
-            total_packets += count
+        is_reference = not reference_exists(conn, measurement_id, bssid)
 
-        # Агрегируем амплитудные профили (по каждому сенсору)
-        for sensor, amps_list in amplitude_groups[bssid].items():
-            amp_profiles_by_sensor[sensor] = aggregate_amplitude_profile(amps_list)
-
-        # Строим базовый вектор из 8*N признаков
-        fingerprint_vector = build_fingerprint_vector(sensor_signatures, sensor_order)   # это уже есть
-
-        # Добавляем корреляции между сенсорами (только для тех, у которых есть профили)
-        cross_corrs = compute_cross_correlations(amp_profiles_by_sensor, sensor_order)
-        if cross_corrs:
-            # Конкатенируем корреляции в конец вектора
-            fingerprint_vector = np.concatenate([fingerprint_vector, np.array(cross_corrs, dtype=np.float32)])
-
-        completeness = len(sensor_signatures) / len(sensor_order) if sensor_order else 0.0
-
-        metadata["total_packets"] = total_packets
-        metadata["completeness"] = completeness
-        metadata["feature_version"] = 2
-        metadata["sensor_order"] = sensor_order
-        metadata["cross_corr_size"] = len(cross_corrs)
-
-        fingerprints_to_store.append((bssid, fingerprint_vector, metadata))
+        fingerprints_to_store.append((bssid, vector_blob, metadata, is_reference))
 
     with storage.Transaction(conn, immediate=True):
-
-        for bssid, vector, metadata in fingerprints_to_store:
-
-            if len(metadata["sensors"]) < 2:
-                continue
-
-            is_reference = not reference_exists(conn, measurement_id, bssid)
+        for bssid, vector_blob, metadata, is_reference in fingerprints_to_store:
             insert_csi_fingerprint(
                 conn,
                 measurement_id,
                 window_id,
                 bssid,
-                serialize_vector(vector),   # ВНИМАНИЕ: serialize_vector ожидает complex64, а тут float32.
+                vector_blob,
                 dumps(sensor_order),
                 dumps(metadata),
                 is_reference=is_reference,
             )
 
-    logger.info("Csi fingerprinting completed for window %d", window_id)
+    logger.info("CSI fingerprinting completed for window %d", window_id)

@@ -11,6 +11,8 @@ from storage.measurements import load_measurement_whitelist
 from storage.ap_observations import load_observations_in_timerange, load_observation_csi_links
 from storage.packets import load_csi_packets
 
+import numpy as np
+
 
 def parse_csi(packed_csi: str, skip_meta: int = 4) -> np.ndarray:
     if not isinstance(packed_csi, str):
@@ -87,13 +89,28 @@ def extract_csi_features(csi_vec: np.ndarray) -> np.ndarray:
 
     return feats
 
-def aggregate_amplitude_profile(amps_list: list[np.ndarray]) -> np.ndarray:
+def resample_amplitude_profile(profile: np.ndarray, target_len: int) -> np.ndarray:
+    """Linearly interpolate amplitude profile to a fixed number of points."""
+    if len(profile) == target_len:
+        return profile
+    x_old = np.linspace(0, 1, len(profile))
+    x_new = np.linspace(0, 1, target_len)
+    return np.interp(x_new, x_old, profile).astype(np.float32)
+
+
+def aggregate_amplitude_profile(amps_list: list[np.ndarray], target_len: int | None = None) -> np.ndarray:
+    """Average amplitude vectors over packets, then optionally resample."""
     if not amps_list:
         return np.array([], dtype=np.float32)
 
     min_len = min(len(a) for a in amps_list)
     trimmed = np.array([a[:min_len] for a in amps_list])
-    return np.mean(trimmed, axis=0).astype(np.float32)
+    mean_profile = np.mean(trimmed, axis=0).astype(np.float32)
+
+    if target_len is not None and len(mean_profile) != target_len:
+        mean_profile = resample_amplitude_profile(mean_profile, target_len)
+
+    return mean_profile
 
 
 def compute_cross_correlations(
